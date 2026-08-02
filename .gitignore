@@ -1,0 +1,17 @@
+node_modules
+.pnpm-store
+.DS_Store
+dist
+dist-ssr
+*.local
+.env
+.nitro
+.tanstack
+.wrangler
+.output
+.vinxi
+__unconfig*
+todos.json
+!.vscode/
+!.vscode/settings.json
+!.vscode/extensions.json
