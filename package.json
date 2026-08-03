@@ -6,11 +6,16 @@
     "#/*": "./src/*"
   },
   "scripts": {
+    "db:check": "vp exec drizzle-kit check",
+    "db:generate": "vp exec drizzle-kit generate",
+    "db:migrate:local": "vp exec wrangler d1 migrations apply veo --local",
+    "db:migrate:remote": "vp exec wrangler d1 migrations apply veo --remote",
     "generate-routes": "tsr generate",
     "deploy": "vp build && vp exec wrangler deploy",
     "prepare": "vp config"
   },
   "dependencies": {
+    "@better-auth/drizzle-adapter": "catalog:",
     "@fontsource-variable/inter": "catalog:",
     "@fontsource-variable/space-grotesk": "catalog:",
     "@tailwindcss/vite": "catalog:",
@@ -18,8 +23,10 @@
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-router-devtools": "catalog:",
     "@tanstack/react-start": "catalog:",
+    "better-auth": "catalog:",
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",
+    "drizzle-orm": "catalog:",
     "lucide-react": "catalog:",
     "radix-ui": "catalog:",
     "react": "catalog:",
@@ -31,6 +38,7 @@
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "catalog:",
+    "@cloudflare/workers-types": "catalog:",
     "@tailwindcss/typography": "catalog:",
     "@tanstack/devtools-vite": "catalog:",
     "@tanstack/router-cli": "catalog:",
@@ -38,6 +46,7 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
+    "drizzle-kit": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plus": "catalog:",

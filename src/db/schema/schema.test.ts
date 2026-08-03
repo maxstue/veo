@@ -1,0 +1,54 @@
+import { getTableConfig } from "drizzle-orm/sqlite-core";
+import { describe, expect, it } from "vite-plus/test";
+
+import { bingoCardCell, bingoTerm, teamMember, user } from "./index";
+
+describe("database schema", () => {
+  it("keeps user emails unique for Better Auth", () => {
+    const config = getTableConfig(user);
+
+    expect(config.indexes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          config: expect.objectContaining({ name: "user_email_unique", unique: true }),
+        }),
+      ]),
+    );
+  });
+
+  it("allows a user to join a team only once", () => {
+    const config = getTableConfig(teamMember);
+
+    expect(config.primaryKeys[0]?.columns.map((column) => column.name)).toEqual([
+      "team_id",
+      "user_id",
+    ]);
+  });
+
+  it("keeps normalized bingo terms unique within a team", () => {
+    const config = getTableConfig(bingoTerm);
+    const uniqueIndex = config.indexes.find(
+      (candidate) => candidate.config.name === "bingo_term_team_normalized_label_unique",
+    );
+
+    expect(uniqueIndex?.config.unique).toBe(true);
+    expect(
+      uniqueIndex?.config.columns.map((column) =>
+        typeof column === "object" && "name" in column ? column.name : undefined,
+      ),
+    ).toEqual(["team_id", "normalized_label"]);
+  });
+
+  it("stores stable labels at one position per card", () => {
+    const config = getTableConfig(bingoCardCell);
+
+    expect(config.primaryKeys[0]?.columns.map((column) => column.name)).toEqual([
+      "card_id",
+      "position",
+    ]);
+    expect(bingoCardCell.labelSnapshot.notNull).toBe(true);
+    expect(config.checks.map((constraint) => constraint.name)).toContain(
+      "bingo_card_cell_position_check",
+    );
+  });
+});

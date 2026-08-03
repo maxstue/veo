@@ -4,4 +4,13 @@
   "compatibility_date": "2026-08-02",
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "veo",
+      "database_id": "local",
+      "preview_database_id": "local",
+      "migrations_dir": "migrations",
+    },
+  ],
 }

@@ -9,7 +9,9 @@ onlyBuiltDependencies:
   - sharp
   - workerd
 catalog:
+  "@better-auth/drizzle-adapter": latest
   "@cloudflare/vite-plugin": latest
+  "@cloudflare/workers-types": latest
   "@fontsource-variable/inter": latest
   "@fontsource-variable/space-grotesk": latest
   "@tailwindcss/typography": latest
@@ -24,8 +26,11 @@ catalog:
   "@types/react": latest
   "@types/react-dom": latest
   "@vitejs/plugin-react": latest
+  better-auth: latest
   class-variance-authority: latest
   clsx: latest
+  drizzle-kit: latest
+  drizzle-orm: latest
   lucide-react: latest
   radix-ui: latest
   react: latest

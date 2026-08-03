@@ -4,8 +4,8 @@ Veo ist ein gemeinsam gepflegtes Bingo für Dailys, Reviews und andere Team-Meet
 Teammitglieder sammeln typische Aussagen und Situationen, erhalten ein persönliches Board
 und markieren Treffer während des Meetings.
 
-> **Status:** Frühe Entwicklung. Das Projektgrundgerüst und die erste Oberfläche stehen;
-> Authentifizierung, Teams, Einladungen und der eigentliche Spielablauf folgen schrittweise.
+> **Status:** Frühe Entwicklung. Projektgrundgerüst, erste Oberfläche und die versionierte
+> D1-/Drizzle-Datengrundlage stehen; Authentifizierung und Produktfunktionen folgen schrittweise.
 
 ## Produktidee
 
@@ -29,7 +29,7 @@ Im ersten MVP haben alle Mitglieder eines Teams dieselben Rechte.
 | UI                  | React, Tailwind CSS v4 und shadcn/ui                  |
 | Design              | Maia, Neutral/Violet, Space Grotesk, Inter und Lucide |
 | Hosting             | Cloudflare Workers                                    |
-| Datenbank           | Cloudflare D1 mit Drizzle (geplant)                   |
+| Datenbank           | Cloudflare D1 mit Drizzle ORM                         |
 | Anmeldung           | Better Auth (geplant)                                 |
 | End-to-End-Tests    | Playwright (geplant)                                  |
 
@@ -58,17 +58,21 @@ Die Anwendung ist anschließend standardmäßig unter `http://localhost:5173` er
 
 ## Wichtige Befehle
 
-| Befehl                   | Zweck                                                         |
-| ------------------------ | ------------------------------------------------------------- |
-| `vp install`             | Abhängigkeiten mit der festgelegten pnpm-Version installieren |
-| `vp dev`                 | Entwicklungsserver starten                                    |
-| `vp check`               | Formatierung, Linting und TypeScript gemeinsam prüfen         |
-| `vp check --fix`         | Behebbare Formatierungs- und Lint-Probleme korrigieren        |
-| `vp test`                | Vitest ausführen                                              |
-| `vp build`               | Produktions-Build für Cloudflare erzeugen                     |
-| `vp preview`             | Produktions-Build lokal anzeigen                              |
-| `vp run generate-routes` | TanStack-Routen explizit neu generieren                       |
-| `vp run deploy`          | Build erstellen und mit Wrangler deployen                     |
+| Befehl                     | Zweck                                                         |
+| -------------------------- | ------------------------------------------------------------- |
+| `vp install`               | Abhängigkeiten mit der festgelegten pnpm-Version installieren |
+| `vp dev`                   | Entwicklungsserver starten                                    |
+| `vp check`                 | Formatierung, Linting und TypeScript gemeinsam prüfen         |
+| `vp check --fix`           | Behebbare Formatierungs- und Lint-Probleme korrigieren        |
+| `vp test`                  | Vitest ausführen                                              |
+| `vp build`                 | Produktions-Build für Cloudflare erzeugen                     |
+| `vp preview`               | Produktions-Build lokal anzeigen                              |
+| `vp run db:check`          | Konsistenz der Drizzle-Migrationen prüfen                     |
+| `vp run db:generate`       | Migration nach einer Schemaänderung erzeugen                  |
+| `vp run db:migrate:local`  | Ausstehende Migrationen auf die lokale D1 anwenden            |
+| `vp run db:migrate:remote` | Ausstehende Migrationen auf die produktive D1 anwenden        |
+| `vp run generate-routes`   | TanStack-Routen explizit neu generieren                       |
+| `vp run deploy`            | Build erstellen und mit Wrangler deployen                     |
 
 `vp <befehl>` startet einen eingebauten Vite+-Befehl. Projektspezifische Skripte aus
 `package.json` werden mit `vp run <befehl>` ausgeführt.
@@ -78,18 +82,45 @@ Die Anwendung ist anschließend standardmäßig unter `http://localhost:5173` er
 ```text
 src/
 ├── components/ui/    shadcn/ui-Komponenten
+├── db/               D1-Client und Drizzle-Schema
 ├── lib/              gemeinsame Hilfsfunktionen
 ├── routes/           dateibasierte TanStack-Routen
 ├── router.tsx        Router-Konfiguration
 └── styles.css        globale Styles und Design-Tokens
 
 components.json       shadcn/ui-Konfiguration
+drizzle.config.ts     Drizzle-Kit-Konfiguration
+migrations/           versionierte D1-SQL-Migrationen
 vite.config.ts        Vite+, Vite, Vitest, Linting und Formatting
 wrangler.jsonc        Cloudflare-Workers-Konfiguration
 pnpm-workspace.yaml   zentraler Dependency-Catalog
 ```
 
 `src/routeTree.gen.ts` wird von TanStack Router generiert und nicht manuell bearbeitet.
+
+## Lokale Datenbank
+
+Die Wrangler-Konfiguration stellt die D1-Bindung `DB` bereit. Eine frische lokale Datenbank wird
+allein aus den versionierten Migrationen aufgebaut:
+
+```bash
+vp run db:migrate:local
+```
+
+Das Schema enthält die Better-Auth-Kerntabellen sowie Teams, eindeutige Mitgliedschaften,
+Einladungen, teamweit eindeutige Bingo-Begriffe und persönliche Karten. Kartenfelder speichern
+den angezeigten Begriff zusätzlich als Snapshot. Dadurch bleiben bestehende Karten unverändert,
+wenn ein Team einen Quellbegriff später bearbeitet oder löscht.
+
+Nach einer Änderung unter `src/db/schema/` wird eine neue Migration erzeugt und geprüft:
+
+```bash
+vp run db:generate
+vp run db:check
+```
+
+Die produktive `database_id` wird erst beim Anlegen der Cloudflare-D1-Datenbank eingetragen. Der
+Wert `local` in `wrangler.jsonc` ist absichtlich nur für die lokale Entwicklung vorgesehen.
 
 ## Designsystem
 
@@ -135,7 +166,7 @@ Textdateien werden über `.gitattributes` repositoryweit mit LF gespeichert.
 Der Cloudflare-Adapter ist eingerichtet und `vp build` erzeugt Client- und Worker-Artefakte.
 Für ein produktives Deployment fehlen derzeit noch:
 
-1. Cloudflare-D1-Datenbank und Bindings,
+1. produktive Cloudflare-D1-Datenbank-ID,
 2. Better-Auth-Secrets,
 3. GitHub-Actions-Workflow,
 4. Verbindung der Domain `veo.justmax.xyz`.
@@ -145,12 +176,12 @@ authentifizierten Wrangler-Session zu einem erfolgreichen Deployment.
 
 ## Roadmap
 
-1. D1 und Drizzle integrieren
-2. Better Auth und geschützte Routen einrichten
-3. Teams und Einladungen implementieren
-4. Bingo-Begriffe gemeinsam verwalten
-5. persönlichen Spielablauf umsetzen
-6. Playwright und GitHub Actions ergänzen
+1. Better Auth und geschützte Routen einrichten
+2. Teams und Einladungen implementieren
+3. Bingo-Begriffe gemeinsam verwalten
+4. persönlichen Spielablauf umsetzen
+5. GitHub Actions und Cloudflare-Deployment ergänzen
+6. Playwright-Tests und MVP-Polish abschließen
 
 Planung, Architekturentscheidungen und Umsetzungstickets werden im Linear-Projekt **Veo** im
 Team **Quests** gepflegt.
