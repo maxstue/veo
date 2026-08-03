@@ -47,14 +47,52 @@ stehen in der [Vite+-Dokumentation](https://viteplus.dev/guide/).
 
 ## Lokale Entwicklung
 
+Für die lokale Entwicklung werden weder Docker noch ein Cloudflare-Login benötigt. Wrangler
+stellt über Miniflare und `workerd` eine lokale Worker-Umgebung samt D1-Bindung bereit.
+
+### Erster Start
+
 ```bash
 git clone https://github.com/maxstue/veo.git
 cd veo
 vp install
+vp run db:migrate:local
 vp dev
 ```
 
-Die Anwendung ist anschließend standardmäßig unter `http://localhost:5173` erreichbar.
+Die Anwendung ist anschließend standardmäßig unter `http://localhost:5173` erreichbar. Der
+erste Migrationslauf erzeugt die lokale D1 allein aus den versionierten SQL-Dateien unter
+`migrations/`.
+
+### Täglicher Ablauf
+
+Nach dem ersten Start genügt normalerweise:
+
+```bash
+vp dev
+```
+
+Die lokale Datenbank bleibt zwischen den Starts unter `.wrangler/` erhalten. Wenn neue
+Migrationen aus dem Repository hinzugekommen sind, werden sie vor dem Start angewendet:
+
+```bash
+vp install
+vp run db:migrate:local
+vp dev
+```
+
+Lokale und produktive Daten sind strikt getrennt. Befehle mit `--local` verwenden nur den
+lokalen Wrangler-Zustand; erst `--remote` greift nach einer Cloudflare-Anmeldung auf die
+produktive D1 zu.
+
+### Vor einem Commit
+
+```bash
+vp check
+vp test
+vp build
+vp run db:check
+```
 
 ## Wichtige Befehle
 
@@ -98,26 +136,32 @@ pnpm-workspace.yaml   zentraler Dependency-Catalog
 
 `src/routeTree.gen.ts` wird von TanStack Router generiert und nicht manuell bearbeitet.
 
-## Lokale Datenbank
+## Datenbankschema ändern
 
-Die Wrangler-Konfiguration stellt die D1-Bindung `DB` bereit. Eine frische lokale Datenbank wird
-allein aus den versionierten Migrationen aufgebaut:
-
-```bash
-vp run db:migrate:local
-```
-
-Das Schema enthält die Better-Auth-Kerntabellen sowie Teams, eindeutige Mitgliedschaften,
-Einladungen, teamweit eindeutige Bingo-Begriffe und persönliche Karten. Kartenfelder speichern
-den angezeigten Begriff zusätzlich als Snapshot. Dadurch bleiben bestehende Karten unverändert,
-wenn ein Team einen Quellbegriff später bearbeitet oder löscht.
-
-Nach einer Änderung unter `src/db/schema/` wird eine neue Migration erzeugt und geprüft:
+Das Drizzle-Schema liegt unter `src/db/schema/`. Nach einer Schemaänderung wird zuerst eine neue
+Migration erzeugt und kontrolliert:
 
 ```bash
 vp run db:generate
 vp run db:check
 ```
+
+Anschließend wird die neue Migration lokal angewendet und der vollständige Prüfablauf ausgeführt:
+
+```bash
+vp run db:migrate:local
+vp check
+vp test
+vp build
+```
+
+Erzeugte Migrationen und Drizzle-Metadaten werden gemeinsam mit der Schemaänderung committed.
+Bestehende Migrationen werden nachträglich nicht umgeschrieben.
+
+Das Schema enthält die Better-Auth-Kerntabellen sowie Teams, eindeutige Mitgliedschaften,
+Einladungen, teamweit eindeutige Bingo-Begriffe und persönliche Karten. Kartenfelder speichern
+den angezeigten Begriff zusätzlich als Snapshot. Dadurch bleiben bestehende Karten unverändert,
+wenn ein Team einen Quellbegriff später bearbeitet oder löscht.
 
 Die produktive `database_id` wird erst beim Anlegen der Cloudflare-D1-Datenbank eingetragen. Der
 Wert `local` in `wrangler.jsonc` ist absichtlich nur für die lokale Entwicklung vorgesehen.
