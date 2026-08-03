@@ -105,6 +105,7 @@ vp run db:check
 | `vp test`                  | Vitest ausführen                                              |
 | `vp build`                 | Produktions-Build für Cloudflare erzeugen                     |
 | `vp preview`               | Produktions-Build lokal anzeigen                              |
+| `vp run cf:typegen`        | Worker-Bindings aus `wrangler.jsonc` typisieren               |
 | `vp run db:check`          | Konsistenz der Drizzle-Migrationen prüfen                     |
 | `vp run db:generate`       | Migration nach einer Schemaänderung erzeugen                  |
 | `vp run db:migrate:local`  | Ausstehende Migrationen auf die lokale D1 anwenden            |
@@ -132,6 +133,7 @@ migrations/           versionierte D1-SQL-Migrationen
 vite.config.ts        Vite+, Vite, Vitest, Linting und Formatting
 wrangler.jsonc        Cloudflare-Workers-Konfiguration
 pnpm-workspace.yaml   zentraler Dependency-Catalog
+worker-configuration.d.ts generierte Typen für Worker-Bindings
 ```
 
 `src/routeTree.gen.ts` wird von TanStack Router generiert und nicht manuell bearbeitet.
@@ -163,8 +165,13 @@ Einladungen, teamweit eindeutige Bingo-Begriffe und persönliche Karten. Kartenf
 den angezeigten Begriff zusätzlich als Snapshot. Dadurch bleiben bestehende Karten unverändert,
 wenn ein Team einen Quellbegriff später bearbeitet oder löscht.
 
-Die produktive `database_id` wird erst beim Anlegen der Cloudflare-D1-Datenbank eingetragen. Der
-Wert `local` in `wrangler.jsonc` ist absichtlich nur für die lokale Entwicklung vorgesehen.
+Die produktive D1-ID ist in `wrangler.jsonc` eingetragen. Trotzdem erzeugen Wrangler und das
+Cloudflare-Vite-Plugin bei lokalen Befehlen automatisch einen getrennten lokalen Datenbestand.
+Nach einer Änderung der Wrangler-Bindings werden ihre Typen neu erzeugt:
+
+```bash
+vp run cf:typegen
+```
 
 ## Designsystem
 
@@ -210,10 +217,9 @@ Textdateien werden über `.gitattributes` repositoryweit mit LF gespeichert.
 Der Cloudflare-Adapter ist eingerichtet und `vp build` erzeugt Client- und Worker-Artefakte.
 Für ein produktives Deployment fehlen derzeit noch:
 
-1. produktive Cloudflare-D1-Datenbank-ID,
-2. Better-Auth-Secrets,
-3. GitHub-Actions-Workflow,
-4. Verbindung der Domain `veo.justmax.xyz`.
+1. Better-Auth-Secrets,
+2. GitHub-Actions-Workflow,
+3. Verbindung der Domain `veo.justmax.xyz`.
 
 Bis diese Infrastruktur eingerichtet ist, führt `vp run deploy` nur mit einer lokal
 authentifizierten Wrangler-Session zu einem erfolgreichen Deployment.

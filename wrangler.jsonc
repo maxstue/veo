@@ -8,8 +8,7 @@
     {
       "binding": "DB",
       "database_name": "veo",
-      "database_id": "local",
-      "preview_database_id": "local",
+      "database_id": "c0d510f7-0678-4fa2-8ee8-5558d27d75e2",
       "migrations_dir": "migrations",
     },
   ],
