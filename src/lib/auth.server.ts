@@ -16,7 +16,7 @@ function createAuth(runtime: Cloudflare.Env) {
   return betterAuth({
     appName: "Veo",
     baseURL: {
-      allowedHosts: ["veo.justmax.xyz", "localhost:5173"],
+      allowedHosts: ["veo.justmax.xyz", "veo.maxstue2304-aaa.workers.dev", "localhost:5173"],
     },
     secret: runtime.BETTER_AUTH_SECRET,
     database: drizzleAdapter(createDatabase(runtime.DB), {
@@ -28,7 +28,11 @@ function createAuth(runtime: Cloudflare.Env) {
       minPasswordLength: 8,
       requireEmailVerification: false,
     },
-    trustedOrigins: ["https://veo.justmax.xyz", "http://localhost:5173"],
+    trustedOrigins: [
+      "https://veo.justmax.xyz",
+      "https://veo.maxstue2304-aaa.workers.dev",
+      "http://localhost:5173",
+    ],
     plugins: [tanstackStartCookies()],
   });
 }
