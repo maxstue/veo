@@ -4,8 +4,8 @@ Veo ist ein gemeinsam gepflegtes Bingo für Dailys, Reviews und andere Team-Meet
 Teammitglieder sammeln typische Aussagen und Situationen, erhalten ein persönliches Board
 und markieren Treffer während des Meetings.
 
-> **Status:** Frühe Entwicklung. Projektgrundgerüst, erste Oberfläche und die versionierte
-> D1-/Drizzle-Datengrundlage stehen; Authentifizierung und Produktfunktionen folgen schrittweise.
+> **Status:** Frühe Entwicklung. Projektgrundgerüst und D1-/Drizzle-Datengrundlage stehen;
+> die selbst gehostete Authentifizierung mit Better Auth wird aktuell umgesetzt.
 
 ## Produktidee
 
@@ -63,6 +63,15 @@ vp dev
 Die Anwendung ist anschließend standardmäßig unter `http://localhost:5173` erreichbar. Der
 erste Migrationslauf erzeugt die lokale D1 allein aus den versionierten SQL-Dateien unter
 `migrations/`.
+
+Für die lokale Anmeldung wird zusätzlich ein Secret benötigt. Kopiere `.env.example` nach `.env`
+und ersetze den Platzhalter durch einen zufälligen Wert mit mindestens 32 Zeichen.
+Die Datei ist ignoriert und darf nicht committed werden. In Produktion wird derselbe Binding-Name
+ausschließlich als Cloudflare Worker Secret gesetzt:
+
+```bash
+vp exec wrangler secret put BETTER_AUTH_SECRET
+```
 
 ### Täglicher Ablauf
 

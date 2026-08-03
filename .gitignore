@@ -4,7 +4,9 @@ node_modules
 dist
 dist-ssr
 *.local
-.env
+.env*
+.dev.vars*
+!.env.example
 .nitro
 .tanstack
 .wrangler

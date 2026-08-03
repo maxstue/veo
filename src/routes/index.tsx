@@ -4,6 +4,7 @@ import { ArrowRight, Check, Eye, PencilLine, Sparkles, Users } from "lucide-reac
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card";
+import { AuthControls } from "#/components/auth-controls";
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -47,7 +48,12 @@ function Home() {
           </span>
           <span className="font-heading text-xl font-semibold tracking-tight">veo</span>
         </a>
-        <Badge variant="secondary">Phase 1</Badge>
+        <div className="flex items-center gap-3">
+          <Badge className="hidden sm:inline-flex" variant="secondary">
+            Phase 3
+          </Badge>
+          <AuthControls />
+        </div>
       </header>
 
       <section className="grid flex-1 items-center gap-12 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-24">
