@@ -1,59 +1,57 @@
 # Veo
 
-Veo ist ein gemeinsam gepflegtes Bingo für Dailys, Reviews und andere Team-Meetings.
-Teammitglieder sammeln typische Aussagen und Situationen, erhalten ein persönliches Board
-und markieren Treffer während des Meetings.
+Veo is a collaborative bingo game for daily stand-ups, reviews, and other team meetings.
+Team members collect familiar phrases and situations, receive a personal board, and mark
+matches as the meeting unfolds.
 
-> **Status:** Frühe Entwicklung. Projektgrundgerüst, Datenmodell, Anmeldung, Teams, sichere
-> Einladungslinks, die gemeinsame Bingo-Begriffsbibliothek und der persönliche Spielablauf stehen.
-> GitHub Actions prüft Pull Requests und liefert erfolgreiche Änderungen auf `main` automatisch
-> nach Cloudflare aus. Phase 8 sichert den vollständigen MVP-Ablauf mit Playwright auf Desktop und
-> Mobilgeräten ab und schließt den verbleibenden MVP-Polish ab.
+> **Status:** The MVP is implemented. It includes the application foundation, data model,
+> authentication, teams, secure invitation links, the shared bingo term library, personal
+> gameplay, CI/CD, and end-to-end coverage of the core workflow on desktop and mobile.
 
-## Produktidee
+## Product idea
 
-Veo soll Meetings aufmerksamer und unterhaltsamer machen, ohne zusätzliche Moderation oder
-komplizierte Rollenverwaltung:
+Veo makes meetings more attentive and entertaining without requiring extra facilitation or
+complex role management:
 
-- anmelden und einem Team beitreten oder ein Team erstellen,
-- Teammitglieder über einen Link einladen,
-- Bingo-Begriffe gemeinsam hinzufügen, bearbeiten und löschen,
-- für jedes Meeting ein persönliches, zufälliges Board erzeugen,
-- Treffer markieren und Bingo automatisch erkennen.
+- sign in and join or create a team,
+- invite team members with a link,
+- add, edit, and delete bingo terms together,
+- generate a personal randomized board for each meeting,
+- mark matches and detect bingo automatically.
 
-Im ersten MVP haben alle Mitglieder eines Teams dieselben Rechte.
+In the MVP, every member of a team has the same permissions.
 
-## Technischer Stack
+## Technology stack
 
-| Bereich             | Technologie                                           |
-| ------------------- | ----------------------------------------------------- |
-| Fullstack-Framework | TanStack Start und TanStack Router                    |
-| Toolchain           | Vite+ mit Vite, Vitest, Oxlint, Oxfmt und Vite Task   |
-| UI                  | React, Tailwind CSS v4 und shadcn/ui                  |
-| Design              | Maia, Neutral/Violet, Space Grotesk, Inter und Lucide |
-| Hosting             | Cloudflare Workers                                    |
-| Datenbank           | Cloudflare D1 mit Drizzle ORM                         |
-| Anmeldung           | Better Auth                                           |
-| End-to-End-Tests    | Playwright                                            |
+| Area                 | Technology                                             |
+| -------------------- | ------------------------------------------------------ |
+| Full-stack framework | TanStack Start and TanStack Router                     |
+| Toolchain            | Vite+ with Vite, Vitest, Oxlint, Oxfmt, and Vite Task  |
+| UI                   | React, Tailwind CSS v4, and shadcn/ui                  |
+| Design               | Maia, Neutral/Violet, Space Grotesk, Inter, and Lucide |
+| Hosting              | Cloudflare Workers                                     |
+| Database             | Cloudflare D1 with Drizzle ORM                         |
+| Authentication       | Better Auth                                            |
+| End-to-end testing   | Playwright                                             |
 
-Vite+ verwaltet die Node.js-Laufzeit, den Package Manager und die Frontend-Toolchain. Alle
-Dependency-Versionen stehen im pnpm-Catalog in `pnpm-workspace.yaml`; `package.json` verwendet
-ausschließlich `catalog:`. Das Lockfile hält die tatsächlich aufgelösten Versionen fest.
+Vite+ manages the Node.js runtime, package manager, and frontend toolchain. All dependency
+versions are declared in the pnpm catalog in `pnpm-workspace.yaml`; `package.json` exclusively
+uses `catalog:` references. The lockfile records the exact resolved versions.
 
-## Voraussetzungen
+## Prerequisites
 
 - Git
 - Vite+ (`vp`)
 
-Vite+ installiert die passende Node.js- und pnpm-Version automatisch. Hinweise zur Installation
-stehen in der [Vite+-Dokumentation](https://viteplus.dev/guide/).
+Vite+ automatically installs the required Node.js and pnpm versions. See the
+[Vite+ documentation](https://viteplus.dev/guide/) for installation instructions.
 
-## Lokale Entwicklung
+## Local development
 
-Für die lokale Entwicklung werden weder Docker noch ein Cloudflare-Login benötigt. Wrangler
-stellt über Miniflare und `workerd` eine lokale Worker-Umgebung samt D1-Bindung bereit.
+Local development requires neither Docker nor a Cloudflare login. Wrangler uses Miniflare and
+`workerd` to provide a local Workers environment with a D1 binding.
 
-### Erster Start
+### First run
 
 ```bash
 git clone https://github.com/maxstue/veo.git
@@ -63,29 +61,28 @@ vp run db:migrate:local
 vp dev
 ```
 
-Die Anwendung ist anschließend standardmäßig unter `http://localhost:5173` erreichbar. Der
-erste Migrationslauf erzeugt die lokale D1 allein aus den versionierten SQL-Dateien unter
-`migrations/`.
+The application is available at `http://localhost:5173` by default. The first migration run
+creates the local D1 database exclusively from the versioned SQL files in `migrations/`.
 
-Für die lokale Anmeldung wird zusätzlich ein Secret benötigt. Kopiere `.env.example` nach `.env`
-und ersetze den Platzhalter durch einen zufälligen Wert mit mindestens 32 Zeichen.
-Die Datei ist ignoriert und darf nicht committed werden. In Produktion wird derselbe Binding-Name
-ausschließlich als Cloudflare Worker Secret gesetzt:
+Local authentication also requires a secret. Copy `.env.example` to `.env` and replace the
+placeholder with a random value of at least 32 characters. The file is ignored by Git and must
+never be committed. In production, the same binding name is stored only as a Cloudflare Worker
+secret:
 
 ```bash
 vp exec wrangler secret put BETTER_AUTH_SECRET
 ```
 
-### Täglicher Ablauf
+### Daily workflow
 
-Nach dem ersten Start genügt normalerweise:
+After the first run, the following is usually sufficient:
 
 ```bash
 vp dev
 ```
 
-Die lokale Datenbank bleibt zwischen den Starts unter `.wrangler/` erhalten. Wenn neue
-Migrationen aus dem Repository hinzugekommen sind, werden sie vor dem Start angewendet:
+The local database persists between runs in `.wrangler/`. If the repository contains new
+migrations, apply them before starting the development server:
 
 ```bash
 vp install
@@ -93,11 +90,10 @@ vp run db:migrate:local
 vp dev
 ```
 
-Lokale und produktive Daten sind strikt getrennt. Befehle mit `--local` verwenden nur den
-lokalen Wrangler-Zustand; erst `--remote` greift nach einer Cloudflare-Anmeldung auf die
-produktive D1 zu.
+Local and production data are strictly separated. Commands with `--local` operate only on local
+Wrangler state; `--remote` accesses the production D1 database after Cloudflare authentication.
 
-### Vor einem Commit
+### Before committing
 
 ```bash
 vp check
@@ -107,62 +103,62 @@ vp run test:e2e
 vp run db:check
 ```
 
-## Wichtige Befehle
+## Common commands
 
-| Befehl                     | Zweck                                                         |
-| -------------------------- | ------------------------------------------------------------- |
-| `vp install`               | Abhängigkeiten mit der festgelegten pnpm-Version installieren |
-| `vp dev`                   | Entwicklungsserver starten                                    |
-| `vp check`                 | Formatierung, Linting und TypeScript gemeinsam prüfen         |
-| `vp check --fix`           | Behebbare Formatierungs- und Lint-Probleme korrigieren        |
-| `vp test`                  | Vitest ausführen                                              |
-| `vp run test:e2e`          | Playwright-MVP-Workflow auf Desktop und Mobilgerät ausführen  |
-| `vp build`                 | Produktions-Build für Cloudflare erzeugen                     |
-| `vp preview`               | Produktions-Build lokal anzeigen                              |
-| `vp run cf:typegen`        | Worker-Bindings aus `wrangler.jsonc` typisieren               |
-| `vp run db:check`          | Konsistenz der Drizzle-Migrationen prüfen                     |
-| `vp run db:generate`       | Migration nach einer Schemaänderung erzeugen                  |
-| `vp run db:migrate:local`  | Ausstehende Migrationen auf die lokale D1 anwenden            |
-| `vp run db:migrate:remote` | Ausstehende Migrationen auf die produktive D1 anwenden        |
-| `vp run generate-routes`   | TanStack-Routen explizit neu generieren                       |
-| `vp run deploy`            | Build erstellen und mit Wrangler deployen                     |
+| Command                    | Purpose                                                |
+| -------------------------- | ------------------------------------------------------ |
+| `vp install`               | Install dependencies with the pinned pnpm version      |
+| `vp dev`                   | Start the development server                           |
+| `vp check`                 | Check formatting, linting, and TypeScript together     |
+| `vp check --fix`           | Fix supported formatting and linting issues            |
+| `vp test`                  | Run Vitest                                             |
+| `vp run test:e2e`          | Run the Playwright MVP workflow on desktop and mobile  |
+| `vp build`                 | Create the production build for Cloudflare             |
+| `vp preview`               | Preview the production build locally                   |
+| `vp run cf:typegen`        | Generate Worker binding types from `wrangler.jsonc`    |
+| `vp run db:check`          | Check the consistency of Drizzle migrations            |
+| `vp run db:generate`       | Generate a migration after a schema change             |
+| `vp run db:migrate:local`  | Apply pending migrations to the local D1 database      |
+| `vp run db:migrate:remote` | Apply pending migrations to the production D1 database |
+| `vp run generate-routes`   | Explicitly regenerate TanStack routes                  |
+| `vp run deploy`            | Build and deploy with Wrangler                         |
 
-`vp <befehl>` startet einen eingebauten Vite+-Befehl. Projektspezifische Skripte aus
-`package.json` werden mit `vp run <befehl>` ausgeführt.
+`vp <command>` runs a built-in Vite+ command. Project-specific scripts from `package.json` run
+with `vp run <command>`.
 
-## Projektstruktur
+## Project structure
 
 ```text
 src/
-├── components/ui/    shadcn/ui-Komponenten
-├── db/               D1-Client und Drizzle-Schema
-├── lib/              gemeinsame Hilfsfunktionen
-├── routes/           dateibasierte TanStack-Routen
-├── router.tsx        Router-Konfiguration
-└── styles.css        globale Styles und Design-Tokens
+├── components/ui/    shadcn/ui components
+├── db/               D1 client and Drizzle schema
+├── lib/              shared utilities
+├── routes/           file-based TanStack routes
+├── router.tsx        router configuration
+└── styles.css        global styles and design tokens
 
-components.json       shadcn/ui-Konfiguration
-drizzle.config.ts     Drizzle-Kit-Konfiguration
-migrations/           versionierte D1-SQL-Migrationen
-vite.config.ts        Vite+, Vite, Vitest, Linting und Formatting
-wrangler.jsonc        Cloudflare-Workers-Konfiguration
-pnpm-workspace.yaml   zentraler Dependency-Catalog
-worker-configuration.d.ts generierte Typen für Worker-Bindings
+components.json       shadcn/ui configuration
+drizzle.config.ts     Drizzle Kit configuration
+migrations/           versioned D1 SQL migrations
+vite.config.ts        Vite+, Vite, Vitest, linting, and formatting
+wrangler.jsonc        Cloudflare Workers configuration
+pnpm-workspace.yaml   central dependency catalog
+worker-configuration.d.ts generated Worker binding types
 ```
 
-`src/routeTree.gen.ts` wird von TanStack Router generiert und nicht manuell bearbeitet.
+`src/routeTree.gen.ts` is generated by TanStack Router and must not be edited manually.
 
-## Datenbankschema ändern
+## Changing the database schema
 
-Das Drizzle-Schema liegt unter `src/db/schema/`. Nach einer Schemaänderung wird zuerst eine neue
-Migration erzeugt und kontrolliert:
+The Drizzle schema lives in `src/db/schema/`. After changing the schema, generate and inspect a
+new migration:
 
 ```bash
 vp run db:generate
 vp run db:check
 ```
 
-Anschließend wird die neue Migration lokal angewendet und der vollständige Prüfablauf ausgeführt:
+Then apply the migration locally and run the complete verification workflow:
 
 ```bash
 vp run db:migrate:local
@@ -172,43 +168,43 @@ vp build
 vp run test:e2e
 ```
 
-Erzeugte Migrationen und Drizzle-Metadaten werden gemeinsam mit der Schemaänderung committed.
-Bestehende Migrationen werden nachträglich nicht umgeschrieben.
+Commit generated migrations and Drizzle metadata together with the schema change. Never rewrite
+an existing migration after it has been committed.
 
-Das Schema enthält die Better-Auth-Kerntabellen sowie Teams, eindeutige Mitgliedschaften,
-Einladungen, teamweit eindeutige Bingo-Begriffe und persönliche Karten. Kartenfelder speichern
-den angezeigten Begriff zusätzlich als Snapshot. Dadurch bleiben bestehende Karten unverändert,
-wenn ein Team einen Quellbegriff später bearbeitet oder löscht.
+The schema contains the Better Auth core tables as well as teams, unique memberships,
+invitations, team-wide unique bingo terms, and personal cards. Card cells also store the
+displayed term as a snapshot. Existing cards therefore remain unchanged when a team later edits
+or deletes a source term.
 
-Die produktive D1-ID ist in `wrangler.jsonc` eingetragen. Trotzdem erzeugen Wrangler und das
-Cloudflare-Vite-Plugin bei lokalen Befehlen automatisch einen getrennten lokalen Datenbestand.
-Nach einer Änderung der Wrangler-Bindings werden ihre Typen neu erzeugt:
+The production D1 ID is declared in `wrangler.jsonc`. Wrangler and the Cloudflare Vite plugin
+still create a separate local data store automatically for local commands. Regenerate binding
+types after changing Wrangler bindings:
 
 ```bash
 vp run cf:typegen
 ```
 
-## Designsystem
+## Design system
 
-Die shadcn/ui-Konfiguration basiert auf dem Preset `b6ReEHaBzU`:
+The shadcn/ui configuration is based on preset `b6ReEHaBzU`:
 
-- Maia als weiche, großzügige Komponentenform,
-- Neutral als ruhige Basis,
-- Violet als primäre Markenfarbe,
-- Space Grotesk für Überschriften,
-- Inter für Fließtext,
-- Lucide für Icons,
-- mittlerer Radius für klar erkennbare Bingo-Felder.
+- Maia for soft, spacious component shapes,
+- Neutral as the understated base,
+- Violet as the primary brand color,
+- Space Grotesk for headings,
+- Inter for body text,
+- Lucide for icons,
+- a medium radius for clearly defined bingo cells.
 
-Neue Komponenten werden über Vite+ hinzugefügt:
+Add new components through Vite+:
 
 ```bash
 vp dlx -p shadcn@latest -- shadcn add dialog
 ```
 
-## Qualität und Git-Workflow
+## Quality and Git workflow
 
-Vor einem Commit sollten mindestens diese Prüfungen erfolgreich sein:
+At minimum, run these checks before committing:
 
 ```bash
 vp check
@@ -216,8 +212,8 @@ vp test
 vp build
 ```
 
-Vite+ richtet die Commit Hooks ein und prüft gestagte Dateien mit `vp staged`. Commit-Nachrichten
-folgen [Conventional Commits](https://www.conventionalcommits.org/), zum Beispiel:
+Vite+ configures the commit hooks and checks staged files with `vp staged`. Commit messages
+follow [Conventional Commits](https://www.conventionalcommits.org/), for example:
 
 ```text
 feat: add team creation flow
@@ -225,48 +221,49 @@ fix: prevent duplicate bingo entries
 docs: describe local d1 setup
 ```
 
-Textdateien werden über `.gitattributes` repositoryweit mit LF gespeichert.
+`.gitattributes` enforces LF line endings for text files across the repository.
 
 ## Deployment
 
-Der Workflow `.github/workflows/quality-and-deployment.yml` führt bei Pull Requests und Änderungen
-auf `main` nacheinander `vp check`, `vp test` und `vp build` aus. Nur ein erfolgreicher Lauf auf
-`main` darf den geschützten GitHub-Environment `production` verwenden. Der Produktionsjob wendet
-zuerst alle Remote-D1-Migrationen an und deployt den Worker erst nach einer erfolgreichen
-Migration. Eine Concurrency-Gruppe verhindert, dass zwei Produktions-Releases gleichzeitig
-migrieren.
+The `.github/workflows/quality-and-deployment.yml` workflow runs `vp check`, `vp test`, and
+`vp build` for pull requests and changes to `main`. Only a successful run on `main` can use the
+protected `production` GitHub environment. The production job applies all remote D1 migrations
+before deploying the Worker. A concurrency group prevents two production releases from running
+migrations at the same time.
 
-Im GitHub-Environment `production` werden ausschließlich diese Secrets hinterlegt:
+Only these secrets belong in the `production` GitHub environment:
 
-- `CLOUDFLARE_ACCOUNT_ID`: ID des Cloudflare-Accounts,
-- `CLOUDFLARE_API_TOKEN`: auf den Veo-Account begrenztes Token mit `Workers Scripts: Edit` und
-  `D1: Edit`.
+- `CLOUDFLARE_ACCOUNT_ID`: the Cloudflare account ID,
+- `CLOUDFLARE_API_TOKEN`: a token restricted to the Veo account with `Workers Scripts: Edit` and
+  `D1: Edit` permissions.
 
-SonarQube Cloud untersucht das Repository über **Automatic Analysis**. Dafür sind weder ein
-zusätzlicher GitHub-Actions-Job noch ein `SONAR_TOKEN` im Repository notwendig. Der
-GitHub-Environment sollte vor dem ersten Release mit den gewünschten Deployment-Schutzregeln
-versehen werden.
+SonarQube Cloud analyzes the repository with **Automatic Analysis**. This requires neither an
+additional GitHub Actions job nor a `SONAR_TOKEN` in the repository. Configure the desired
+deployment protection rules on the GitHub environment before the first release.
 
-`BETTER_AUTH_SECRET` bleibt ausschließlich ein Cloudflare Worker Secret und wird weder in GitHub
-noch im Repository gespeichert. Es muss vor dem ersten Deployment einmalig gesetzt werden:
+`BETTER_AUTH_SECRET` remains a Cloudflare Worker secret and is stored neither in GitHub nor in
+the repository. Set it once before the first deployment:
 
 ```bash
 vp exec wrangler secret put BETTER_AUTH_SECRET
 ```
 
-Die Wrangler-Konfiguration verbindet den Worker als Custom Domain mit `veo.justmax.xyz`. Das
-Cloudflare-Token und der Account müssen auf die zugehörige Zone zugreifen können.
+The Worker is configured with `workers_dev` disabled. Configure the production route or custom
+domain in Cloudflare before deployment, and ensure the API token and account can access the
+associated zone.
 
 ## Roadmap
 
-1. Foundation und Design
-2. D1-/Drizzle-Datengrundlage
-3. Better Auth und geschützte Routen
-4. Teams und Einladungen
-5. Bingo-Begriffe gemeinsam verwalten
-6. Persönlichen Spielablauf umsetzen
-7. GitHub Actions und Cloudflare-Deployment ergänzen
-8. Playwright-Tests und MVP-Polish abschließen
+The MVP comprised these completed phases:
 
-Planung, Architekturentscheidungen und Umsetzungstickets werden im Linear-Projekt **Veo** im
-Team **Quests** gepflegt.
+1. Foundation and design
+2. D1 and Drizzle data foundation
+3. Better Auth and protected routes
+4. Teams and invitations
+5. Shared bingo term management
+6. Personal gameplay
+7. GitHub Actions and Cloudflare deployment
+8. Playwright coverage and MVP polish
+
+Post-MVP planning, architecture decisions, and implementation issues are maintained in the
+**Veo** Linear project by the **Quests** team.
