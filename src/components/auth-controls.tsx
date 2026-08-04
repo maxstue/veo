@@ -28,7 +28,7 @@ export function AuthControls() {
         {session.user.name}
       </span>
       <Button asChild size="sm" variant="ghost">
-        <Link to="/teams">
+        <Link aria-label="Teams" to="/teams">
           <Users aria-hidden="true" />
           <span className="hidden sm:inline">Teams</span>
         </Link>

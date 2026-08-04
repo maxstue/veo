@@ -7,7 +7,8 @@ und markieren Treffer während des Meetings.
 > **Status:** Frühe Entwicklung. Projektgrundgerüst, Datenmodell, Anmeldung, Teams, sichere
 > Einladungslinks, die gemeinsame Bingo-Begriffsbibliothek und der persönliche Spielablauf stehen.
 > GitHub Actions prüft Pull Requests und liefert erfolgreiche Änderungen auf `main` automatisch
-> nach Cloudflare aus. Als Nächstes folgen End-to-End-Tests und der abschließende MVP-Polish.
+> nach Cloudflare aus. Phase 8 sichert den vollständigen MVP-Ablauf mit Playwright auf Desktop und
+> Mobilgeräten ab und schließt den verbleibenden MVP-Polish ab.
 
 ## Produktidee
 
@@ -33,7 +34,7 @@ Im ersten MVP haben alle Mitglieder eines Teams dieselben Rechte.
 | Hosting             | Cloudflare Workers                                    |
 | Datenbank           | Cloudflare D1 mit Drizzle ORM                         |
 | Anmeldung           | Better Auth                                           |
-| End-to-End-Tests    | Playwright (geplant)                                  |
+| End-to-End-Tests    | Playwright                                            |
 
 Vite+ verwaltet die Node.js-Laufzeit, den Package Manager und die Frontend-Toolchain. Alle
 Dependency-Versionen stehen im pnpm-Catalog in `pnpm-workspace.yaml`; `package.json` verwendet
@@ -102,6 +103,7 @@ produktive D1 zu.
 vp check
 vp test
 vp build
+vp run test:e2e
 vp run db:check
 ```
 
@@ -114,6 +116,7 @@ vp run db:check
 | `vp check`                 | Formatierung, Linting und TypeScript gemeinsam prüfen         |
 | `vp check --fix`           | Behebbare Formatierungs- und Lint-Probleme korrigieren        |
 | `vp test`                  | Vitest ausführen                                              |
+| `vp run test:e2e`          | Playwright-MVP-Workflow auf Desktop und Mobilgerät ausführen  |
 | `vp build`                 | Produktions-Build für Cloudflare erzeugen                     |
 | `vp preview`               | Produktions-Build lokal anzeigen                              |
 | `vp run cf:typegen`        | Worker-Bindings aus `wrangler.jsonc` typisieren               |
@@ -166,6 +169,7 @@ vp run db:migrate:local
 vp check
 vp test
 vp build
+vp run test:e2e
 ```
 
 Erzeugte Migrationen und Drizzle-Metadaten werden gemeinsam mit der Schemaänderung committed.

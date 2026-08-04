@@ -10,6 +10,9 @@ dist-ssr
 .nitro
 .tanstack
 .wrangler
+.playwright/
+playwright-report/
+test-results/
 .output
 .vinxi
 __unconfig*

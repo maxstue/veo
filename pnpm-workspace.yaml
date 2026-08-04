@@ -14,6 +14,7 @@ catalog:
   "@cloudflare/workers-types": latest
   "@fontsource-variable/inter": latest
   "@fontsource-variable/space-grotesk": latest
+  "@playwright/test": latest
   "@tailwindcss/typography": latest
   "@tailwindcss/vite": latest
   "@tanstack/devtools-vite": latest

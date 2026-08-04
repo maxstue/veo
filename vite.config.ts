@@ -21,6 +21,7 @@ const config = defineConfig(({ mode }) => ({
     options: { typeAware: true, typeCheck: true },
   },
   test: {
+    include: ["src/**/*.test.{ts,tsx}"],
     passWithNoTests: true,
   },
   resolve: { tsconfigPaths: true },

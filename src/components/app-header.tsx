@@ -2,7 +2,6 @@ import { Link } from "@tanstack/react-router";
 import { Eye } from "lucide-react";
 
 import { AuthControls } from "./auth-controls";
-import { Badge } from "./ui/badge";
 
 export function AppHeader() {
   return (
@@ -14,9 +13,6 @@ export function AppHeader() {
         <span className="font-heading text-xl font-semibold tracking-tight">veo</span>
       </Link>
       <div className="flex items-center gap-3">
-        <Badge className="hidden sm:inline-flex" variant="secondary">
-          Phase 4
-        </Badge>
         <AuthControls />
       </div>
     </header>

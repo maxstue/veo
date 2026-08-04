@@ -37,13 +37,19 @@ function TeamPage() {
   const router = useRouter();
   const [newLink, setNewLink] = useState<string>();
   const [isCreating, setIsCreating] = useState(false);
+  const [invitationError, setInvitationError] = useState<string>();
 
   async function invite() {
+    setInvitationError(undefined);
     setIsCreating(true);
     try {
       const invitation = await createInvitation({ data: { teamId } });
       setNewLink(`${window.location.origin}/invite/${invitation.token}`);
       await router.invalidate();
+    } catch {
+      setInvitationError(
+        "Der Einladungslink konnte nicht erstellt werden. Bitte versuche es erneut.",
+      );
     } finally {
       setIsCreating(false);
     }
@@ -104,6 +110,17 @@ function TeamPage() {
           </Card>
         )}
 
+        {invitationError && (
+          <div className="pointer-events-none fixed inset-x-0 bottom-4 z-40 flex justify-center px-3 sm:bottom-6">
+            <p
+              className="rounded-2xl border border-destructive/20 bg-background px-4 py-2 text-sm text-destructive shadow-xl"
+              role="alert"
+            >
+              {invitationError}
+            </p>
+          </div>
+        )}
+
         <TermLibrary teamId={teamId} terms={data.terms} />
 
         <div className="grid gap-5 lg:grid-cols-2">
@@ -156,8 +173,17 @@ function TeamPage() {
                       <Button
                         aria-label="Einladung widerrufen"
                         onClick={async () => {
-                          await revokeInvitation({ data: { teamId, invitationId: invitation.id } });
-                          await router.invalidate();
+                          setInvitationError(undefined);
+                          try {
+                            await revokeInvitation({
+                              data: { teamId, invitationId: invitation.id },
+                            });
+                            await router.invalidate();
+                          } catch {
+                            setInvitationError(
+                              "Die Einladung konnte nicht widerrufen werden. Bitte lade die Seite neu und versuche es erneut.",
+                            );
+                          }
                         }}
                         size="icon-sm"
                         variant="ghost"
