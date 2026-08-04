@@ -6,7 +6,7 @@ import { AuthControls } from "./auth-controls";
 export function AppHeader() {
   return (
     <header className="flex items-center justify-between rounded-4xl border bg-card/75 px-4 py-3 shadow-sm backdrop-blur sm:px-5">
-      <Link className="flex items-center gap-2 no-underline" to="/" aria-label="Veo Startseite">
+      <Link className="flex items-center gap-2 no-underline" to="/" aria-label="Veo home">
         <span className="flex size-9 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
           <Eye className="size-5" aria-hidden="true" />
         </span>

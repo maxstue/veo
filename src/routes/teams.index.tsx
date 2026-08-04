@@ -5,6 +5,7 @@ import { type SubmitEvent, useState } from "react";
 import { AppHeader } from "#/components/app-header";
 import { Button } from "#/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card";
+import { formatAppDate } from "#/lib/locale";
 import { createTeam, getViewer, listTeams } from "#/lib/teams";
 
 export const Route = createFileRoute("/teams/")({
@@ -34,7 +35,7 @@ function TeamsPage() {
       await router.invalidate();
       await navigate({ to: "/teams/$teamId", params: { teamId: result.teamId } });
     } catch {
-      setError("Das Team konnte nicht erstellt werden. Prüfe den Namen und versuche es erneut.");
+      setError("The team could not be created. Check the name and try again.");
       setIsSubmitting(false);
     }
   }
@@ -44,9 +45,9 @@ function TeamsPage() {
       <AppHeader />
       <section className="py-10 sm:py-14">
         <div className="mb-8">
-          <p className="text-sm font-medium text-primary">Dein Veo</p>
+          <p className="text-sm font-medium text-primary">Your Veo</p>
           <h1 className="mt-1 text-4xl font-semibold tracking-tight">Teams</h1>
-          <p className="mt-2 text-muted-foreground">Wähle ein Team oder starte ein neues Bingo.</p>
+          <p className="mt-2 text-muted-foreground">Choose a team or start a new bingo.</p>
         </div>
 
         <div className="grid gap-5 lg:grid-cols-[1fr_22rem]">
@@ -63,7 +64,7 @@ function TeamsPage() {
                         <div>
                           <p className="font-semibold">{item.name}</p>
                           <p className="text-sm text-muted-foreground">
-                            Mitglied seit {formatDate(item.joinedAt)}
+                            Member since {formatAppDate(item.joinedAt)}
                           </p>
                         </div>
                       </div>
@@ -75,7 +76,7 @@ function TeamsPage() {
             ) : (
               <Card className="border-dashed">
                 <CardContent className="py-10 text-center text-muted-foreground">
-                  Du bist noch in keinem Team. Erstelle rechts dein erstes.
+                  You have not joined a team yet. Create your first one here.
                 </CardContent>
               </Card>
             )}
@@ -83,13 +84,13 @@ function TeamsPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Neues Team</CardTitle>
-              <CardDescription>Du wirst automatisch das erste Mitglied.</CardDescription>
+              <CardTitle>New team</CardTitle>
+              <CardDescription>You will automatically become the first member.</CardDescription>
             </CardHeader>
             <CardContent>
               <form className="space-y-4" onSubmit={submit}>
                 <label className="grid gap-2 text-sm font-medium">
-                  Teamname
+                  Team name
                   <input
                     className="h-11 rounded-2xl border bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
                     maxLength={80}
@@ -110,7 +111,7 @@ function TeamsPage() {
                   ) : (
                     <Plus aria-hidden="true" />
                   )}
-                  Team erstellen
+                  Create team
                 </Button>
               </form>
             </CardContent>
@@ -119,8 +120,4 @@ function TeamsPage() {
       </section>
     </main>
   );
-}
-
-function formatDate(value: Date) {
-  return new Intl.DateTimeFormat("de-DE", { dateStyle: "medium" }).format(value);
 }

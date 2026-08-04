@@ -4,5 +4,5 @@ test("signed-out viewers are redirected from protected team routes", async ({ pa
   await page.goto("/teams");
 
   await expect(page).toHaveURL(/\/auth\?returnTo=%2Fteams/);
-  await expect(page.getByText("Willkommen zurück", { exact: true })).toBeVisible();
+  await expect(page.getByText("Welcome back", { exact: true })).toBeVisible();
 });

@@ -18,18 +18,18 @@ export function AppErrorPage({ reset }: ErrorComponentProps) {
           <span className="mx-auto mb-2 flex size-12 items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
             <TriangleAlert aria-hidden="true" />
           </span>
-          <CardTitle>Veo konnte diese Seite nicht laden</CardTitle>
+          <CardTitle>Veo could not load this page</CardTitle>
           <CardDescription>
-            Bitte versuche es erneut. Falls der Fehler bestehen bleibt, kehre zur Startseite zurück.
+            Please try again. If the problem persists, return to the home page.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-2 sm:flex-row sm:justify-center">
           <Button onClick={reset}>
             <RotateCcw aria-hidden="true" />
-            Erneut versuchen
+            Try again
           </Button>
           <Button asChild variant="outline">
-            <Link to="/">Zur Startseite</Link>
+            <Link to="/">Go to home page</Link>
           </Button>
         </CardContent>
       </Card>

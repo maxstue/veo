@@ -18,19 +18,19 @@ test("registration, team, terms, invitation, and bingo work end to end", async (
     });
 
     await ownerPage.getByRole("link", { name: "Teams" }).click();
-    await ownerPage.getByLabel("Teamname").fill(teamName);
-    await ownerPage.getByRole("button", { name: "Team erstellen" }).click();
+    await ownerPage.getByLabel("Team name").fill(teamName);
+    await ownerPage.getByRole("button", { name: "Create team" }).click();
     await expect(ownerPage.getByRole("heading", { level: 1, name: teamName })).toBeVisible();
 
-    const termInput = ownerPage.getByLabel("Neuer Bingo-Begriff");
+    const termInput = ownerPage.getByLabel("New bingo term");
     for (let index = 1; index <= 25; index += 1) {
       await termInput.fill(`Meeting-Klassiker ${index}`);
-      await ownerPage.getByRole("button", { name: "Hinzufügen" }).click();
+      await ownerPage.getByRole("button", { name: "Add" }).click();
       await expect(termInput).toHaveValue("");
     }
     await expect(ownerPage.getByText("25 / 25")).toBeVisible();
 
-    await ownerPage.getByRole("button", { name: "Einladungslink erstellen" }).click();
+    await ownerPage.getByRole("button", { name: "Create invitation link" }).click();
     const invitationLink = await ownerPage
       .locator("p")
       .filter({ hasText: "http://localhost:5173/invite/" })
@@ -39,24 +39,24 @@ test("registration, team, terms, invitation, and bingo work end to end", async (
 
     const guestPage = await guestContext.newPage();
     await guestPage.goto(invitationLink!);
-    await expect(guestPage.getByText(`Einladung zu ${teamName}`, { exact: true })).toBeVisible();
-    await guestPage.getByRole("link", { name: "Anmelden und beitreten" }).click();
+    await expect(guestPage.getByText(`Invitation to ${teamName}`, { exact: true })).toBeVisible();
+    await guestPage.getByRole("link", { name: "Sign in and join" }).click();
     await selectRegistrationMode(guestPage);
     await fillRegistration(guestPage, {
       email: `guest-${runId}@example.test`,
       name: "Guest Playwright",
     });
 
-    await expect(guestPage.getByText(`Einladung zu ${teamName}`, { exact: true })).toBeVisible();
-    await guestPage.getByRole("button", { name: "Als Guest Playwright beitreten" }).click();
+    await expect(guestPage.getByText(`Invitation to ${teamName}`, { exact: true })).toBeVisible();
+    await guestPage.getByRole("button", { name: "Join as Guest Playwright" }).click();
     await expect(guestPage.getByRole("heading", { level: 1, name: teamName })).toBeVisible();
-    await expect(guestPage.getByText("2 Mitglieder")).toBeVisible();
+    await expect(guestPage.getByText("2 members")).toBeVisible();
 
     await ownerPage.reload();
-    await expect(ownerPage.getByText("2 Mitglieder")).toBeVisible();
-    await ownerPage.getByRole("link", { name: "Bingo spielen" }).click();
-    const card = ownerPage.getByRole("group", { name: "Bingo-Karte" });
-    const createCardButton = ownerPage.getByRole("button", { name: "Karte mischen" });
+    await expect(ownerPage.getByText("2 members")).toBeVisible();
+    await ownerPage.getByRole("link", { name: "Play bingo" }).click();
+    const card = ownerPage.getByRole("group", { name: "Bingo card" });
+    const createCardButton = ownerPage.getByRole("button", { name: "Shuffle card" });
     await expect(async () => {
       await createCardButton.click();
       expect((await createCardButton.isDisabled()) || (await card.isVisible())).toBe(true);
@@ -83,14 +83,14 @@ async function signUp(page: Page, user: { email: string; name: string }) {
 
 async function selectRegistrationMode(page: Page) {
   await expect(async () => {
-    await page.getByRole("button", { name: "Registrieren" }).click();
+    await page.getByRole("button", { name: "Sign up" }).click();
     await expect(page.getByLabel("Name")).toBeVisible({ timeout: 1_000 });
   }).toPass({ timeout: 10_000 });
 }
 
 async function fillRegistration(page: Page, user: { email: string; name: string }) {
   await page.getByLabel("Name").fill(user.name);
-  await page.getByLabel("E-Mail").fill(user.email);
-  await page.getByLabel("Passwort").fill(password);
-  await page.getByRole("button", { name: "Konto erstellen" }).click();
+  await page.getByLabel("Email").fill(user.email);
+  await page.getByLabel("Password").fill(password);
+  await page.getByRole("button", { name: "Create account" }).click();
 }

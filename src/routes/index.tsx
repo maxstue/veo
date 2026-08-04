@@ -9,32 +9,32 @@ import { AppHeader } from "#/components/app-header";
 export const Route = createFileRoute("/")({ component: Home });
 
 const bingoFields = [
-  "Du bist stumm",
-  "Könnt ihr mich sehen?",
-  "Kurze Frage",
-  "Ticket ist fast fertig",
-  "Das parken wir",
+  "You're on mute",
+  "Can you see my screen?",
+  "Quick question",
+  "The ticket is almost done",
+  "Let's park that",
   "FREE",
-  "Nur ganz kurz",
-  "Ich teile mal",
-  "Wer übernimmt das?",
+  "Just one quick thing",
+  "Let me share my screen",
+  "Who can take this?",
 ];
 
 const features = [
   {
     icon: Users,
-    title: "Ein Team, ein Pool",
-    description: "Erstellt ein Team und ladet alle per Link zu eurem Bingo ein.",
+    title: "One team, one pool",
+    description: "Create a team and invite everyone to your bingo with a link.",
   },
   {
     icon: PencilLine,
-    title: "Gemeinsam gepflegt",
-    description: "Jedes Mitglied kann Bingo-Begriffe hinzufügen und verbessern.",
+    title: "Built together",
+    description: "Every member can add and improve bingo terms.",
   },
   {
     icon: Sparkles,
-    title: "Jedes Meeting neu",
-    description: "Veo mischt für jede Runde ein persönliches Bingo-Board.",
+    title: "Fresh every meeting",
+    description: "Veo shuffles a personal bingo board for every round.",
   },
 ];
 
@@ -46,37 +46,37 @@ function Home() {
       <section className="grid flex-1 items-center gap-12 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-24">
         <div className="max-w-2xl">
           <Badge className="mb-5" variant="outline">
-            Bingo für bessere Meetings
+            Bingo for better meetings
           </Badge>
           <h1 className="text-5xl leading-[0.98] font-semibold tracking-[-0.04em] text-balance sm:text-6xl lg:text-7xl">
-            Mehr Aufmerksamkeit. Weniger Meeting-Autopilot.
+            More attention. Less meeting autopilot.
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-8 text-muted-foreground sm:text-xl">
-            Erstellt euer eigenes Team-Bingo für Dailys, Reviews und alles dazwischen. Gemeinsam
-            gepflegt, schnell gespielt und garantiert gesprächswürdig.
+            Create your own team bingo for daily stand-ups, reviews, and everything in between.
+            Built together, quick to play, and guaranteed to spark conversation.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button asChild size="lg">
-              <a href="#so-funktionierts">
-                Veo entdecken
+              <a href="#how-it-works">
+                Discover Veo
                 <ArrowRight data-icon="inline-end" aria-hidden="true" />
               </a>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <a href="#bingo-vorschau">Bingo ansehen</a>
+              <a href="#bingo-preview">Preview bingo</a>
             </Button>
           </div>
         </div>
 
         <Card
-          id="bingo-vorschau"
+          id="bingo-preview"
           className="mx-auto w-full max-w-lg border-0 shadow-2xl shadow-primary/10"
         >
           <CardHeader>
             <div className="flex items-center justify-between gap-4">
               <div>
                 <CardTitle className="text-xl">Daily Bingo</CardTitle>
-                <CardDescription>Team Veo · persönliche Runde</CardDescription>
+                <CardDescription>Team Veo · personal round</CardDescription>
               </div>
               <Badge>3 / 9</Badge>
             </div>
@@ -110,7 +110,7 @@ function Home() {
         </Card>
       </section>
 
-      <section id="so-funktionierts" className="grid scroll-mt-8 gap-4 pb-14 md:grid-cols-3">
+      <section id="how-it-works" className="grid scroll-mt-8 gap-4 pb-14 md:grid-cols-3">
         {features.map(({ icon: Icon, title, description }) => (
           <Card className="border-0 bg-card/75 shadow-sm backdrop-blur" key={title}>
             <CardHeader>

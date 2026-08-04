@@ -18,12 +18,12 @@ export const Route = createRootRoute({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "Veo — Bingo für bessere Meetings",
+        title: "Veo — Bingo for better meetings",
       },
       {
         name: "description",
         content:
-          "Veo macht Dailys und Team-Meetings mit gemeinsam gepflegtem Bingo aufmerksamer und unterhaltsamer.",
+          "Veo makes daily stand-ups and team meetings more engaging with collaborative bingo.",
       },
     ],
     links: [
@@ -40,7 +40,7 @@ export const Route = createRootRoute({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de">
+    <html lang="en">
       <head>
         <HeadContent />
       </head>

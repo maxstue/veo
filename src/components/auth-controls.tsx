@@ -9,14 +9,14 @@ export function AuthControls() {
   const { data: session, isPending, refetch } = authClient.useSession();
 
   if (isPending) {
-    return <div className="h-9 w-24 animate-pulse rounded-2xl bg-muted" aria-label="Laden" />;
+    return <div className="h-9 w-24 animate-pulse rounded-2xl bg-muted" aria-label="Loading" />;
   }
 
   if (!session) {
     return (
       <Button asChild size="sm">
         <Link search={{ returnTo: undefined }} to="/auth">
-          Anmelden
+          Sign in
         </Link>
       </Button>
     );
@@ -34,7 +34,7 @@ export function AuthControls() {
         </Link>
       </Button>
       <Button
-        aria-label="Abmelden"
+        aria-label="Sign out"
         onClick={async () => {
           await authClient.signOut();
           await refetch();

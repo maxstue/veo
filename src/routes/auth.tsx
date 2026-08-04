@@ -39,7 +39,7 @@ function AuthPage() {
         : await authClient.signIn.email({ email, password });
 
     if (result.error) {
-      setError(result.error.message || "Anmeldung fehlgeschlagen. Bitte versuche es erneut.");
+      setError(result.error.message || "Authentication failed. Please try again.");
       setIsSubmitting(false);
       return;
     }
@@ -51,7 +51,7 @@ function AuthPage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-6xl flex-col px-5 py-5 sm:px-8 lg:px-10">
       <header className="flex items-center justify-between">
-        <Link className="flex items-center gap-2 no-underline" to="/" aria-label="Veo Startseite">
+        <Link className="flex items-center gap-2 no-underline" to="/" aria-label="Veo home">
           <span className="flex size-9 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
             <Eye className="size-5" aria-hidden="true" />
           </span>
@@ -60,7 +60,7 @@ function AuthPage() {
         <Button asChild size="sm" variant="ghost">
           <Link to="/">
             <ArrowLeft aria-hidden="true" />
-            Zurück
+            Back
           </Link>
         </Button>
       </header>
@@ -72,12 +72,12 @@ function AuthPage() {
               <LockKeyhole className="size-5" aria-hidden="true" />
             </span>
             <CardTitle className="text-2xl">
-              {mode === "sign-in" ? "Willkommen zurück" : "Veo-Konto erstellen"}
+              {mode === "sign-in" ? "Welcome back" : "Create your Veo account"}
             </CardTitle>
             <CardDescription>
               {mode === "sign-in"
-                ? "Melde dich an, um mit deinem Team Bingo zu spielen."
-                : "Ein Konto genügt für alle deine Veo-Teams."}
+                ? "Sign in to play bingo with your team."
+                : "One account works across all your Veo teams."}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -90,7 +90,7 @@ function AuthPage() {
                 type="button"
                 variant={mode === "sign-in" ? "secondary" : "ghost"}
               >
-                Anmelden
+                Sign in
               </Button>
               <Button
                 onClick={() => {
@@ -100,27 +100,27 @@ function AuthPage() {
                 type="button"
                 variant={mode === "sign-up" ? "secondary" : "ghost"}
               >
-                Registrieren
+                Sign up
               </Button>
             </div>
 
             <form className="space-y-4" onSubmit={submit}>
               {mode === "sign-up" && (
-                <Field label="Name" name="name" autoComplete="name" placeholder="Dein Name" />
+                <Field label="Name" name="name" autoComplete="name" placeholder="Your name" />
               )}
               <Field
-                label="E-Mail"
+                label="Email"
                 name="email"
                 autoComplete="email"
-                placeholder="du@beispiel.de"
+                placeholder="you@example.com"
                 type="email"
               />
               <Field
-                label="Passwort"
+                label="Password"
                 name="password"
                 autoComplete={mode === "sign-in" ? "current-password" : "new-password"}
                 minLength={8}
-                placeholder="Mindestens 8 Zeichen"
+                placeholder="At least 8 characters"
                 type="password"
               />
 
@@ -135,13 +135,13 @@ function AuthPage() {
 
               <Button className="w-full" disabled={isSubmitting} size="lg" type="submit">
                 {isSubmitting && <LoaderCircle className="animate-spin" aria-hidden="true" />}
-                {mode === "sign-in" ? "Anmelden" : "Konto erstellen"}
+                {mode === "sign-in" ? "Sign in" : "Create account"}
               </Button>
             </form>
 
             <p className="mt-5 text-center text-xs leading-5 text-muted-foreground">
-              E-Mail-Verifikation und Passwort-Reset folgen nach dem MVP. Verwende vorerst eine
-              erreichbare Adresse und bewahre dein Passwort sicher auf.
+              Email verification and password resets are planned for a future release. For now, use
+              an address you can access and keep your password secure.
             </p>
           </CardContent>
         </Card>

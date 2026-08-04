@@ -29,9 +29,7 @@ function InvitationPage() {
       const result = await redeemInvitation({ data: { token } });
       await navigate({ to: "/teams/$teamId", params: { teamId: result.teamId } });
     } catch {
-      setError(
-        "Diese Einladung konnte nicht eingelöst werden. Möglicherweise wurde sie bereits verwendet.",
-      );
+      setError("This invitation could not be redeemed. It may already have been used.");
       setIsRedeeming(false);
     }
   }
@@ -54,11 +52,11 @@ function InvitationPage() {
             {valid ? <TicketCheck aria-hidden="true" /> : <TriangleAlert aria-hidden="true" />}
           </span>
           <CardTitle>
-            {valid ? `Einladung zu ${invitation.teamName}` : "Einladung nicht verfügbar"}
+            {valid ? `Invitation to ${invitation.teamName}` : "Invitation unavailable"}
           </CardTitle>
           <CardDescription>
             {valid
-              ? "Nimm die Einladung an und werde Mitglied dieses Veo-Teams."
+              ? "Accept the invitation and join this Veo team."
               : unavailableText[invitation.status]}
           </CardDescription>
         </CardHeader>
@@ -66,14 +64,14 @@ function InvitationPage() {
           {valid && !viewer && (
             <Button asChild className="w-full" size="lg">
               <Link search={{ returnTo }} to="/auth">
-                Anmelden und beitreten
+                Sign in and join
               </Link>
             </Button>
           )}
           {valid && viewer && (
             <Button className="w-full" disabled={isRedeeming} onClick={redeem} size="lg">
-              {isRedeeming && <LoaderCircle className="animate-spin" aria-hidden="true" />}Als{" "}
-              {viewer.name} beitreten
+              {isRedeeming && <LoaderCircle className="animate-spin" aria-hidden="true" />}Join as{" "}
+              {viewer.name}
             </Button>
           )}
           {error && (
@@ -83,7 +81,7 @@ function InvitationPage() {
           )}
           {!valid && (
             <Button asChild className="w-full" variant="outline">
-              <Link to="/">Zur Startseite</Link>
+              <Link to="/">Go to home page</Link>
             </Button>
           )}
         </CardContent>
@@ -93,8 +91,8 @@ function InvitationPage() {
 }
 
 const unavailableText = {
-  invalid: "Der Link ist ungültig.",
-  expired: "Der Link ist abgelaufen.",
-  revoked: "Der Link wurde widerrufen.",
-  redeemed: "Der Link wurde bereits eingelöst.",
+  invalid: "This link is invalid.",
+  expired: "This link has expired.",
+  revoked: "This link has been revoked.",
+  redeemed: "This link has already been redeemed.",
 } as const;

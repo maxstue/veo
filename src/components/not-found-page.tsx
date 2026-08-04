@@ -12,15 +12,15 @@ export function NotFoundPage() {
       <section className="grid place-items-center py-20 sm:py-28">
         <Card className="w-full max-w-lg border-dashed text-center">
           <CardContent className="py-10">
-            <p className="text-sm font-medium text-primary">404 · Nicht gefunden</p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight">Diese Seite ist weg.</h1>
+            <p className="text-sm font-medium text-primary">404 · Not found</p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight">This page is gone.</h1>
             <p className="mx-auto mt-3 max-w-sm text-muted-foreground">
-              Der Link ist möglicherweise veraltet oder die Adresse wurde falsch eingegeben.
+              The link may be outdated, or the address may have been entered incorrectly.
             </p>
             <Button asChild className="mt-6">
               <Link to="/">
                 <Home aria-hidden="true" />
-                Zur Startseite
+                Go to home page
               </Link>
             </Button>
           </CardContent>

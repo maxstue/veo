@@ -20,6 +20,7 @@ import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card";
 import { createBingoTerm, deleteBingoTerm, updateBingoTerm } from "#/lib/bingo-terms";
+import { formatAppDate } from "#/lib/locale";
 import { createInvitation, getTeam, getViewer, revokeInvitation } from "#/lib/teams";
 
 export const Route = createFileRoute("/teams/$teamId")({
@@ -47,9 +48,7 @@ function TeamPage() {
       setNewLink(`${window.location.origin}/invite/${invitation.token}`);
       await router.invalidate();
     } catch {
-      setInvitationError(
-        "Der Einladungslink konnte nicht erstellt werden. Bitte versuche es erneut.",
-      );
+      setInvitationError("The invitation link could not be created. Please try again.");
     } finally {
       setIsCreating(false);
     }
@@ -62,7 +61,7 @@ function TeamPage() {
         <Button asChild className="mb-5" size="sm" variant="ghost">
           <Link to="/teams">
             <ArrowLeft aria-hidden="true" />
-            Alle Teams
+            All teams
           </Link>
         </Button>
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
@@ -70,14 +69,14 @@ function TeamPage() {
             <p className="text-sm font-medium text-primary">Team</p>
             <h1 className="mt-1 text-4xl font-semibold tracking-tight">{data.team.name}</h1>
             <p className="mt-2 text-muted-foreground">
-              {data.members.length} {data.members.length === 1 ? "Mitglied" : "Mitglieder"}
+              {data.members.length} {data.members.length === 1 ? "member" : "members"}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button asChild>
               <Link params={{ teamId }} to="/teams/$teamId/play">
                 <Dices aria-hidden="true" />
-                Bingo spielen
+                Play bingo
               </Link>
             </Button>
             <Button disabled={isCreating} onClick={invite} variant="outline">
@@ -86,7 +85,7 @@ function TeamPage() {
               ) : (
                 <Link2 aria-hidden="true" />
               )}
-              Einladungslink erstellen
+              Create invitation link
             </Button>
           </div>
         </div>
@@ -95,7 +94,7 @@ function TeamPage() {
           <Card className="mb-5 border-primary/25 bg-primary/5">
             <CardContent className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center">
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium">Dieser Link wird nur einmal angezeigt</p>
+                <p className="text-sm font-medium">This link is shown only once</p>
                 <p className="truncate text-sm text-muted-foreground">{newLink}</p>
               </div>
               <Button
@@ -104,7 +103,7 @@ function TeamPage() {
                 variant="outline"
               >
                 <Copy aria-hidden="true" />
-                Kopieren
+                Copy
               </Button>
             </CardContent>
           </Card>
@@ -128,7 +127,7 @@ function TeamPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="size-5" aria-hidden="true" />
-                Mitglieder
+                Members
               </CardTitle>
             </CardHeader>
             <CardContent className="grid gap-3">
@@ -151,8 +150,10 @@ function TeamPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Einladungen</CardTitle>
-              <CardDescription>Links sind sieben Tage und nur einmal gültig.</CardDescription>
+              <CardTitle>Invitations</CardTitle>
+              <CardDescription>
+                Links are valid for seven days and can be used once.
+              </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-3">
               {data.invitations.length ? (
@@ -166,12 +167,12 @@ function TeamPage() {
                         {statusLabel[invitation.status]}
                       </Badge>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        Erstellt {formatDate(invitation.createdAt)}
+                        Created {formatAppDate(invitation.createdAt)}
                       </p>
                     </div>
                     {invitation.status === "active" && (
                       <Button
-                        aria-label="Einladung widerrufen"
+                        aria-label="Revoke invitation"
                         onClick={async () => {
                           setInvitationError(undefined);
                           try {
@@ -181,7 +182,7 @@ function TeamPage() {
                             await router.invalidate();
                           } catch {
                             setInvitationError(
-                              "Die Einladung konnte nicht widerrufen werden. Bitte lade die Seite neu und versuche es erneut.",
+                              "The invitation could not be revoked. Reload the page and try again.",
                             );
                           }
                         }}
@@ -195,7 +196,7 @@ function TeamPage() {
                 ))
               ) : (
                 <p className="py-5 text-center text-sm text-muted-foreground">
-                  Noch keine Einladungen.
+                  No invitations yet.
                 </p>
               )}
             </CardContent>
@@ -228,13 +229,13 @@ function TermLibrary({ teamId, terms }: { teamId: string; terms: TeamTerm[] }) {
         data: { teamId, label: typeof value === "string" ? value : "" },
       });
       if (result.status === "duplicate") {
-        setError("Dieser Begriff ist im Team bereits vorhanden.");
+        setError("This term already exists in the team.");
         return;
       }
       form.reset();
       await router.invalidate();
     } catch {
-      setError("Der Begriff ist leer, zu lang oder konnte nicht gespeichert werden.");
+      setError("The term is empty, too long, or could not be saved.");
     } finally {
       setPendingId(undefined);
     }
@@ -246,32 +247,32 @@ function TermLibrary({ teamId, terms }: { teamId: string; terms: TeamTerm[] }) {
     try {
       const result = await updateBingoTerm({ data: { teamId, termId, label: editingLabel } });
       if (result.status === "duplicate") {
-        setError("Dieser Begriff ist im Team bereits vorhanden.");
+        setError("This term already exists in the team.");
         return;
       }
       if (result.status === "not-found") {
-        setError("Der Begriff existiert nicht mehr.");
+        setError("This term no longer exists.");
         return;
       }
       setEditingId(undefined);
       await router.invalidate();
     } catch {
-      setError("Der Begriff ist leer, zu lang oder konnte nicht gespeichert werden.");
+      setError("The term is empty, too long, or could not be saved.");
     } finally {
       setPendingId(undefined);
     }
   }
 
   async function remove(term: TeamTerm) {
-    if (!window.confirm(`„${term.label}“ wirklich löschen?`)) return;
+    if (!window.confirm(`Delete “${term.label}”?`)) return;
     setError(undefined);
     setPendingId(term.id);
     try {
       const result = await deleteBingoTerm({ data: { teamId, termId: term.id } });
-      if (result.status === "not-found") setError("Der Begriff existiert nicht mehr.");
+      if (result.status === "not-found") setError("This term no longer exists.");
       await router.invalidate();
     } catch {
-      setError("Der Begriff konnte nicht gelöscht werden.");
+      setError("The term could not be deleted.");
     } finally {
       setPendingId(undefined);
     }
@@ -281,19 +282,19 @@ function TermLibrary({ teamId, terms }: { teamId: string; terms: TeamTerm[] }) {
     <Card className="mb-5">
       <CardHeader>
         <CardTitle className="flex items-center justify-between gap-3">
-          <span>Bingo-Begriffe</span>
+          <span>Bingo terms</span>
           <Badge variant={missingTerms ? "secondary" : "default"}>{terms.length} / 25</Badge>
         </CardTitle>
         <CardDescription>
           {missingTerms
-            ? `Noch ${missingTerms} ${missingTerms === 1 ? "Begriff" : "Begriffe"}, bevor ihr eine 5×5-Karte starten könnt.`
-            : "Genug Begriffe für eine 5×5-Karte. Ihr könnt jederzeit weitere ergänzen."}
+            ? `${missingTerms} more ${missingTerms === 1 ? "term is" : "terms are"} needed before you can start a 5×5 card.`
+            : "There are enough terms for a 5×5 card. You can add more at any time."}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form className="flex flex-col gap-2 sm:flex-row" onSubmit={add}>
           <label className="sr-only" htmlFor="new-term">
-            Neuer Bingo-Begriff
+            New bingo term
           </label>
           <input
             className="h-10 min-w-0 flex-1 rounded-2xl border bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
@@ -301,7 +302,7 @@ function TermLibrary({ teamId, terms }: { teamId: string; terms: TeamTerm[] }) {
             id="new-term"
             maxLength={80}
             name="label"
-            placeholder="Zum Beispiel: Du bist noch auf stumm"
+            placeholder="For example: You're still on mute"
             required
           />
           <Button disabled={pendingId === "new"} type="submit">
@@ -310,7 +311,7 @@ function TermLibrary({ teamId, terms }: { teamId: string; terms: TeamTerm[] }) {
             ) : (
               <Plus aria-hidden="true" />
             )}
-            Hinzufügen
+            Add
           </Button>
         </form>
 
@@ -329,7 +330,7 @@ function TermLibrary({ teamId, terms }: { teamId: string; terms: TeamTerm[] }) {
               <div className="flex min-w-0 items-center gap-2 rounded-2xl border p-2" key={term.id}>
                 {editingId === term.id ? (
                   <input
-                    aria-label="Bingo-Begriff bearbeiten"
+                    aria-label="Edit bingo term"
                     autoFocus
                     className="h-8 min-w-0 flex-1 rounded-xl border bg-background px-2 outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
                     maxLength={80}
@@ -348,7 +349,7 @@ function TermLibrary({ teamId, terms }: { teamId: string; terms: TeamTerm[] }) {
                 {editingId === term.id ? (
                   <>
                     <Button
-                      aria-label="Änderung speichern"
+                      aria-label="Save changes"
                       disabled={pendingId === term.id}
                       onClick={() => void save(term.id)}
                       size="icon-sm"
@@ -362,7 +363,7 @@ function TermLibrary({ teamId, terms }: { teamId: string; terms: TeamTerm[] }) {
                       )}
                     </Button>
                     <Button
-                      aria-label="Bearbeitung abbrechen"
+                      aria-label="Cancel editing"
                       onClick={() => setEditingId(undefined)}
                       size="icon-sm"
                       type="button"
@@ -374,7 +375,7 @@ function TermLibrary({ teamId, terms }: { teamId: string; terms: TeamTerm[] }) {
                 ) : (
                   <>
                     <Button
-                      aria-label={`„${term.label}“ bearbeiten`}
+                      aria-label={`Edit “${term.label}”`}
                       onClick={() => {
                         setEditingId(term.id);
                         setEditingLabel(term.label);
@@ -387,7 +388,7 @@ function TermLibrary({ teamId, terms }: { teamId: string; terms: TeamTerm[] }) {
                       <Pencil />
                     </Button>
                     <Button
-                      aria-label={`„${term.label}“ löschen`}
+                      aria-label={`Delete “${term.label}”`}
                       disabled={pendingId === term.id}
                       onClick={() => void remove(term)}
                       size="icon-sm"
@@ -406,7 +407,7 @@ function TermLibrary({ teamId, terms }: { teamId: string; terms: TeamTerm[] }) {
             ))
           ) : (
             <p className="col-span-full py-5 text-center text-sm text-muted-foreground">
-              Noch keine Begriffe. Fügt gemeinsam euren ersten Meeting-Klassiker hinzu.
+              No terms yet. Add your first meeting classic together.
             </p>
           )}
         </div>
@@ -416,11 +417,8 @@ function TermLibrary({ teamId, terms }: { teamId: string; terms: TeamTerm[] }) {
 }
 
 const statusLabel = {
-  active: "Aktiv",
-  redeemed: "Eingelöst",
-  revoked: "Widerrufen",
-  expired: "Abgelaufen",
+  active: "Active",
+  redeemed: "Redeemed",
+  revoked: "Revoked",
+  expired: "Expired",
 } as const;
-function formatDate(value: Date) {
-  return new Intl.DateTimeFormat("de-DE", { dateStyle: "medium" }).format(value);
-}

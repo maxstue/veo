@@ -38,7 +38,7 @@ function BingoPage() {
   const isTogglingCell = pending?.startsWith("cell-") ?? false;
 
   async function createCard() {
-    if (card && !window.confirm("Eine neue Karte erstellen und die aktuelle Karte ersetzen?")) {
+    if (card && !window.confirm("Create a new card and replace the current one?")) {
       return;
     }
     setError(undefined);
@@ -46,12 +46,12 @@ function BingoPage() {
     try {
       const result = await createBingoCard({ data: { teamId } });
       if (result.status === "insufficient-terms") {
-        setError(`Für eine Karte fehlen noch ${25 - result.available} Bingo-Begriffe.`);
+        setError(`${25 - result.available} more bingo terms are needed to create a card.`);
         return;
       }
       await router.invalidate();
     } catch {
-      setError("Die Karte konnte nicht erstellt werden.");
+      setError("The card could not be created.");
     } finally {
       setPending(undefined);
     }
@@ -65,21 +65,21 @@ function BingoPage() {
       if (result.bingo && !card?.bingo) setCelebration((value) => value + 1);
       await router.invalidate();
     } catch {
-      setError("Die Markierung konnte nicht gespeichert werden.");
+      setError("The mark could not be saved.");
     } finally {
       setPending(undefined);
     }
   }
 
   async function reset(cardId: string) {
-    if (!window.confirm("Alle Markierungen auf dieser Karte zurücksetzen?")) return;
+    if (!window.confirm("Clear all marks on this card?")) return;
     setError(undefined);
     setPending("reset");
     try {
       await resetBingoCard({ data: { teamId, cardId } });
       await router.invalidate();
     } catch {
-      setError("Die Markierungen konnten nicht zurückgesetzt werden.");
+      setError("The marks could not be cleared.");
     } finally {
       setPending(undefined);
     }
@@ -93,7 +93,7 @@ function BingoPage() {
         <Button asChild size="sm" variant="ghost">
           <Link params={{ teamId }} to="/teams/$teamId">
             <ArrowLeft aria-hidden="true" />
-            Zurück
+            Back
           </Link>
         </Button>
       </header>
@@ -108,14 +108,14 @@ function BingoPage() {
               ) : (
                 <Dices className="size-8" />
               )}
-              {card?.bingo ? "Bingo!" : "Deine Bingo-Karte"}
+              {card?.bingo ? "Bingo!" : "Your bingo card"}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
               {card
-                ? "Tippe auf ein Feld, sobald du den Begriff hörst. Alles wird automatisch gespeichert."
+                ? "Tap a cell when you hear the term. Everything is saved automatically."
                 : termCount >= 25
-                  ? "Mische deine persönliche 5×5-Karte und starte das Spiel."
-                  : `Noch ${25 - termCount} ${25 - termCount === 1 ? "Begriff" : "Begriffe"}, bevor ihr spielen könnt.`}
+                  ? "Shuffle your personal 5×5 card and start playing."
+                  : `${25 - termCount} more ${25 - termCount === 1 ? "term is" : "terms are"} needed before you can play.`}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -128,7 +128,7 @@ function BingoPage() {
                 variant="outline"
               >
                 <RotateCcw aria-hidden="true" />
-                Zurücksetzen
+                Clear marks
               </Button>
             )}
             <Button
@@ -142,7 +142,7 @@ function BingoPage() {
               ) : (
                 <Dices aria-hidden="true" />
               )}
-              {card ? "Neu mischen" : "Karte mischen"}
+              {card ? "Reshuffle" : "Shuffle card"}
             </Button>
           </div>
         </div>
@@ -150,7 +150,7 @@ function BingoPage() {
         <div className="flex min-h-0 w-full items-center justify-center">
           {card ? (
             <div
-              aria-label="Bingo-Karte"
+              aria-label="Bingo card"
               className={`grid aspect-square w-full max-w-full flex-none grid-cols-5 gap-1.5 rounded-3xl border bg-card/80 p-2 shadow-xl backdrop-blur sm:h-full sm:max-h-full sm:w-auto sm:gap-3 sm:p-4 ${
                 card.bingo ? "border-primary shadow-primary/15" : ""
               }`}
@@ -161,7 +161,7 @@ function BingoPage() {
                 const isPending = pending === `cell-${cell.position}`;
                 return (
                   <button
-                    aria-label={`${cell.labelSnapshot}${marked ? ", markiert" : ", nicht markiert"}`}
+                    aria-label={`${cell.labelSnapshot}${marked ? ", marked" : ", not marked"}`}
                     aria-pressed={marked}
                     className={`aspect-square min-w-0 rounded-xl border p-1 text-[0.62rem] font-medium leading-tight transition duration-200 sm:rounded-2xl sm:p-3 sm:text-sm lg:text-base ${
                       marked
@@ -183,10 +183,9 @@ function BingoPage() {
               <span className="mb-3 flex size-14 items-center justify-center rounded-3xl bg-primary/10 text-primary">
                 <Dices className="size-7" aria-hidden="true" />
               </span>
-              <h2 className="text-xl font-semibold">Bereit für dein Bingo?</h2>
+              <h2 className="text-xl font-semibold">Ready for your bingo?</h2>
               <p className="mt-1 max-w-md text-sm text-muted-foreground">
-                Deine Karte wird einmalig aus den Begriffen des Teams gemischt und bleibt danach
-                stabil.
+                Your card is shuffled once from the team's terms and remains stable afterwards.
               </p>
             </div>
           )}
