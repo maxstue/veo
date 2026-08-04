@@ -1,11 +1,24 @@
 import { createFileRoute, Link, redirect, useRouter } from "@tanstack/react-router";
-import { ArrowLeft, Copy, Link2, LoaderCircle, UserRound, Users, X } from "lucide-react";
-import { useState } from "react";
+import {
+  ArrowLeft,
+  Check,
+  Copy,
+  Link2,
+  LoaderCircle,
+  Pencil,
+  Plus,
+  Trash2,
+  UserRound,
+  Users,
+  X,
+} from "lucide-react";
+import { type SubmitEvent, useState } from "react";
 
 import { AppHeader } from "#/components/app-header";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card";
+import { createBingoTerm, deleteBingoTerm, updateBingoTerm } from "#/lib/bingo-terms";
 import { createInvitation, getTeam, getViewer, revokeInvitation } from "#/lib/teams";
 
 export const Route = createFileRoute("/teams/$teamId")({
@@ -82,6 +95,8 @@ function TeamPage() {
           </Card>
         )}
 
+        <TermLibrary teamId={teamId} terms={data.terms} />
+
         <div className="grid gap-5 lg:grid-cols-2">
           <Card>
             <CardHeader>
@@ -153,6 +168,215 @@ function TeamPage() {
         </div>
       </section>
     </main>
+  );
+}
+
+type TeamTerm = { id: string; label: string; updatedAt: Date };
+
+function TermLibrary({ teamId, terms }: { teamId: string; terms: TeamTerm[] }) {
+  const router = useRouter();
+  const [editingId, setEditingId] = useState<string>();
+  const [editingLabel, setEditingLabel] = useState("");
+  const [pendingId, setPendingId] = useState<string>();
+  const [error, setError] = useState<string>();
+  const missingTerms = Math.max(0, 25 - terms.length);
+
+  async function add(event: SubmitEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError(undefined);
+    setPendingId("new");
+    const form = event.currentTarget;
+    const value = new FormData(form).get("label");
+
+    try {
+      const result = await createBingoTerm({
+        data: { teamId, label: typeof value === "string" ? value : "" },
+      });
+      if (result.status === "duplicate") {
+        setError("Dieser Begriff ist im Team bereits vorhanden.");
+        return;
+      }
+      form.reset();
+      await router.invalidate();
+    } catch {
+      setError("Der Begriff ist leer, zu lang oder konnte nicht gespeichert werden.");
+    } finally {
+      setPendingId(undefined);
+    }
+  }
+
+  async function save(termId: string) {
+    setError(undefined);
+    setPendingId(termId);
+    try {
+      const result = await updateBingoTerm({ data: { teamId, termId, label: editingLabel } });
+      if (result.status === "duplicate") {
+        setError("Dieser Begriff ist im Team bereits vorhanden.");
+        return;
+      }
+      if (result.status === "not-found") {
+        setError("Der Begriff existiert nicht mehr.");
+        return;
+      }
+      setEditingId(undefined);
+      await router.invalidate();
+    } catch {
+      setError("Der Begriff ist leer, zu lang oder konnte nicht gespeichert werden.");
+    } finally {
+      setPendingId(undefined);
+    }
+  }
+
+  async function remove(term: TeamTerm) {
+    if (!window.confirm(`„${term.label}“ wirklich löschen?`)) return;
+    setError(undefined);
+    setPendingId(term.id);
+    try {
+      const result = await deleteBingoTerm({ data: { teamId, termId: term.id } });
+      if (result.status === "not-found") setError("Der Begriff existiert nicht mehr.");
+      await router.invalidate();
+    } catch {
+      setError("Der Begriff konnte nicht gelöscht werden.");
+    } finally {
+      setPendingId(undefined);
+    }
+  }
+
+  return (
+    <Card className="mb-5">
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between gap-3">
+          <span>Bingo-Begriffe</span>
+          <Badge variant={missingTerms ? "secondary" : "default"}>{terms.length} / 25</Badge>
+        </CardTitle>
+        <CardDescription>
+          {missingTerms
+            ? `Noch ${missingTerms} ${missingTerms === 1 ? "Begriff" : "Begriffe"}, bevor ihr eine 5×5-Karte starten könnt.`
+            : "Genug Begriffe für eine 5×5-Karte. Ihr könnt jederzeit weitere ergänzen."}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form className="flex flex-col gap-2 sm:flex-row" onSubmit={add}>
+          <label className="sr-only" htmlFor="new-term">
+            Neuer Bingo-Begriff
+          </label>
+          <input
+            className="h-10 min-w-0 flex-1 rounded-2xl border bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
+            disabled={pendingId === "new"}
+            id="new-term"
+            maxLength={80}
+            name="label"
+            placeholder="Zum Beispiel: Du bist noch auf stumm"
+            required
+          />
+          <Button disabled={pendingId === "new"} type="submit">
+            {pendingId === "new" ? (
+              <LoaderCircle className="animate-spin" aria-hidden="true" />
+            ) : (
+              <Plus aria-hidden="true" />
+            )}
+            Hinzufügen
+          </Button>
+        </form>
+
+        {error && (
+          <p
+            className="mt-3 rounded-2xl bg-destructive/10 px-3 py-2 text-sm text-destructive"
+            role="alert"
+          >
+            {error}
+          </p>
+        )}
+
+        <div className="mt-5 grid gap-2 sm:grid-cols-2">
+          {terms.length ? (
+            terms.map((term) => (
+              <div className="flex min-w-0 items-center gap-2 rounded-2xl border p-2" key={term.id}>
+                {editingId === term.id ? (
+                  <input
+                    aria-label="Bingo-Begriff bearbeiten"
+                    autoFocus
+                    className="h-8 min-w-0 flex-1 rounded-xl border bg-background px-2 outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
+                    maxLength={80}
+                    onChange={(event) => setEditingLabel(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") void save(term.id);
+                      if (event.key === "Escape") setEditingId(undefined);
+                    }}
+                    value={editingLabel}
+                  />
+                ) : (
+                  <span className="min-w-0 flex-1 truncate px-1 font-medium" title={term.label}>
+                    {term.label}
+                  </span>
+                )}
+                {editingId === term.id ? (
+                  <>
+                    <Button
+                      aria-label="Änderung speichern"
+                      disabled={pendingId === term.id}
+                      onClick={() => void save(term.id)}
+                      size="icon-sm"
+                      type="button"
+                      variant="ghost"
+                    >
+                      {pendingId === term.id ? (
+                        <LoaderCircle className="animate-spin" />
+                      ) : (
+                        <Check />
+                      )}
+                    </Button>
+                    <Button
+                      aria-label="Bearbeitung abbrechen"
+                      onClick={() => setEditingId(undefined)}
+                      size="icon-sm"
+                      type="button"
+                      variant="ghost"
+                    >
+                      <X />
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      aria-label={`„${term.label}“ bearbeiten`}
+                      onClick={() => {
+                        setEditingId(term.id);
+                        setEditingLabel(term.label);
+                        setError(undefined);
+                      }}
+                      size="icon-sm"
+                      type="button"
+                      variant="ghost"
+                    >
+                      <Pencil />
+                    </Button>
+                    <Button
+                      aria-label={`„${term.label}“ löschen`}
+                      disabled={pendingId === term.id}
+                      onClick={() => void remove(term)}
+                      size="icon-sm"
+                      type="button"
+                      variant="destructive"
+                    >
+                      {pendingId === term.id ? (
+                        <LoaderCircle className="animate-spin" />
+                      ) : (
+                        <Trash2 />
+                      )}
+                    </Button>
+                  </>
+                )}
+              </div>
+            ))
+          ) : (
+            <p className="col-span-full py-5 text-center text-sm text-muted-foreground">
+              Noch keine Begriffe. Fügt gemeinsam euren ersten Meeting-Klassiker hinzu.
+            </p>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

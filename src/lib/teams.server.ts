@@ -2,7 +2,7 @@ import { env } from "cloudflare:workers";
 import { and, asc, desc, eq, isNull } from "drizzle-orm";
 
 import { createDatabase } from "#/db/client";
-import { team, teamInvitation, teamMember, user } from "#/db/schema";
+import { bingoTerm, team, teamInvitation, teamMember, user } from "#/db/schema";
 
 import { getAuth } from "./auth.server";
 import { requireTeamMembership, requireUser } from "./auth-guards.server";
@@ -58,7 +58,7 @@ export async function getTeam(data: { teamId: string }) {
   const database = createDatabase(env.DB);
   const now = new Date();
 
-  const [teams, members, invitations] = await Promise.all([
+  const [teams, members, invitations, terms] = await Promise.all([
     database
       .select({ id: team.id, name: team.name, createdAt: team.createdAt })
       .from(team)
@@ -81,6 +81,11 @@ export async function getTeam(data: { teamId: string }) {
       .from(teamInvitation)
       .where(eq(teamInvitation.teamId, data.teamId))
       .orderBy(desc(teamInvitation.createdAt)),
+    database
+      .select({ id: bingoTerm.id, label: bingoTerm.label, updatedAt: bingoTerm.updatedAt })
+      .from(bingoTerm)
+      .where(eq(bingoTerm.teamId, data.teamId))
+      .orderBy(asc(bingoTerm.normalizedLabel)),
   ]);
 
   if (!teams[0]) {
@@ -90,6 +95,7 @@ export async function getTeam(data: { teamId: string }) {
   return {
     team: teams[0],
     members,
+    terms,
     invitations: invitations.map((invitation) => ({
       ...invitation,
       status: invitation.revokedAt

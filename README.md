@@ -4,8 +4,9 @@ Veo ist ein gemeinsam gepflegtes Bingo für Dailys, Reviews und andere Team-Meet
 Teammitglieder sammeln typische Aussagen und Situationen, erhalten ein persönliches Board
 und markieren Treffer während des Meetings.
 
-> **Status:** Frühe Entwicklung. Projektgrundgerüst, D1-/Drizzle-Datengrundlage und
-> Better-Auth-Anmeldung stehen; Teams und sichere Einladungslinks werden aktuell umgesetzt.
+> **Status:** Frühe Entwicklung. Projektgrundgerüst, Datenmodell, Anmeldung, Teams, sichere
+> Einladungslinks und die gemeinsame Bingo-Begriffsbibliothek stehen. Als Nächstes folgt der
+> persönliche Spielablauf.
 
 ## Produktidee
 
@@ -235,12 +236,14 @@ authentifizierten Wrangler-Session zu einem erfolgreichen Deployment.
 
 ## Roadmap
 
-1. Better Auth und geschützte Routen einrichten
-2. Teams und Einladungen implementieren
-3. Bingo-Begriffe gemeinsam verwalten
-4. persönlichen Spielablauf umsetzen
-5. GitHub Actions und Cloudflare-Deployment ergänzen
-6. Playwright-Tests und MVP-Polish abschließen
+1. Foundation und Design
+2. D1-/Drizzle-Datengrundlage
+3. Better Auth und geschützte Routen
+4. Teams und Einladungen
+5. Bingo-Begriffe gemeinsam verwalten
+6. Persönlichen Spielablauf umsetzen
+7. GitHub Actions und Cloudflare-Deployment ergänzen
+8. Playwright-Tests und MVP-Polish abschließen
 
 Planung, Architekturentscheidungen und Umsetzungstickets werden im Linear-Projekt **Veo** im
 Team **Quests** gepflegt.
