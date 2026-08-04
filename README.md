@@ -96,6 +96,8 @@ Wrangler state; `--remote` accesses the production D1 database after Cloudflare 
 ### Before committing
 
 ```bash
+vp run fmt:check
+vp run lint
 vp check
 vp test
 vp build
@@ -109,6 +111,9 @@ vp run db:check
 | -------------------------- | ------------------------------------------------------ |
 | `vp install`               | Install dependencies with the pinned pnpm version      |
 | `vp dev`                   | Start the development server                           |
+| `vp run fmt`               | Format supported files in place                        |
+| `vp run fmt:check`         | Check formatting without changing files                |
+| `vp run lint`              | Run the configured type-aware linter                   |
 | `vp check`                 | Check formatting, linting, and TypeScript together     |
 | `vp check --fix`           | Fix supported formatting and linting issues            |
 | `vp test`                  | Run Vitest                                             |
@@ -207,6 +212,8 @@ vp dlx -p shadcn@latest -- shadcn add dialog
 At minimum, run these checks before committing:
 
 ```bash
+vp run fmt:check
+vp run lint
 vp check
 vp test
 vp build

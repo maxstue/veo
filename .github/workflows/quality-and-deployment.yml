@@ -34,7 +34,13 @@ jobs:
       - name: Install dependencies
         run: vp install
 
-      - name: Check formatting, linting, and types
+      - name: Check formatting script
+        run: vp run fmt:check
+
+      - name: Check lint script
+        run: vp run lint
+
+      - name: Check formatting, linting, and types together
         run: vp check
 
       - name: Run unit tests
