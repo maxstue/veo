@@ -2,18 +2,20 @@ import { createLink, type LinkComponent } from "@tanstack/react-router";
 import { type VariantProps } from "class-variance-authority";
 import * as React from "react";
 
-import { Button, buttonVariants } from "./button";
+import { cn } from "#/lib/utils";
+
+import { buttonVariants } from "./button";
 
 type ButtonLinkBaseProps = React.AnchorHTMLAttributes<HTMLAnchorElement> &
   VariantProps<typeof buttonVariants>;
 
 const ButtonLinkBase = React.forwardRef<HTMLAnchorElement, ButtonLinkBaseProps>(
-  ({ size, variant, ...props }, ref) => (
-    <Button
-      nativeButton={false}
-      render={<a ref={ref} {...props} />}
-      size={size}
-      variant={variant}
+  ({ className, size, variant, ...props }, ref) => (
+    <a
+      ref={ref}
+      className={cn(buttonVariants({ className, size, variant }))}
+      data-slot="button"
+      {...props}
     />
   ),
 );
