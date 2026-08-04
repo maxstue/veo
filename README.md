@@ -1,5 +1,7 @@
 # Veo
 
+[![Quality gate status](https://sonarcloud.io/api/project_badges/measure?project=maxstue_veo&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=maxstue_veo)
+
 Veo is a collaborative bingo game for daily stand-ups, reviews, and other team meetings.
 Team members collect familiar phrases and situations, receive a personal board, and mark
 matches as the meeting unfolds.
