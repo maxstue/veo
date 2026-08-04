@@ -21,6 +21,7 @@
     "prepare": "vp config"
   },
   "dependencies": {
+    "@base-ui/react": "catalog:",
     "@better-auth/drizzle-adapter": "catalog:",
     "@fontsource-variable/inter": "catalog:",
     "@fontsource-variable/space-grotesk": "catalog:",
@@ -34,7 +35,6 @@
     "clsx": "catalog:",
     "drizzle-orm": "catalog:",
     "lucide-react": "catalog:",
-    "radix-ui": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "shadcn": "catalog:",

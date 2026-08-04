@@ -3,6 +3,7 @@ import { Eye, LoaderCircle, TicketCheck, TriangleAlert } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "#/components/ui/button";
+import { ButtonLink } from "#/components/ui/button-link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card";
 import { getInvitation, getViewer, redeemInvitation } from "#/lib/teams";
 
@@ -41,13 +42,13 @@ function InvitationPage() {
       <Card className="w-full max-w-md border-0 text-center shadow-2xl shadow-primary/10">
         <CardHeader>
           <Link className="mx-auto mb-4 flex items-center gap-2 no-underline" to="/">
-            <span className="flex size-9 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+            <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <Eye className="size-5" aria-hidden="true" />
             </span>
             <span className="font-heading text-xl font-semibold">veo</span>
           </Link>
           <span
-            className={`mx-auto mb-2 flex size-12 items-center justify-center rounded-2xl ${valid ? "bg-accent text-accent-foreground" : "bg-destructive/10 text-destructive"}`}
+            className={`mx-auto mb-2 flex size-12 items-center justify-center rounded-lg ${valid ? "bg-accent text-accent-foreground" : "bg-destructive/10 text-destructive"}`}
           >
             {valid ? <TicketCheck aria-hidden="true" /> : <TriangleAlert aria-hidden="true" />}
           </span>
@@ -62,11 +63,9 @@ function InvitationPage() {
         </CardHeader>
         <CardContent>
           {valid && !viewer && (
-            <Button asChild className="w-full" size="lg">
-              <Link search={{ returnTo }} to="/auth">
-                Sign in and join
-              </Link>
-            </Button>
+            <ButtonLink className="w-full" search={{ returnTo }} size="lg" to="/auth">
+              Sign in and join
+            </ButtonLink>
           )}
           {valid && viewer && (
             <Button className="w-full" disabled={isRedeeming} onClick={redeem} size="lg">
@@ -80,9 +79,9 @@ function InvitationPage() {
             </p>
           )}
           {!valid && (
-            <Button asChild className="w-full" variant="outline">
-              <Link to="/">Go to home page</Link>
-            </Button>
+            <ButtonLink className="w-full" to="/" variant="outline">
+              Go to home page
+            </ButtonLink>
           )}
         </CardContent>
       </Card>

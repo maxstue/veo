@@ -3,6 +3,7 @@ import { ArrowLeft, Eye, LoaderCircle, LockKeyhole } from "lucide-react";
 import { type InputHTMLAttributes, type SubmitEvent, useState } from "react";
 
 import { Button } from "#/components/ui/button";
+import { ButtonLink } from "#/components/ui/button-link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card";
 import { authClient } from "#/lib/auth-client";
 
@@ -52,23 +53,21 @@ function AuthPage() {
     <main className="mx-auto flex min-h-screen max-w-6xl flex-col px-5 py-5 sm:px-8 lg:px-10">
       <header className="flex items-center justify-between">
         <Link className="flex items-center gap-2 no-underline" to="/" aria-label="Veo home">
-          <span className="flex size-9 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
+          <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
             <Eye className="size-5" aria-hidden="true" />
           </span>
           <span className="font-heading text-xl font-semibold tracking-tight">veo</span>
         </Link>
-        <Button asChild size="sm" variant="ghost">
-          <Link to="/">
-            <ArrowLeft aria-hidden="true" />
-            Back
-          </Link>
-        </Button>
+        <ButtonLink size="sm" to="/" variant="ghost">
+          <ArrowLeft aria-hidden="true" />
+          Back
+        </ButtonLink>
       </header>
 
       <section className="grid flex-1 place-items-center py-12">
         <Card className="w-full max-w-md border-0 shadow-2xl shadow-primary/10">
           <CardHeader className="text-center">
-            <span className="mx-auto mb-2 flex size-11 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
+            <span className="mx-auto mb-2 flex size-11 items-center justify-center rounded-lg bg-accent text-accent-foreground">
               <LockKeyhole className="size-5" aria-hidden="true" />
             </span>
             <CardTitle className="text-2xl">
@@ -81,7 +80,7 @@ function AuthPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="mb-6 grid grid-cols-2 rounded-2xl bg-muted p-1">
+            <div className="mb-6 grid grid-cols-2 rounded-lg bg-muted p-1">
               <Button
                 onClick={() => {
                   setMode("sign-in");
@@ -126,7 +125,7 @@ function AuthPage() {
 
               {error && (
                 <p
-                  className="rounded-2xl bg-destructive/10 px-3 py-2 text-sm text-destructive"
+                  className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive"
                   role="alert"
                 >
                   {error}
@@ -170,7 +169,7 @@ function Field({
     <label className="grid gap-2 text-sm font-medium">
       {label}
       <input
-        className="h-11 rounded-2xl border bg-background px-3 text-base outline-none transition-shadow placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
+        className="h-11 rounded-lg border bg-background px-3 text-base outline-none transition-shadow placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
         name={name}
         required
         {...inputProps}

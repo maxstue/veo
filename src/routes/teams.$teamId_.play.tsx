@@ -1,8 +1,9 @@
-import { createFileRoute, Link, redirect, useRouter } from "@tanstack/react-router";
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { ArrowLeft, Dices, LoaderCircle, RotateCcw, Trophy } from "lucide-react";
 import { type CSSProperties, useState } from "react";
 
 import { Button } from "#/components/ui/button";
+import { ButtonLink } from "#/components/ui/button-link";
 import { createBingoCard, getBingoGame, resetBingoCard, toggleBingoCell } from "#/lib/bingo-cards";
 import { getTeam, getViewer } from "#/lib/teams";
 
@@ -90,12 +91,10 @@ function BingoPage() {
       {celebration > 0 && <Confetti key={celebration} />}
 
       <header>
-        <Button asChild size="sm" variant="ghost">
-          <Link params={{ teamId }} to="/teams/$teamId">
-            <ArrowLeft aria-hidden="true" />
-            Back
-          </Link>
-        </Button>
+        <ButtonLink params={{ teamId }} size="sm" to="/teams/$teamId" variant="ghost">
+          <ArrowLeft aria-hidden="true" />
+          Back
+        </ButtonLink>
       </header>
 
       <section className="grid min-h-0 grid-rows-[auto_minmax(0,1fr)] justify-items-center gap-3">
@@ -146,7 +145,7 @@ function BingoPage() {
         <div className="flex min-h-0 w-full items-center justify-center">
           {card ? (
             <fieldset
-              className={`grid aspect-square w-full max-w-full flex-none grid-cols-5 gap-1.5 rounded-3xl border bg-card/80 p-2 shadow-xl backdrop-blur sm:h-full sm:max-h-full sm:w-auto sm:gap-3 sm:p-4 ${
+              className={`grid aspect-square w-full max-w-full flex-none grid-cols-5 gap-1.5 rounded-xl border bg-card/80 p-2 shadow-xl backdrop-blur sm:h-full sm:max-h-full sm:w-auto sm:gap-3 sm:p-4 ${
                 card.bingo ? "border-primary shadow-primary/15" : ""
               }`}
             >
@@ -158,7 +157,7 @@ function BingoPage() {
                   <button
                     aria-label={`${cell.labelSnapshot}${marked ? ", marked" : ", not marked"}`}
                     aria-pressed={marked}
-                    className={`aspect-square min-w-0 rounded-xl border p-1 text-[0.62rem] font-medium leading-tight transition duration-200 sm:rounded-2xl sm:p-3 sm:text-sm lg:text-base ${
+                    className={`aspect-square min-w-0 rounded-lg border p-1 text-[0.62rem] font-medium leading-tight transition duration-200 sm:p-3 sm:text-sm lg:text-base ${
                       marked
                         ? "scale-[0.97] border-primary bg-primary text-primary-foreground shadow-md"
                         : "bg-background hover:-translate-y-0.5 hover:border-primary/50 hover:bg-primary/5"
@@ -174,8 +173,8 @@ function BingoPage() {
               })}
             </fieldset>
           ) : (
-            <div className="flex h-full max-h-96 w-full max-w-4xl flex-col items-center justify-center rounded-3xl border border-dashed bg-card/70 p-6 text-center">
-              <span className="mb-3 flex size-14 items-center justify-center rounded-3xl bg-primary/10 text-primary">
+            <div className="flex h-full max-h-96 w-full max-w-4xl flex-col items-center justify-center rounded-xl border border-dashed bg-card/70 p-6 text-center">
+              <span className="mb-3 flex size-14 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <Dices className="size-7" aria-hidden="true" />
               </span>
               <h2 className="text-xl font-semibold">Ready for your bingo?</h2>
@@ -190,7 +189,7 @@ function BingoPage() {
       {error && (
         <div className="pointer-events-none fixed inset-x-0 bottom-4 z-40 flex justify-center px-3 sm:bottom-6">
           <p
-            className="animate-in fade-in slide-in-from-bottom-4 rounded-2xl border border-destructive/20 bg-background px-4 py-2 text-sm text-destructive shadow-xl duration-300"
+            className="animate-in fade-in slide-in-from-bottom-4 rounded-lg border border-destructive/20 bg-background px-4 py-2 text-sm text-destructive shadow-xl duration-300"
             role="alert"
           >
             {error}

@@ -56,14 +56,17 @@ function Home() {
             Built together, quick to play, and guaranteed to spark conversation.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Button asChild size="lg">
-              <a href="#how-it-works">
-                Discover Veo
-                <ArrowRight data-icon="inline-end" aria-hidden="true" />
-              </a>
+            <Button nativeButton={false} render={<a href="#how-it-works" />} size="lg">
+              Discover Veo
+              <ArrowRight data-icon="inline-end" aria-hidden="true" />
             </Button>
-            <Button asChild size="lg" variant="outline">
-              <a href="#bingo-preview">Preview bingo</a>
+            <Button
+              nativeButton={false}
+              render={<a href="#bingo-preview" />}
+              size="lg"
+              variant="outline"
+            >
+              Preview bingo
             </Button>
           </div>
         </div>
@@ -88,7 +91,7 @@ function Home() {
 
                 return (
                   <div
-                    className={`relative flex aspect-square items-center justify-center rounded-2xl border p-2 text-center text-xs leading-tight font-medium sm:text-sm ${
+                    className={`relative flex aspect-square items-center justify-center rounded-lg border p-2 text-center text-xs leading-tight font-medium sm:text-sm ${
                       selected
                         ? "border-primary/25 bg-primary text-primary-foreground shadow-md shadow-primary/15"
                         : "bg-muted/55 text-foreground"
@@ -114,7 +117,7 @@ function Home() {
         {features.map(({ icon: Icon, title, description }) => (
           <Card className="border-0 bg-card/75 shadow-sm backdrop-blur" key={title}>
             <CardHeader>
-              <span className="mb-2 flex size-10 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
+              <span className="mb-2 flex size-10 items-center justify-center rounded-lg bg-accent text-accent-foreground">
                 <Icon className="size-5" aria-hidden="true" />
               </span>
               <CardTitle>{title}</CardTitle>

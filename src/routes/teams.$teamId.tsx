@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect, useRouter } from "@tanstack/react-router";
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import {
   ArrowLeft,
   Check,
@@ -18,6 +18,7 @@ import { type SubmitEvent, useState } from "react";
 import { AppHeader } from "#/components/app-header";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { ButtonLink } from "#/components/ui/button-link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card";
 import { createBingoTerm, deleteBingoTerm, updateBingoTerm } from "#/lib/bingo-terms";
 import { formatAppDate } from "#/lib/locale";
@@ -58,12 +59,10 @@ function TeamPage() {
     <main className="mx-auto min-h-screen max-w-6xl px-5 py-5 sm:px-8 lg:px-10">
       <AppHeader />
       <section className="py-10 sm:py-14">
-        <Button asChild className="mb-5" size="sm" variant="ghost">
-          <Link to="/teams">
-            <ArrowLeft aria-hidden="true" />
-            All teams
-          </Link>
-        </Button>
+        <ButtonLink className="mb-5" size="sm" to="/teams" variant="ghost">
+          <ArrowLeft aria-hidden="true" />
+          All teams
+        </ButtonLink>
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-sm font-medium text-primary">Team</p>
@@ -73,12 +72,10 @@ function TeamPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button asChild>
-              <Link params={{ teamId }} to="/teams/$teamId/play">
-                <Dices aria-hidden="true" />
-                Play bingo
-              </Link>
-            </Button>
+            <ButtonLink params={{ teamId }} to="/teams/$teamId/play">
+              <Dices aria-hidden="true" />
+              Play bingo
+            </ButtonLink>
             <Button disabled={isCreating} onClick={invite} variant="outline">
               {isCreating ? (
                 <LoaderCircle className="animate-spin" aria-hidden="true" />
@@ -112,7 +109,7 @@ function TeamPage() {
         {invitationError && (
           <div className="pointer-events-none fixed inset-x-0 bottom-4 z-40 flex justify-center px-3 sm:bottom-6">
             <p
-              className="rounded-2xl border border-destructive/20 bg-background px-4 py-2 text-sm text-destructive shadow-xl"
+              className="rounded-lg border border-destructive/20 bg-background px-4 py-2 text-sm text-destructive shadow-xl"
               role="alert"
             >
               {invitationError}
@@ -132,10 +129,7 @@ function TeamPage() {
             </CardHeader>
             <CardContent className="grid gap-3">
               {data.members.map((member) => (
-                <div
-                  className="flex items-center gap-3 rounded-2xl bg-muted/55 p-3"
-                  key={member.id}
-                >
+                <div className="flex items-center gap-3 rounded-lg bg-muted/55 p-3" key={member.id}>
                   <span className="flex size-9 items-center justify-center rounded-xl bg-background">
                     <UserRound className="size-4" aria-hidden="true" />
                   </span>
@@ -159,7 +153,7 @@ function TeamPage() {
               {data.invitations.length ? (
                 data.invitations.map((invitation) => (
                   <div
-                    className="flex items-center justify-between gap-3 rounded-2xl border p-3"
+                    className="flex items-center justify-between gap-3 rounded-lg border p-3"
                     key={invitation.id}
                   >
                     <div>
@@ -293,7 +287,7 @@ function TermLibrary({ teamId, terms }: { teamId: string; terms: TeamTerm[] }) {
             New bingo term
           </label>
           <input
-            className="h-10 min-w-0 flex-1 rounded-2xl border bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
+            className="h-10 min-w-0 flex-1 rounded-lg border bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
             disabled={pendingId === "new"}
             id="new-term"
             maxLength={80}
@@ -313,7 +307,7 @@ function TermLibrary({ teamId, terms }: { teamId: string; terms: TeamTerm[] }) {
 
         {error && (
           <p
-            className="mt-3 rounded-2xl bg-destructive/10 px-3 py-2 text-sm text-destructive"
+            className="mt-3 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive"
             role="alert"
           >
             {error}
@@ -323,7 +317,7 @@ function TermLibrary({ teamId, terms }: { teamId: string; terms: TeamTerm[] }) {
         <div className="mt-5 grid gap-2 sm:grid-cols-2">
           {terms.length ? (
             terms.map((term) => (
-              <div className="flex min-w-0 items-center gap-2 rounded-2xl border p-2" key={term.id}>
+              <div className="flex min-w-0 items-center gap-2 rounded-lg border p-2" key={term.id}>
                 {editingId === term.id ? (
                   <input
                     aria-label="Edit bingo term"

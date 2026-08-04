@@ -1,24 +1,22 @@
-import { Link } from "@tanstack/react-router";
 import { LogOut, Users } from "lucide-react";
 
 import { authClient } from "#/lib/auth-client";
 
 import { Button } from "./ui/button";
+import { ButtonLink } from "./ui/button-link";
 
 export function AuthControls() {
   const { data: session, isPending, refetch } = authClient.useSession();
 
   if (isPending) {
-    return <div className="h-9 w-24 animate-pulse rounded-2xl bg-muted" aria-label="Loading" />;
+    return <div className="h-9 w-24 animate-pulse rounded-lg bg-muted" aria-label="Loading" />;
   }
 
   if (!session) {
     return (
-      <Button asChild size="sm">
-        <Link search={{ returnTo: undefined }} to="/auth">
-          Sign in
-        </Link>
-      </Button>
+      <ButtonLink search={{ returnTo: undefined }} size="sm" to="/auth">
+        Sign in
+      </ButtonLink>
     );
   }
 
@@ -27,12 +25,10 @@ export function AuthControls() {
       <span className="hidden max-w-48 truncate text-sm text-muted-foreground sm:block">
         {session.user.name}
       </span>
-      <Button asChild size="sm" variant="ghost">
-        <Link aria-label="Teams" to="/teams">
-          <Users aria-hidden="true" />
-          <span className="hidden sm:inline">Teams</span>
-        </Link>
-      </Button>
+      <ButtonLink aria-label="Teams" size="sm" to="/teams" variant="ghost">
+        <Users aria-hidden="true" />
+        <span className="hidden sm:inline">Teams</span>
+      </ButtonLink>
       <Button
         aria-label="Sign out"
         onClick={async () => {

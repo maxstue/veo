@@ -1,8 +1,7 @@
-import { Link } from "@tanstack/react-router";
 import { Home } from "lucide-react";
 
 import { AppHeader } from "./app-header";
-import { Button } from "./ui/button";
+import { ButtonLink } from "./ui/button-link";
 import { Card, CardContent } from "./ui/card";
 
 export function NotFoundPage() {
@@ -17,12 +16,10 @@ export function NotFoundPage() {
             <p className="mx-auto mt-3 max-w-sm text-muted-foreground">
               The link may be outdated, or the address may have been entered incorrectly.
             </p>
-            <Button asChild className="mt-6">
-              <Link to="/">
-                <Home aria-hidden="true" />
-                Go to home page
-              </Link>
-            </Button>
+            <ButtonLink className="mt-6" to="/">
+              <Home aria-hidden="true" />
+              Go to home page
+            </ButtonLink>
           </CardContent>
         </Card>
       </section>

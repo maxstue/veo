@@ -9,6 +9,7 @@ onlyBuiltDependencies:
   - sharp
   - workerd
 catalog:
+  "@base-ui/react": 1.6.0
   "@better-auth/drizzle-adapter": 1.6.25
   "@cloudflare/vite-plugin": 1.50.0
   "@cloudflare/workers-types": 5.20260801.1
@@ -33,7 +34,6 @@ catalog:
   drizzle-kit: 0.31.10
   drizzle-orm: 0.45.2
   lucide-react: 1.28.0
-  radix-ui: 1.6.7
   react: 19.2.8
   react-dom: 19.2.8
   shadcn: 4.16.1

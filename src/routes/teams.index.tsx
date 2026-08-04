@@ -58,7 +58,7 @@ function TeamsPage() {
                   <Card className="transition-colors hover:border-primary/40">
                     <CardContent className="flex items-center justify-between py-5">
                       <div className="flex items-center gap-3">
-                        <span className="flex size-10 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
+                        <span className="flex size-10 items-center justify-center rounded-lg bg-accent text-accent-foreground">
                           <Users className="size-5" aria-hidden="true" />
                         </span>
                         <div>
@@ -92,7 +92,7 @@ function TeamsPage() {
                 <label className="grid gap-2 text-sm font-medium">
                   <span>Team name</span>
                   <input
-                    className="h-11 rounded-2xl border bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
+                    className="h-11 rounded-lg border bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
                     maxLength={80}
                     minLength={2}
                     name="name"
