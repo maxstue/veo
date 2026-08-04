@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="190" height="64" viewBox="0 0 190 64" role="img" aria-labelledby="title">
+  <title id="title">Veo</title>
+  <defs>
+    <mask id="tiles">
+      <rect width="64" height="64" fill="black" />
+      <rect x="4" y="4" width="27" height="27" rx="7" fill="white" />
+      <rect x="33" y="4" width="27" height="27" rx="7" fill="white" />
+      <rect x="4" y="33" width="27" height="27" rx="7" fill="white" />
+      <circle cx="32" cy="32" r="9" fill="black" />
+    </mask>
+  </defs>
+  <rect width="64" height="64" fill="#6d28d9" mask="url(#tiles)" />
+  <circle cx="47" cy="47" r="13" fill="#ff625d" />
+  <g fill="none" stroke="#18181b" stroke-linecap="round" stroke-linejoin="round" stroke-width="7">
+    <path d="M78 21l10 27 10-27" />
+    <path d="M128 43c-3 4-7 6-12 6-8 0-13-6-13-14s5-14 13-14c7 0 12 5 12 12h-25" />
+    <circle cx="151" cy="35" r="14" />
+  </g>
+</svg>

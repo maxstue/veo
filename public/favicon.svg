@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <defs>
+    <mask id="tiles">
+      <rect width="64" height="64" fill="black" />
+      <rect x="4" y="4" width="27" height="27" rx="7" fill="white" />
+      <rect x="33" y="4" width="27" height="27" rx="7" fill="white" />
+      <rect x="4" y="33" width="27" height="27" rx="7" fill="white" />
+      <circle cx="32" cy="32" r="9" fill="black" />
+    </mask>
+  </defs>
+  <rect width="64" height="64" fill="#6d28d9" mask="url(#tiles)" />
+  <circle cx="47" cy="47" r="13" fill="#ff625d" />
+</svg>

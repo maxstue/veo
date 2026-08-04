@@ -30,11 +30,48 @@ export const Route = createRootRoute({
         content:
           "Veo makes daily stand-ups and team meetings more engaging with collaborative bingo.",
       },
+      {
+        property: "og:title",
+        content: "Veo — Bingo for better meetings",
+      },
+      {
+        property: "og:description",
+        content:
+          "Veo makes daily stand-ups and team meetings more engaging with collaborative bingo.",
+      },
+      {
+        property: "og:image",
+        content: "/brand/social-preview.png",
+      },
+      {
+        name: "twitter:card",
+        content: "summary_large_image",
+      },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
+      },
+      {
+        rel: "icon",
+        href: "/favicon.svg",
+        type: "image/svg+xml",
+      },
+      {
+        rel: "icon",
+        href: "/brand/favicon-32.png",
+        type: "image/png",
+        sizes: "32x32",
+      },
+      {
+        rel: "apple-touch-icon",
+        href: "/brand/apple-touch-icon.png",
+        sizes: "180x180",
+      },
+      {
+        rel: "manifest",
+        href: "/site.webmanifest",
       },
     ],
   }),

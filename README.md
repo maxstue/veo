@@ -1,4 +1,8 @@
-# Veo
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./public/brand/logo-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="./public/brand/logo.svg">
+  <img src="./public/brand/logo.png" alt="Veo" width="190">
+</picture>
 
 [![Quality gate status](https://sonarcloud.io/api/project_badges/measure?project=maxstue_veo&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=maxstue_veo)
 
@@ -213,6 +217,13 @@ Add new components through Vite+:
 ```bash
 vp dlx -p shadcn@latest -- shadcn add dialog
 ```
+
+## Brand assets
+
+The Veo mark combines three bingo tiles around a shared center with a coral final marker that
+completes the pattern. SVG files in `public/brand/` are the source assets used by the interface,
+favicon, and repository. PNG files are generated fallbacks for platform icons, manifests, social
+previews, and renderers without SVG support.
 
 ## Quality and Git workflow
 
