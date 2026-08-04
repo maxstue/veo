@@ -5,8 +5,8 @@ Teammitglieder sammeln typische Aussagen und Situationen, erhalten ein persönli
 und markieren Treffer während des Meetings.
 
 > **Status:** Frühe Entwicklung. Projektgrundgerüst, Datenmodell, Anmeldung, Teams, sichere
-> Einladungslinks und die gemeinsame Bingo-Begriffsbibliothek stehen. Als Nächstes folgt der
-> persönliche Spielablauf.
+> Einladungslinks, die gemeinsame Bingo-Begriffsbibliothek und der persönliche Spielablauf stehen.
+> Als Nächstes folgt die CI/CD- und Deployment-Pipeline.
 
 ## Produktidee
 

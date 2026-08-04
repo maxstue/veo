@@ -3,6 +3,7 @@ import {
   ArrowLeft,
   Check,
   Copy,
+  Dices,
   Link2,
   LoaderCircle,
   Pencil,
@@ -66,14 +67,22 @@ function TeamPage() {
               {data.members.length} {data.members.length === 1 ? "Mitglied" : "Mitglieder"}
             </p>
           </div>
-          <Button disabled={isCreating} onClick={invite}>
-            {isCreating ? (
-              <LoaderCircle className="animate-spin" aria-hidden="true" />
-            ) : (
-              <Link2 aria-hidden="true" />
-            )}
-            Einladungslink erstellen
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild>
+              <Link params={{ teamId }} to="/teams/$teamId/play">
+                <Dices aria-hidden="true" />
+                Bingo spielen
+              </Link>
+            </Button>
+            <Button disabled={isCreating} onClick={invite} variant="outline">
+              {isCreating ? (
+                <LoaderCircle className="animate-spin" aria-hidden="true" />
+              ) : (
+                <Link2 aria-hidden="true" />
+              )}
+              Einladungslink erstellen
+            </Button>
+          </div>
         </div>
 
         {newLink && (

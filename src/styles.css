@@ -148,3 +148,32 @@
     color: oklch(0.22 0.08 292.7);
   }
 }
+
+@keyframes veo-confetti-fall {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, -8vh, 0) rotate(0deg);
+  }
+
+  100% {
+    opacity: 0.9;
+    transform: translate3d(var(--confetti-drift), 112vh, 0) rotate(var(--confetti-spin));
+  }
+}
+
+.veo-confetti {
+  position: absolute;
+  top: -2rem;
+  left: var(--confetti-left);
+  width: 0.65rem;
+  height: 1.1rem;
+  border-radius: 0.2rem;
+  background: var(--confetti-color);
+  animation: veo-confetti-fall var(--confetti-duration) ease-in var(--confetti-delay) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .veo-confetti {
+    display: none;
+  }
+}
