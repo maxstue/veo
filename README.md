@@ -6,7 +6,8 @@ und markieren Treffer während des Meetings.
 
 > **Status:** Frühe Entwicklung. Projektgrundgerüst, Datenmodell, Anmeldung, Teams, sichere
 > Einladungslinks, die gemeinsame Bingo-Begriffsbibliothek und der persönliche Spielablauf stehen.
-> Als Nächstes folgt die CI/CD- und Deployment-Pipeline.
+> GitHub Actions prüft Pull Requests und liefert erfolgreiche Änderungen auf `main` automatisch
+> nach Cloudflare aus. Als Nächstes folgen End-to-End-Tests und der abschließende MVP-Polish.
 
 ## Produktidee
 
@@ -224,15 +225,33 @@ Textdateien werden über `.gitattributes` repositoryweit mit LF gespeichert.
 
 ## Deployment
 
-Der Cloudflare-Adapter ist eingerichtet und `vp build` erzeugt Client- und Worker-Artefakte.
-Für ein produktives Deployment fehlen derzeit noch:
+Der Workflow `.github/workflows/quality-and-deployment.yml` führt bei Pull Requests und Änderungen
+auf `main` nacheinander `vp check`, `vp test` und `vp build` aus. Nur ein erfolgreicher Lauf auf
+`main` darf den geschützten GitHub-Environment `production` verwenden. Der Produktionsjob wendet
+zuerst alle Remote-D1-Migrationen an und deployt den Worker erst nach einer erfolgreichen
+Migration. Eine Concurrency-Gruppe verhindert, dass zwei Produktions-Releases gleichzeitig
+migrieren.
 
-1. Better-Auth-Secrets,
-2. GitHub-Actions-Workflow,
-3. Verbindung der Domain `veo.justmax.xyz`.
+Im GitHub-Environment `production` werden ausschließlich diese Secrets hinterlegt:
 
-Bis diese Infrastruktur eingerichtet ist, führt `vp run deploy` nur mit einer lokal
-authentifizierten Wrangler-Session zu einem erfolgreichen Deployment.
+- `CLOUDFLARE_ACCOUNT_ID`: ID des Cloudflare-Accounts,
+- `CLOUDFLARE_API_TOKEN`: auf den Veo-Account begrenztes Token mit `Workers Scripts: Edit` und
+  `D1: Edit`.
+
+SonarQube Cloud untersucht das Repository über **Automatic Analysis**. Dafür sind weder ein
+zusätzlicher GitHub-Actions-Job noch ein `SONAR_TOKEN` im Repository notwendig. Der
+GitHub-Environment sollte vor dem ersten Release mit den gewünschten Deployment-Schutzregeln
+versehen werden.
+
+`BETTER_AUTH_SECRET` bleibt ausschließlich ein Cloudflare Worker Secret und wird weder in GitHub
+noch im Repository gespeichert. Es muss vor dem ersten Deployment einmalig gesetzt werden:
+
+```bash
+vp exec wrangler secret put BETTER_AUTH_SECRET
+```
+
+Die Wrangler-Konfiguration verbindet den Worker als Custom Domain mit `veo.justmax.xyz`. Das
+Cloudflare-Token und der Account müssen auf die zugehörige Zone zugreifen können.
 
 ## Roadmap
 
