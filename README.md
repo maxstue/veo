@@ -237,6 +237,14 @@ docs: describe local d1 setup
 
 `.gitattributes` enforces LF line endings for text files across the repository.
 
+## SonarQube Cloud
+
+[SonarQube Cloud](https://sonarcloud.io/summary/new_code?id=maxstue_veo) provides automated
+code-quality and security analysis. We use the hosted service because it integrates directly
+with GitHub and requires no separately operated SonarQube server. The badge at the top of this
+README shows the current Quality Gate; implementation and operating details are documented in
+[QUEST-48](https://linear.app/justmax/issue/QUEST-48/sonarqube-oder-sonarcloud-integrieren).
+
 ## Deployment
 
 The `.github/workflows/quality-and-deployment.yml` workflow runs `vp check`, `vp test`, and
@@ -251,9 +259,8 @@ Only these secrets belong in the `production` GitHub environment:
 - `CLOUDFLARE_API_TOKEN`: a token restricted to the Veo account with `Workers Scripts: Edit` and
   `D1: Edit` permissions.
 
-SonarQube Cloud analyzes the repository with **Automatic Analysis**. This requires neither an
-additional GitHub Actions job nor a `SONAR_TOKEN` in the repository. Configure the desired
-deployment protection rules on the GitHub environment before the first release.
+Configure the desired deployment protection rules on the GitHub environment before the first
+release.
 
 `BETTER_AUTH_SECRET` remains a Cloudflare Worker secret and is stored neither in GitHub nor in
 the repository. Set it once before the first deployment:
