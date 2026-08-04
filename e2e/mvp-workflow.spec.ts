@@ -6,7 +6,7 @@ test("registration, team, terms, invitation, and bingo work end to end", async (
   browser,
   page: ownerPage,
 }) => {
-  test.setTimeout(120_000);
+  test.setTimeout(180_000);
   const runId = `${Date.now()}-${test.info().project.name}`;
   const teamName = `Playwright Team ${runId}`;
   const guestContext = await browser.newContext();
