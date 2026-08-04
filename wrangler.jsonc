@@ -4,6 +4,7 @@
   "compatibility_date": "2026-08-02",
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
+  "routes": [{ "pattern": "veo.justmax.xyz", "custom_domain": true }],
   "secrets": {
     "required": ["BETTER_AUTH_SECRET"],
   },
