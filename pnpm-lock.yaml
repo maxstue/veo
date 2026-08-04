@@ -206,110 +206,110 @@ settings:
 catalogs:
   default:
     '@better-auth/drizzle-adapter':
-      specifier: latest
+      specifier: 1.6.25
       version: 1.6.25
     '@cloudflare/vite-plugin':
-      specifier: latest
+      specifier: 1.50.0
       version: 1.50.0
     '@cloudflare/workers-types':
-      specifier: latest
+      specifier: 5.20260801.1
       version: 5.20260801.1
     '@fontsource-variable/inter':
-      specifier: latest
+      specifier: 5.3.0
       version: 5.3.0
     '@fontsource-variable/space-grotesk':
-      specifier: latest
+      specifier: 5.3.0
       version: 5.3.0
     '@playwright/test':
-      specifier: latest
+      specifier: 1.62.1
       version: 1.62.1
     '@tailwindcss/typography':
-      specifier: latest
+      specifier: 0.5.20
       version: 0.5.20
     '@tailwindcss/vite':
-      specifier: latest
+      specifier: 4.3.3
       version: 4.3.3
     '@tanstack/devtools-vite':
-      specifier: latest
+      specifier: 0.8.3
       version: 0.8.3
     '@tanstack/react-devtools':
-      specifier: latest
+      specifier: 0.10.9
       version: 0.10.9
     '@tanstack/react-router':
-      specifier: latest
+      specifier: 1.170.18
       version: 1.170.18
     '@tanstack/react-router-devtools':
-      specifier: latest
+      specifier: 1.167.0
       version: 1.167.0
     '@tanstack/react-start':
-      specifier: latest
+      specifier: 1.168.34
       version: 1.168.34
     '@tanstack/router-cli':
-      specifier: latest
+      specifier: 1.167.21
       version: 1.167.21
     '@types/node':
-      specifier: latest
+      specifier: 26.1.2
       version: 26.1.2
     '@types/react':
-      specifier: latest
+      specifier: 19.2.18
       version: 19.2.18
     '@types/react-dom':
-      specifier: latest
+      specifier: 19.2.4
       version: 19.2.4
     '@vitejs/plugin-react':
-      specifier: latest
+      specifier: 6.0.5
       version: 6.0.5
     better-auth:
-      specifier: latest
+      specifier: 1.6.25
       version: 1.6.25
     class-variance-authority:
-      specifier: latest
+      specifier: 0.7.1
       version: 0.7.1
     clsx:
-      specifier: latest
+      specifier: 2.1.1
       version: 2.1.1
     drizzle-kit:
-      specifier: latest
+      specifier: 0.31.10
       version: 0.31.10
     drizzle-orm:
-      specifier: latest
+      specifier: 0.45.2
       version: 0.45.2
     lucide-react:
-      specifier: latest
+      specifier: 1.28.0
       version: 1.28.0
     radix-ui:
-      specifier: latest
+      specifier: 1.6.7
       version: 1.6.7
     react:
-      specifier: latest
+      specifier: 19.2.8
       version: 19.2.8
     react-dom:
-      specifier: latest
+      specifier: 19.2.8
       version: 19.2.8
     shadcn:
-      specifier: latest
+      specifier: 4.16.1
       version: 4.16.1
     tailwind-merge:
-      specifier: latest
+      specifier: 3.6.0
       version: 3.6.0
     tailwindcss:
-      specifier: latest
+      specifier: 4.3.3
       version: 4.3.3
     tw-animate-css:
-      specifier: latest
+      specifier: 1.4.0
       version: 1.4.0
     typescript:
-      specifier: latest
+      specifier: 7.0.2
       version: 7.0.2
     vite-plus:
-      specifier: latest
+      specifier: 0.2.7
       version: 0.2.7
     wrangler:
-      specifier: latest
+      specifier: 4.118.0
       version: 4.118.0
 
 overrides:
-  vite: npm:@voidzero-dev/vite-plus-core@latest
+  vite: npm:@voidzero-dev/vite-plus-core@0.2.7
 
 importers:
 
@@ -413,7 +413,7 @@ importers:
         specifier: 'catalog:'
         version: 7.0.2
       vite:
-        specifier: npm:@voidzero-dev/vite-plus-core@latest
+        specifier: npm:@voidzero-dev/vite-plus-core@0.2.7
         version: '@voidzero-dev/vite-plus-core@0.2.7(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.4)(typescript@7.0.2)'
       vite-plus:
         specifier: 'catalog:'
