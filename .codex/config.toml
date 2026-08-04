@@ -1,0 +1,4 @@
+[mcp_servers.sonarqube]
+command = "sonar"
+args = ["run", "mcp", "--project", "maxstue_veo"]
+default_tools_approval_mode = "writes"

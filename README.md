@@ -6,6 +6,11 @@ Veo is a collaborative bingo game for daily stand-ups, reviews, and other team m
 Team members collect familiar phrases and situations, receive a personal board, and mark
 matches as the meeting unfolds.
 
+## Why “Veo”?
+
+“Veo” is Spanish for “I see.” The name reflects what the game asks people to do: pay closer
+attention, spot familiar moments in a meeting, and turn them into shared fun through bingo.
+
 > **Status:** The MVP is implemented. It includes the application foundation, data model,
 > authentication, teams, secure invitation links, the shared bingo term library, personal
 > gameplay, CI/CD, and end-to-end coverage of the core workflow on desktop and mobile.
