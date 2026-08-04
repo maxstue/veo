@@ -1,0 +1,59 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":semanticCommitTypeAll(build)",
+    ":timezone(Europe/Berlin)"
+  ],
+  "assignees": ["maxstue"],
+  "labels": ["dependencies"],
+  "enabledManagers": ["npm", "github-actions"],
+  "minimumReleaseAge": "2 days",
+  "rangeStrategy": "bump",
+  "schedule": ["before 8am on monday"],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 8am on monday"],
+    "commitMessageAction": "refresh",
+    "automerge": true,
+    "automergeType": "pr"
+  },
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["dependencies", "security"],
+    "assignees": ["maxstue"],
+    "automerge": false
+  },
+  "packageRules": [
+    {
+      "description": "Keep runtime compatibility requirements stable.",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["engines"],
+      "enabled": false
+    },
+    {
+      "description": "Group GitHub Actions updates.",
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions",
+      "commitMessageTopic": "github actions",
+      "automerge": false
+    },
+    {
+      "description": "Group frontend package patch and minor updates.",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "groupName": "frontend packages",
+      "commitMessageTopic": "frontend packages",
+      "automerge": false
+    },
+    {
+      "description": "Keep major updates isolated for review.",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true,
+      "automerge": false
+    }
+  ]
+}
