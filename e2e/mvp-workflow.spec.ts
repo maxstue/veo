@@ -55,8 +55,12 @@ test("registration, team, terms, invitation, and bingo work end to end", async (
     await ownerPage.reload();
     await expect(ownerPage.getByText("2 Mitglieder")).toBeVisible();
     await ownerPage.getByRole("link", { name: "Bingo spielen" }).click();
-    await ownerPage.getByRole("button", { name: "Karte mischen" }).click();
     const card = ownerPage.getByRole("group", { name: "Bingo-Karte" });
+    const createCardButton = ownerPage.getByRole("button", { name: "Karte mischen" });
+    await expect(async () => {
+      await createCardButton.click();
+      expect((await createCardButton.isDisabled()) || (await card.isVisible())).toBe(true);
+    }).toPass({ timeout: 10_000 });
     await expect(card).toBeVisible();
 
     for (let position = 0; position < 5; position += 1) {
