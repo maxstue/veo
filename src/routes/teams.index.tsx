@@ -90,7 +90,7 @@ function TeamsPage() {
             <CardContent>
               <form className="space-y-4" onSubmit={submit}>
                 <label className="grid gap-2 text-sm font-medium">
-                  Team name
+                  <span>Team name</span>
                   <input
                     className="h-11 rounded-2xl border bg-background px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
                     maxLength={80}

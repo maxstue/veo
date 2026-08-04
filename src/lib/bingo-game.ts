@@ -41,7 +41,7 @@ function createWinningLines() {
 }
 
 function secureRandomIndex(upperBound: number) {
-  const maximum = 0x1_0000_0000;
+  const maximum = 2 ** 32;
   const unbiasedLimit = maximum - (maximum % upperBound);
   const value = new Uint32Array(1);
 

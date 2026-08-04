@@ -98,15 +98,19 @@ export async function getTeam(data: { teamId: string }) {
     terms,
     invitations: invitations.map((invitation) => ({
       ...invitation,
-      status: invitation.revokedAt
-        ? ("revoked" as const)
-        : invitation.redeemedAt
-          ? ("redeemed" as const)
-          : invitation.expiresAt <= now
-            ? ("expired" as const)
-            : ("active" as const),
+      status: getInvitationStatus(invitation, now),
     })),
   };
+}
+
+function getInvitationStatus(
+  invitation: { expiresAt: Date; redeemedAt: Date | null; revokedAt: Date | null },
+  now: Date,
+) {
+  if (invitation.revokedAt) return "revoked" as const;
+  if (invitation.redeemedAt) return "redeemed" as const;
+  if (invitation.expiresAt <= now) return "expired" as const;
+  return "active" as const;
 }
 
 export async function createInvitation(data: { teamId: string }) {

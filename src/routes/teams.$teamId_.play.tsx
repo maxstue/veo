@@ -111,11 +111,7 @@ function BingoPage() {
               {card?.bingo ? "Bingo!" : "Your bingo card"}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              {card
-                ? "Tap a cell when you hear the term. Everything is saved automatically."
-                : termCount >= 25
-                  ? "Shuffle your personal 5×5 card and start playing."
-                  : `${25 - termCount} more ${25 - termCount === 1 ? "term is" : "terms are"} needed before you can play.`}
+              {getGameInstructions(Boolean(card), termCount)}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -149,13 +145,12 @@ function BingoPage() {
 
         <div className="flex min-h-0 w-full items-center justify-center">
           {card ? (
-            <div
-              aria-label="Bingo card"
+            <fieldset
               className={`grid aspect-square w-full max-w-full flex-none grid-cols-5 gap-1.5 rounded-3xl border bg-card/80 p-2 shadow-xl backdrop-blur sm:h-full sm:max-h-full sm:w-auto sm:gap-3 sm:p-4 ${
                 card.bingo ? "border-primary shadow-primary/15" : ""
               }`}
-              role="group"
             >
+              <legend className="sr-only">Bingo card</legend>
               {card.cells.map((cell) => {
                 const marked = Boolean(cell.markedAt);
                 const isPending = pending === `cell-${cell.position}`;
@@ -177,7 +172,7 @@ function BingoPage() {
                   </button>
                 );
               })}
-            </div>
+            </fieldset>
           ) : (
             <div className="flex h-full max-h-96 w-full max-w-4xl flex-col items-center justify-center rounded-3xl border border-dashed bg-card/70 p-6 text-center">
               <span className="mb-3 flex size-14 items-center justify-center rounded-3xl bg-primary/10 text-primary">
@@ -207,6 +202,19 @@ function BingoPage() {
 }
 
 const confettiColors = ["#7c3aed", "#ec4899", "#f59e0b", "#10b981", "#3b82f6"];
+
+function getGameInstructions(hasCard: boolean, termCount: number) {
+  if (hasCard) {
+    return "Tap a cell when you hear the term. Everything is saved automatically.";
+  }
+  if (termCount >= 25) {
+    return "Shuffle your personal 5×5 card and start playing.";
+  }
+
+  const missingTerms = 25 - termCount;
+  const subject = missingTerms === 1 ? "term is" : "terms are";
+  return `${missingTerms} more ${subject} needed before you can play.`;
+}
 
 function Confetti() {
   return (

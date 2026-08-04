@@ -285,11 +285,7 @@ function TermLibrary({ teamId, terms }: { teamId: string; terms: TeamTerm[] }) {
           <span>Bingo terms</span>
           <Badge variant={missingTerms ? "secondary" : "default"}>{terms.length} / 25</Badge>
         </CardTitle>
-        <CardDescription>
-          {missingTerms
-            ? `${missingTerms} more ${missingTerms === 1 ? "term is" : "terms are"} needed before you can start a 5×5 card.`
-            : "There are enough terms for a 5×5 card. You can add more at any time."}
-        </CardDescription>
+        <CardDescription>{getTermRequirementText(missingTerms)}</CardDescription>
       </CardHeader>
       <CardContent>
         <form className="flex flex-col gap-2 sm:flex-row" onSubmit={add}>
@@ -422,3 +418,12 @@ const statusLabel = {
   revoked: "Revoked",
   expired: "Expired",
 } as const;
+
+function getTermRequirementText(missingTerms: number) {
+  if (missingTerms === 0) {
+    return "There are enough terms for a 5×5 card. You can add more at any time.";
+  }
+
+  const subject = missingTerms === 1 ? "term is" : "terms are";
+  return `${missingTerms} more ${subject} needed before you can start a 5×5 card.`;
+}

@@ -1,6 +1,6 @@
 export function createToken() {
   const bytes = crypto.getRandomValues(new Uint8Array(32));
-  return btoa(String.fromCharCode(...bytes))
+  return btoa(String.fromCodePoint(...bytes))
     .replaceAll("+", "-")
     .replaceAll("/", "_")
     .replaceAll("=", "");
