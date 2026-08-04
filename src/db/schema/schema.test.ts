@@ -1,10 +1,10 @@
 import { getTableConfig } from "drizzle-orm/sqlite-core";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect, test } from "vite-plus/test";
 
 import { bingoCardCell, bingoTerm, teamMember, user } from "./index";
 
 describe("database schema", () => {
-  it("keeps user emails unique for Better Auth", () => {
+  test("keeps user emails unique for Better Auth", () => {
     const config = getTableConfig(user);
 
     expect(config.indexes).toEqual(
@@ -16,7 +16,7 @@ describe("database schema", () => {
     );
   });
 
-  it("allows a user to join a team only once", () => {
+  test("allows a user to join a team only once", () => {
     const config = getTableConfig(teamMember);
 
     expect(config.primaryKeys[0]?.columns.map((column) => column.name)).toEqual([
@@ -25,7 +25,7 @@ describe("database schema", () => {
     ]);
   });
 
-  it("keeps normalized bingo terms unique within a team", () => {
+  test("keeps normalized bingo terms unique within a team", () => {
     const config = getTableConfig(bingoTerm);
     const uniqueIndex = config.indexes.find(
       (candidate) => candidate.config.name === "bingo_term_team_normalized_label_unique",
@@ -39,7 +39,7 @@ describe("database schema", () => {
     ).toEqual(["team_id", "normalized_label"]);
   });
 
-  it("stores stable labels at one position per card", () => {
+  test("stores stable labels at one position per card", () => {
     const config = getTableConfig(bingoCardCell);
 
     expect(config.primaryKeys[0]?.columns.map((column) => column.name)).toEqual([

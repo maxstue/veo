@@ -4,8 +4,8 @@ Veo ist ein gemeinsam gepflegtes Bingo für Dailys, Reviews und andere Team-Meet
 Teammitglieder sammeln typische Aussagen und Situationen, erhalten ein persönliches Board
 und markieren Treffer während des Meetings.
 
-> **Status:** Frühe Entwicklung. Projektgrundgerüst und D1-/Drizzle-Datengrundlage stehen;
-> die selbst gehostete Authentifizierung mit Better Auth wird aktuell umgesetzt.
+> **Status:** Frühe Entwicklung. Projektgrundgerüst, D1-/Drizzle-Datengrundlage und
+> Better-Auth-Anmeldung stehen; Teams und sichere Einladungslinks werden aktuell umgesetzt.
 
 ## Produktidee
 
@@ -30,7 +30,7 @@ Im ersten MVP haben alle Mitglieder eines Teams dieselben Rechte.
 | Design              | Maia, Neutral/Violet, Space Grotesk, Inter und Lucide |
 | Hosting             | Cloudflare Workers                                    |
 | Datenbank           | Cloudflare D1 mit Drizzle ORM                         |
-| Anmeldung           | Better Auth (geplant)                                 |
+| Anmeldung           | Better Auth                                           |
 | End-to-End-Tests    | Playwright (geplant)                                  |
 
 Vite+ verwaltet die Node.js-Laufzeit, den Package Manager und die Frontend-Toolchain. Alle

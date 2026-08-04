@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowRight, Check, Eye, PencilLine, Sparkles, Users } from "lucide-react";
+import { ArrowRight, Check, PencilLine, Sparkles, Users } from "lucide-react";
 
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card";
-import { AuthControls } from "#/components/auth-controls";
+import { AppHeader } from "#/components/app-header";
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -41,20 +41,7 @@ const features = [
 function Home() {
   return (
     <main className="mx-auto flex min-h-screen max-w-6xl flex-col px-5 py-5 sm:px-8 lg:px-10">
-      <header className="flex items-center justify-between rounded-4xl border bg-card/75 px-4 py-3 shadow-sm backdrop-blur sm:px-5">
-        <a className="flex items-center gap-2 no-underline" href="/" aria-label="Veo Startseite">
-          <span className="flex size-9 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
-            <Eye className="size-5" aria-hidden="true" />
-          </span>
-          <span className="font-heading text-xl font-semibold tracking-tight">veo</span>
-        </a>
-        <div className="flex items-center gap-3">
-          <Badge className="hidden sm:inline-flex" variant="secondary">
-            Phase 3
-          </Badge>
-          <AuthControls />
-        </div>
-      </header>
+      <AppHeader />
 
       <section className="grid flex-1 items-center gap-12 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-24">
         <div className="max-w-2xl">

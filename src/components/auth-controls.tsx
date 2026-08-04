@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { LogOut } from "lucide-react";
+import { LogOut, Users } from "lucide-react";
 
 import { authClient } from "#/lib/auth-client";
 
@@ -15,7 +15,9 @@ export function AuthControls() {
   if (!session) {
     return (
       <Button asChild size="sm">
-        <Link to="/auth">Anmelden</Link>
+        <Link search={{ returnTo: undefined }} to="/auth">
+          Anmelden
+        </Link>
       </Button>
     );
   }
@@ -25,6 +27,12 @@ export function AuthControls() {
       <span className="hidden max-w-48 truncate text-sm text-muted-foreground sm:block">
         {session.user.name}
       </span>
+      <Button asChild size="sm" variant="ghost">
+        <Link to="/teams">
+          <Users aria-hidden="true" />
+          <span className="hidden sm:inline">Teams</span>
+        </Link>
+      </Button>
       <Button
         aria-label="Abmelden"
         onClick={async () => {

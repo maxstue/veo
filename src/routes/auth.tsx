@@ -6,7 +6,12 @@ import { Button } from "#/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card";
 import { authClient } from "#/lib/auth-client";
 
-export const Route = createFileRoute("/auth")({ component: AuthPage });
+export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    returnTo: safeReturnTo(search.returnTo),
+  }),
+  component: AuthPage,
+});
 
 type AuthMode = "sign-in" | "sign-up";
 
@@ -16,6 +21,7 @@ function AuthPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const router = useRouter();
+  const { returnTo } = Route.useSearch();
 
   async function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -39,7 +45,7 @@ function AuthPage() {
     }
 
     await router.invalidate();
-    await navigate({ to: "/" });
+    await navigate({ href: returnTo ?? "/" });
   }
 
   return (
@@ -142,6 +148,12 @@ function AuthPage() {
       </section>
     </main>
   );
+}
+
+function safeReturnTo(value: unknown) {
+  return typeof value === "string" && value.startsWith("/") && !value.startsWith("//")
+    ? value
+    : undefined;
 }
 
 function getFormString(form: FormData, name: string) {
