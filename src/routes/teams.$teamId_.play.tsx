@@ -151,7 +151,7 @@ function BingoPage() {
           {card ? (
             <div
               aria-label="Bingo-Karte"
-              className={`grid aspect-square h-full max-h-full w-auto max-w-full flex-none grid-cols-5 gap-1.5 rounded-3xl border bg-card/80 p-2 shadow-xl backdrop-blur sm:gap-3 sm:p-4 ${
+              className={`grid aspect-square w-full max-w-full flex-none grid-cols-5 gap-1.5 rounded-3xl border bg-card/80 p-2 shadow-xl backdrop-blur sm:h-full sm:max-h-full sm:w-auto sm:gap-3 sm:p-4 ${
                 card.bingo ? "border-primary shadow-primary/15" : ""
               }`}
               role="group"

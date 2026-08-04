@@ -43,6 +43,12 @@ jobs:
       - name: Build application
         run: vp build
 
+      - name: Install Playwright browser
+        run: vp exec playwright install --with-deps chromium
+
+      - name: Run end-to-end tests
+        run: vp run test:e2e
+
   deploy:
     name: Deploy production
     needs: quality
