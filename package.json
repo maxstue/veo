@@ -17,7 +17,7 @@
     "lint": "vp lint",
     "test:e2e": "playwright test",
     "test:e2e:server": "vp run db:migrate:local && vp dev",
-    "deploy": "vp build && vp exec wrangler deploy",
+    "deploy": "vp build && vp exec wrangler deploy --keep-vars",
     "prepare": "vp config"
   },
   "dependencies": {
@@ -25,6 +25,7 @@
     "@better-auth/drizzle-adapter": "catalog:",
     "@fontsource-variable/inter": "catalog:",
     "@fontsource-variable/space-grotesk": "catalog:",
+    "@sentry/tanstackstart-react": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "@tanstack/react-devtools": "catalog:",
     "@tanstack/react-router": "catalog:",

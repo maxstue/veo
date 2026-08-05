@@ -43,6 +43,7 @@ In the MVP, every member of a team has the same permissions.
 | Hosting              | Cloudflare Workers                                     |
 | Database             | Cloudflare D1 with Drizzle ORM                         |
 | Authentication       | Better Auth                                            |
+| Observability        | Sentry (errors, sampled traces, metrics, and feedback) |
 | End-to-end testing   | Playwright                                             |
 
 Vite+ manages the Node.js runtime, package manager, and frontend toolchain. All dependency
@@ -83,6 +84,10 @@ secret:
 ```bash
 vp exec wrangler secret put BETTER_AUTH_SECRET
 ```
+
+Sentry is optional locally and disabled unless `VITE_SENTRY_DSN` is set. Production sampling,
+privacy, retention, feedback, product metrics, and verification decisions are documented in the
+[Veo Linear project](https://linear.app/justmax/document/observability-und-feedback-6907469d263b).
 
 ### Daily workflow
 

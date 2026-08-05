@@ -6,7 +6,7 @@
   "main": "@tanstack/react-start/server-entry",
   "workers_dev": false,
   "secrets": {
-    "required": ["BETTER_AUTH_SECRET"],
+    "required": ["BETTER_AUTH_SECRET", "SENTRY_DSN"],
   },
   "d1_databases": [
     {

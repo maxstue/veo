@@ -6,6 +6,7 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { cloudflare } from "@cloudflare/vite-plugin";
+import { sentryTanstackStart } from "@sentry/tanstackstart-react/vite";
 
 const config = defineConfig(({ mode }) => ({
   staged: {
@@ -30,6 +31,15 @@ const config = defineConfig(({ mode }) => ({
     mode === "test" ? undefined : cloudflare({ viteEnvironment: { name: "ssr" } }),
     tailwindcss(),
     tanstackStart(),
+    ...sentryTanstackStart({
+      org: "maxstue",
+      project: "veo",
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      autoInstrumentMiddleware: false,
+      // Upload only when CI provides the private token.
+      sourcemaps: process.env.SENTRY_AUTH_TOKEN ? undefined : { disable: true },
+      telemetry: false,
+    }),
     viteReact(),
   ]),
 }));

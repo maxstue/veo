@@ -7,6 +7,7 @@ import { bingoTerm, team, teamInvitation, teamMember, user } from "#/db/schema";
 import { getAuth } from "./auth.server";
 import { requireTeamMembership, requireUser } from "./auth-guards.server";
 import { createToken, hashToken } from "./invitation-tokens";
+import { Metrics } from "./observability/metrics";
 
 const invitationLifetimeMs = 7 * 24 * 60 * 60 * 1000;
 
@@ -49,6 +50,8 @@ export async function createTeam(data: { name: string }) {
       joinedAt: now,
     }),
   ]);
+
+  Metrics.recordTeamCreated();
 
   return { teamId };
 }

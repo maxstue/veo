@@ -6,6 +6,7 @@ import { bingoCard, bingoCardCell, bingoTerm } from "#/db/schema";
 
 import { bingoCellCount, hasBingo, selectBingoTerms } from "./bingo-game";
 import { requireTeamMembership } from "./auth-guards.server";
+import { Metrics } from "./observability/metrics";
 
 export async function getBingoGame(data: { teamId: string }) {
   const { session } = await requireTeamMembership(data.teamId);
@@ -76,6 +77,8 @@ export async function createBingoCard(data: { teamId: string }) {
     ),
   ]);
 
+  Metrics.recordGameStarted();
+
   return { status: "created" as const, cardId };
 }
 
@@ -115,6 +118,10 @@ export async function toggleBingoCell(data: { teamId: string; cardId: string; po
   const completedAt = bingo ? (match.completedAt ?? new Date()) : null;
 
   await database.update(bingoCard).set({ completedAt }).where(eq(bingoCard.id, data.cardId));
+
+  if (bingo && !match.completedAt) {
+    Metrics.recordGameCompleted();
+  }
 
   return { marked: Boolean(markedAt), bingo, completedAt };
 }

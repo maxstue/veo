@@ -1,11 +1,18 @@
 import { Link, type ErrorComponentProps } from "@tanstack/react-router";
 import { Eye, RotateCcw, TriangleAlert } from "lucide-react";
+import { useEffect } from "react";
+
+import { Errors } from "#/lib/observability/errors";
 
 import { Button } from "./ui/button";
 import { ButtonLink } from "./ui/button-link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 
-export function AppErrorPage({ reset }: ErrorComponentProps) {
+export function AppErrorPage({ error, reset }: ErrorComponentProps) {
+  useEffect(() => {
+    Errors.captureRouteError(error);
+  }, [error]);
+
   return (
     <main className="grid min-h-screen place-items-center px-5 py-10">
       <Card className="w-full max-w-lg border-0 text-center shadow-2xl shadow-primary/10">
