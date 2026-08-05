@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/tanstackstart-react";
+import * as Sentry from "@sentry/cloudflare";
 
 /** Names of the low-cardinality product counters emitted by Veo. */
 type ProductMetricName = "veo.game.completed" | "veo.game.started" | "veo.team.created";
@@ -39,7 +39,7 @@ export const Metrics = {
  *
  * @param event - Stable metric name and human-readable log message to emit.
  */
-function recordProductEvent(event: ProductEvent): void {
+function recordProductEvent(event: ProductEvent) {
   if (!Sentry.isInitialized()) {
     return;
   }

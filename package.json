@@ -25,6 +25,7 @@
     "@better-auth/drizzle-adapter": "catalog:",
     "@fontsource-variable/inter": "catalog:",
     "@fontsource-variable/space-grotesk": "catalog:",
+    "@sentry/cloudflare": "catalog:",
     "@sentry/tanstackstart-react": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "@tanstack/react-devtools": "catalog:",

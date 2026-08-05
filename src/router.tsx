@@ -1,6 +1,7 @@
-import * as Sentry from "@sentry/tanstackstart-react";
 import { createRouter as createTanStackRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
+
+import { createSentryClient } from "#/instrument-client";
 
 export function getRouter() {
   const router = createTanStackRouter({
@@ -11,7 +12,7 @@ export function getRouter() {
   });
 
   if (!router.isServer) {
-    Sentry.addIntegration(Sentry.tanstackRouterBrowserTracingIntegration(router));
+    createSentryClient(router);
   }
 
   return router;
