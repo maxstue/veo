@@ -1,5 +1,5 @@
 import { ScriptOnce } from "@tanstack/react-router";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 export type Theme = "system" | "light" | "dark";
 
@@ -25,12 +25,13 @@ function getThemeScript(storageKey: string, defaultTheme: Theme) {
 
 function applyTheme(theme: Theme) {
   const root = document.documentElement;
-  const resolved =
-    theme === "system"
-      ? window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light"
-      : theme;
+  let resolved: "light" | "dark";
+
+  if (theme === "system") {
+    resolved = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  } else {
+    resolved = theme;
+  }
 
   root.classList.remove("light", "dark");
   root.classList.add(resolved);
@@ -43,17 +44,17 @@ export function ThemeProvider({
   defaultTheme = "system",
   storageKey = "veo-theme",
 }: ThemeProviderProps) {
-  const [theme, setThemeState] = useState<Theme>(defaultTheme);
+  const [theme, setTheme] = useState<Theme>(defaultTheme);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem(storageKey);
-      setThemeState(
+      setTheme(
         stored === "light" || stored === "dark" || stored === "system" ? stored : defaultTheme,
       );
     } catch {
-      setThemeState(defaultTheme);
+      setTheme(defaultTheme);
     }
     setMounted(true);
   }, [defaultTheme, storageKey]);
@@ -71,15 +72,23 @@ export function ThemeProvider({
     return () => media.removeEventListener("change", update);
   }, [mounted, theme]);
 
-  function setTheme(next: Theme) {
-    try {
-      localStorage.setItem(storageKey, next);
-    } catch {}
-    setThemeState(next);
-  }
+  const updateTheme = useCallback(
+    (next: Theme) => {
+      try {
+        localStorage.setItem(storageKey, next);
+      } catch {}
+      setTheme(next);
+    },
+    [storageKey],
+  );
+
+  const contextValue = useMemo<ThemeProviderState>(
+    () => ({ theme, setTheme: updateTheme }),
+    [theme, updateTheme],
+  );
 
   return (
-    <ThemeProviderContext value={{ theme, setTheme }}>
+    <ThemeProviderContext value={contextValue}>
       <ScriptOnce>{getThemeScript(storageKey, defaultTheme)}</ScriptOnce>
       {children}
     </ThemeProviderContext>

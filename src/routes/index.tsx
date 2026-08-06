@@ -79,7 +79,7 @@ function Home() {
             <Button
               className="h-12 rounded-xl px-5 text-base"
               nativeButton={false}
-              render={<a href="#how-it-works" />}
+              render={<a aria-label="how it works" href="#how-it-works" />}
               variant="ghost"
             >
               So funktioniert&apos;s
@@ -140,11 +140,11 @@ function Home() {
             </CardContent>
           </Card>
           <div className="absolute -right-3 -bottom-4 flex items-center gap-2 rounded-full border bg-card px-4 py-2.5 text-sm font-medium shadow-lg sm:-right-6">
-            <span className="relative flex size-2.5">
+            <span aria-hidden="true" className="relative flex size-2.5">
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-60 motion-reduce:animate-none" />
               <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500" />
             </span>
-            Runde läuft
+            <span>Runde läuft</span>
           </div>
         </div>
       </section>

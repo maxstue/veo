@@ -13,6 +13,8 @@ export type TeamLeaderboardEntry<TMember extends LeaderboardMember> = TMember & 
   rank: number | null;
 };
 
+type LeaderboardActivity = TeamLeaderboardEntry<LeaderboardMember>["activity"];
+
 /**
  * Ranks only completed bingo cards. This keeps the score easy to understand
  * and lets equal scores share a place instead of relying on a hidden tiebreaker.
@@ -31,7 +33,7 @@ export function buildTeamLeaderboard<TMember extends LeaderboardMember>(
       ...member,
       cardsStarted,
       completedCards,
-      activity: completedCards > 0 ? "ranked" : cardsStarted > 0 ? "playing" : "inactive",
+      activity: getActivity(cardsStarted, completedCards),
       rank: null,
     };
   });
@@ -55,6 +57,12 @@ export function buildTeamLeaderboard<TMember extends LeaderboardMember>(
   return [...ranked, ...unranked];
 }
 
+function getActivity(cardsStarted: number, completedCards: number): LeaderboardActivity {
+  if (completedCards > 0) return "ranked";
+  if (cardsStarted > 0) return "playing";
+  return "inactive";
+}
+
 function compareEntries(
   left: LeaderboardMember & { completedCards: number },
   right: LeaderboardMember & { completedCards: number },
@@ -66,6 +74,6 @@ function compareEntries(
   );
 }
 
-function activityOrder(activity: TeamLeaderboardEntry<LeaderboardMember>["activity"]) {
+function activityOrder(activity: LeaderboardActivity) {
   return activity === "playing" ? 0 : 1;
 }
