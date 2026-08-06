@@ -1,13 +1,14 @@
 import { env } from "cloudflare:workers";
-import { and, asc, desc, eq, isNull } from "drizzle-orm";
+import { and, asc, count, desc, eq, isNull, sql } from "drizzle-orm";
 
 import { createDatabase } from "#/db/client";
-import { bingoTerm, team, teamInvitation, teamMember, user } from "#/db/schema";
+import { bingoCard, bingoTerm, team, teamInvitation, teamMember, user } from "#/db/schema";
 
 import { getAuth } from "./auth.server";
 import { requireTeamMembership, requireUser } from "./auth-guards.server";
 import { createToken, hashToken } from "./invitation-tokens";
 import { Metrics } from "./observability/metrics";
+import { buildTeamLeaderboard } from "./team-leaderboard";
 
 const invitationLifetimeMs = 7 * 24 * 60 * 60 * 1000;
 
@@ -61,7 +62,7 @@ export async function getTeam(data: { teamId: string }) {
   const database = createDatabase(env.DB);
   const now = new Date();
 
-  const [teams, members, invitations, terms] = await Promise.all([
+  const [teams, members, invitations, terms, activities] = await Promise.all([
     database
       .select({ id: team.id, name: team.name, createdAt: team.createdAt })
       .from(team)
@@ -89,6 +90,15 @@ export async function getTeam(data: { teamId: string }) {
       .from(bingoTerm)
       .where(eq(bingoTerm.teamId, data.teamId))
       .orderBy(asc(bingoTerm.normalizedLabel)),
+    database
+      .select({
+        userId: bingoCard.userId,
+        cardsStarted: count(bingoCard.id),
+        completedCards: sql<number>`count(case when ${bingoCard.completedAt} is not null then 1 end)`,
+      })
+      .from(bingoCard)
+      .where(eq(bingoCard.teamId, data.teamId))
+      .groupBy(bingoCard.userId),
   ]);
 
   if (!teams[0]) {
@@ -98,6 +108,14 @@ export async function getTeam(data: { teamId: string }) {
   return {
     team: teams[0],
     members,
+    leaderboard: buildTeamLeaderboard(
+      members,
+      activities.map((activity) => ({
+        memberId: activity.userId,
+        cardsStarted: activity.cardsStarted,
+        completedCards: activity.completedCards,
+      })),
+    ),
     terms,
     invitations: invitations.map((invitation) => ({
       ...invitation,

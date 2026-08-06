@@ -15,7 +15,11 @@ import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as TeamsIndexRouteImport } from './routes/teams.index'
 import { Route as TeamsTeamIdRouteImport } from './routes/teams.$teamId'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as TeamsTeamIdInvitationsRouteImport } from './routes/teams.$teamId_.invitations'
+import { Route as TeamsTeamIdLeaderboardRouteImport } from './routes/teams.$teamId_.leaderboard'
+import { Route as TeamsTeamIdMembersRouteImport } from './routes/teams.$teamId_.members'
 import { Route as TeamsTeamIdPlayRouteImport } from './routes/teams.$teamId_.play'
+import { Route as TeamsTeamIdTermsRouteImport } from './routes/teams.$teamId_.terms'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -47,9 +51,29 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TeamsTeamIdInvitationsRoute = TeamsTeamIdInvitationsRouteImport.update({
+  id: '/teams/$teamId_/invitations',
+  path: '/teams/$teamId/invitations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeamsTeamIdLeaderboardRoute = TeamsTeamIdLeaderboardRouteImport.update({
+  id: '/teams/$teamId_/leaderboard',
+  path: '/teams/$teamId/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeamsTeamIdMembersRoute = TeamsTeamIdMembersRouteImport.update({
+  id: '/teams/$teamId_/members',
+  path: '/teams/$teamId/members',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TeamsTeamIdPlayRoute = TeamsTeamIdPlayRouteImport.update({
   id: '/teams/$teamId_/play',
   path: '/teams/$teamId/play',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeamsTeamIdTermsRoute = TeamsTeamIdTermsRouteImport.update({
+  id: '/teams/$teamId_/terms',
+  path: '/teams/$teamId/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -60,7 +84,11 @@ export interface FileRoutesByFullPath {
   '/teams/$teamId': typeof TeamsTeamIdRoute
   '/teams/': typeof TeamsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/teams/$teamId/invitations': typeof TeamsTeamIdInvitationsRoute
+  '/teams/$teamId/leaderboard': typeof TeamsTeamIdLeaderboardRoute
+  '/teams/$teamId/members': typeof TeamsTeamIdMembersRoute
   '/teams/$teamId/play': typeof TeamsTeamIdPlayRoute
+  '/teams/$teamId/terms': typeof TeamsTeamIdTermsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -69,7 +97,11 @@ export interface FileRoutesByTo {
   '/teams/$teamId': typeof TeamsTeamIdRoute
   '/teams': typeof TeamsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/teams/$teamId/invitations': typeof TeamsTeamIdInvitationsRoute
+  '/teams/$teamId/leaderboard': typeof TeamsTeamIdLeaderboardRoute
+  '/teams/$teamId/members': typeof TeamsTeamIdMembersRoute
   '/teams/$teamId/play': typeof TeamsTeamIdPlayRoute
+  '/teams/$teamId/terms': typeof TeamsTeamIdTermsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -79,7 +111,11 @@ export interface FileRoutesById {
   '/teams/$teamId': typeof TeamsTeamIdRoute
   '/teams/': typeof TeamsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/teams/$teamId_/invitations': typeof TeamsTeamIdInvitationsRoute
+  '/teams/$teamId_/leaderboard': typeof TeamsTeamIdLeaderboardRoute
+  '/teams/$teamId_/members': typeof TeamsTeamIdMembersRoute
   '/teams/$teamId_/play': typeof TeamsTeamIdPlayRoute
+  '/teams/$teamId_/terms': typeof TeamsTeamIdTermsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -90,7 +126,11 @@ export interface FileRouteTypes {
     | '/teams/$teamId'
     | '/teams/'
     | '/api/auth/$'
+    | '/teams/$teamId/invitations'
+    | '/teams/$teamId/leaderboard'
+    | '/teams/$teamId/members'
     | '/teams/$teamId/play'
+    | '/teams/$teamId/terms'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -99,7 +139,11 @@ export interface FileRouteTypes {
     | '/teams/$teamId'
     | '/teams'
     | '/api/auth/$'
+    | '/teams/$teamId/invitations'
+    | '/teams/$teamId/leaderboard'
+    | '/teams/$teamId/members'
     | '/teams/$teamId/play'
+    | '/teams/$teamId/terms'
   id:
     | '__root__'
     | '/'
@@ -108,7 +152,11 @@ export interface FileRouteTypes {
     | '/teams/$teamId'
     | '/teams/'
     | '/api/auth/$'
+    | '/teams/$teamId_/invitations'
+    | '/teams/$teamId_/leaderboard'
+    | '/teams/$teamId_/members'
     | '/teams/$teamId_/play'
+    | '/teams/$teamId_/terms'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -118,7 +166,11 @@ export interface RootRouteChildren {
   TeamsTeamIdRoute: typeof TeamsTeamIdRoute
   TeamsIndexRoute: typeof TeamsIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  TeamsTeamIdInvitationsRoute: typeof TeamsTeamIdInvitationsRoute
+  TeamsTeamIdLeaderboardRoute: typeof TeamsTeamIdLeaderboardRoute
+  TeamsTeamIdMembersRoute: typeof TeamsTeamIdMembersRoute
   TeamsTeamIdPlayRoute: typeof TeamsTeamIdPlayRoute
+  TeamsTeamIdTermsRoute: typeof TeamsTeamIdTermsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -165,11 +217,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/teams/$teamId_/invitations': {
+      id: '/teams/$teamId_/invitations'
+      path: '/teams/$teamId/invitations'
+      fullPath: '/teams/$teamId/invitations'
+      preLoaderRoute: typeof TeamsTeamIdInvitationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/teams/$teamId_/leaderboard': {
+      id: '/teams/$teamId_/leaderboard'
+      path: '/teams/$teamId/leaderboard'
+      fullPath: '/teams/$teamId/leaderboard'
+      preLoaderRoute: typeof TeamsTeamIdLeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/teams/$teamId_/members': {
+      id: '/teams/$teamId_/members'
+      path: '/teams/$teamId/members'
+      fullPath: '/teams/$teamId/members'
+      preLoaderRoute: typeof TeamsTeamIdMembersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/teams/$teamId_/play': {
       id: '/teams/$teamId_/play'
       path: '/teams/$teamId/play'
       fullPath: '/teams/$teamId/play'
       preLoaderRoute: typeof TeamsTeamIdPlayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/teams/$teamId_/terms': {
+      id: '/teams/$teamId_/terms'
+      path: '/teams/$teamId/terms'
+      fullPath: '/teams/$teamId/terms'
+      preLoaderRoute: typeof TeamsTeamIdTermsRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -182,7 +262,11 @@ const rootRouteChildren: RootRouteChildren = {
   TeamsTeamIdRoute: TeamsTeamIdRoute,
   TeamsIndexRoute: TeamsIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  TeamsTeamIdInvitationsRoute: TeamsTeamIdInvitationsRoute,
+  TeamsTeamIdLeaderboardRoute: TeamsTeamIdLeaderboardRoute,
+  TeamsTeamIdMembersRoute: TeamsTeamIdMembersRoute,
   TeamsTeamIdPlayRoute: TeamsTeamIdPlayRoute,
+  TeamsTeamIdTermsRoute: TeamsTeamIdTermsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

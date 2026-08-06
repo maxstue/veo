@@ -4,7 +4,7 @@ import { and, asc, desc, eq, isNotNull } from "drizzle-orm";
 import { createDatabase } from "#/db/client";
 import { bingoCard, bingoCardCell, bingoTerm } from "#/db/schema";
 
-import { bingoCellCount, hasBingo, selectBingoTerms } from "./bingo-game";
+import { bingoCellCount, getBingoCompletionTime, hasBingo, selectBingoTerms } from "./bingo-game";
 import { requireTeamMembership } from "./auth-guards.server";
 import { Metrics } from "./observability/metrics";
 
@@ -115,7 +115,7 @@ export async function toggleBingoCell(data: { teamId: string; cardId: string; po
     .from(bingoCardCell)
     .where(and(eq(bingoCardCell.cardId, data.cardId), isNotNull(bingoCardCell.markedAt)));
   const bingo = hasBingo(markedCells.map((cell) => cell.position));
-  const completedAt = bingo ? (match.completedAt ?? new Date()) : null;
+  const completedAt = getBingoCompletionTime(match.completedAt, bingo, new Date());
 
   await database.update(bingoCard).set({ completedAt }).where(eq(bingoCard.id, data.cardId));
 
@@ -143,13 +143,10 @@ export async function resetBingoCard(data: { teamId: string; cardId: string }) {
 
   if (!cards[0]) throw new Response("Bingo card not found", { status: 404 });
 
-  await database.batch([
-    database
-      .update(bingoCardCell)
-      .set({ markedAt: null })
-      .where(eq(bingoCardCell.cardId, data.cardId)),
-    database.update(bingoCard).set({ completedAt: null }).where(eq(bingoCard.id, data.cardId)),
-  ]);
+  await database
+    .update(bingoCardCell)
+    .set({ markedAt: null })
+    .where(eq(bingoCardCell.cardId, data.cardId));
 
   return { status: "reset" as const };
 }

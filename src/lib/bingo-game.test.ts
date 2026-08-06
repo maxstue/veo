@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vite-plus/test";
 
-import { bingoCellCount, hasBingo, selectBingoTerms } from "./bingo-game";
+import { bingoCellCount, getBingoCompletionTime, hasBingo, selectBingoTerms } from "./bingo-game";
 
 describe("bingo detection", () => {
   test.each([
@@ -16,6 +16,16 @@ describe("bingo detection", () => {
 
   test("does not recognize an incomplete or unrelated set", () => {
     expect(hasBingo([0, 1, 2, 3, 5, 6, 7, 8])).toBe(false);
+  });
+
+  test("keeps an achieved bingo in the score after the card changes", () => {
+    const completedAt = new Date("2026-08-06T08:00:00.000Z");
+
+    expect(getBingoCompletionTime(null, false, completedAt)).toBeNull();
+    expect(getBingoCompletionTime(null, true, completedAt)).toBe(completedAt);
+    expect(getBingoCompletionTime(completedAt, false, new Date("2026-08-06T09:00:00.000Z"))).toBe(
+      completedAt,
+    );
   });
 });
 

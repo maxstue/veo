@@ -19,12 +19,6 @@ export const Route = createFileRoute("/teams/$teamId_/play")({
     ]);
     return { team: teamData.team, termCount: teamData.terms.length, game };
   },
-  onLeave: (match) => {
-    const cardId = match.loaderData?.game.card?.id;
-    if (!cardId) return;
-
-    void resetBingoCard({ data: { teamId: match.params.teamId, cardId } }).catch(() => undefined);
-  },
   component: BingoPage,
 });
 

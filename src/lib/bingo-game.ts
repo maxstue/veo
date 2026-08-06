@@ -8,6 +8,11 @@ export function hasBingo(markedPositions: Iterable<number>) {
   return winningLines.some((line) => line.every((position) => marked.has(position)));
 }
 
+/** Keeps a completed bingo in the team's score even when a card is reset later. */
+export function getBingoCompletionTime(completedAt: Date | null, bingo: boolean, now: Date) {
+  return completedAt ?? (bingo ? now : null);
+}
+
 export function selectBingoTerms<T>(terms: readonly T[], randomIndex = secureRandomIndex) {
   if (terms.length < bingoCellCount) {
     throw new Error(`At least ${bingoCellCount} bingo terms are required`);
