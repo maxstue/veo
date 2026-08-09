@@ -96,6 +96,6 @@ async function selectRegistrationMode(page: Page) {
 async function fillRegistration(page: Page, user: { email: string; name: string }) {
   await page.getByLabel('Name').fill(user.name);
   await page.getByLabel('Email').fill(user.email);
-  await page.getByLabel('Password').fill(password);
+  await page.locator('form').getByLabel('Password', { exact: true }).fill(password);
   await page.getByRole('button', { name: 'Create account' }).click();
 }

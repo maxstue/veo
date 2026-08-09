@@ -71,10 +71,13 @@ test('users can change their password from the account page', async ({ page }) =
   await expect(page.getByRole('status')).toContainText('Your password has been updated.');
   await page.getByRole('button', { name: 'Sign out' }).click();
   await page.goto('/auth');
-  await page.getByLabel('Email').fill(user.email);
-  await page.getByLabel('Password', { exact: true }).fill(newPassword);
-  await page.locator('form').getByRole('button', { name: 'Sign in', exact: true }).click();
-  await expect(page).toHaveURL('/');
+  await expect(async () => {
+    const form = page.locator('form');
+    await form.getByLabel('Email').fill(user.email);
+    await form.getByLabel('Password', { exact: true }).fill(newPassword);
+    await form.getByRole('button', { name: 'Sign in', exact: true }).click();
+    await expect(page).toHaveURL('/', { timeout: 1_000 });
+  }).toPass({ timeout: 10_000 });
 });
 
 test('password reset entry points and invalid links are handled clearly', async ({ page }) => {

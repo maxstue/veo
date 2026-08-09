@@ -1,3 +1,5 @@
+import { Metrics } from './observability/metrics';
+
 type PasswordResetEmail = {
   resetUrl: string;
   to: string;
@@ -56,4 +58,3 @@ function escapeHtml(value: string) {
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
 }
-import { Metrics } from './observability/metrics';
