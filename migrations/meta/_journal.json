@@ -8,6 +8,20 @@
       "when": 1785762467371,
       "tag": "0000_narrow_harpoon",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1786083544564,
+      "tag": "0001_clean_snowbird",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1786084721100,
+      "tag": "0002_bizarre_starhawk",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,1 @@
+ALTER TABLE `team` ADD `default_bingo_rules_preset_id` text;

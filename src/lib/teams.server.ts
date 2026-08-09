@@ -2,7 +2,15 @@ import { env } from "cloudflare:workers";
 import { and, asc, count, desc, eq, isNull, sql } from "drizzle-orm";
 
 import { createDatabase } from "#/db/client";
-import { bingoCard, bingoTerm, team, teamInvitation, teamMember, user } from "#/db/schema";
+import {
+  bingoCard,
+  bingoTerm,
+  team,
+  teamBingoRulesPreset,
+  teamInvitation,
+  teamMember,
+  user,
+} from "#/db/schema";
 
 import { getAuth } from "./auth.server";
 import { requireTeamMembership, requireUser } from "./auth-guards.server";
@@ -62,9 +70,18 @@ export async function getTeam(data: { teamId: string }) {
   const database = createDatabase(env.DB);
   const now = new Date();
 
-  const [teams, members, invitations, terms, activities] = await Promise.all([
+  const [teams, members, invitations, terms, activities, bingoRulesPresets] = await Promise.all([
     database
-      .select({ id: team.id, name: team.name, createdAt: team.createdAt })
+      .select({
+        id: team.id,
+        name: team.name,
+        createdAt: team.createdAt,
+        bingoBoardSize: team.bingoBoardSize,
+        bingoWinHorizontal: team.bingoWinHorizontal,
+        bingoWinVertical: team.bingoWinVertical,
+        bingoWinDiagonal: team.bingoWinDiagonal,
+        defaultBingoRulesPresetId: team.defaultBingoRulesPresetId,
+      })
       .from(team)
       .where(eq(team.id, data.teamId))
       .limit(1),
@@ -99,6 +116,18 @@ export async function getTeam(data: { teamId: string }) {
       .from(bingoCard)
       .where(eq(bingoCard.teamId, data.teamId))
       .groupBy(bingoCard.userId),
+    database
+      .select({
+        id: teamBingoRulesPreset.id,
+        name: teamBingoRulesPreset.name,
+        boardSize: teamBingoRulesPreset.boardSize,
+        horizontal: teamBingoRulesPreset.winHorizontal,
+        vertical: teamBingoRulesPreset.winVertical,
+        diagonal: teamBingoRulesPreset.winDiagonal,
+      })
+      .from(teamBingoRulesPreset)
+      .where(eq(teamBingoRulesPreset.teamId, data.teamId))
+      .orderBy(asc(teamBingoRulesPreset.name)),
   ]);
 
   if (!teams[0]) {
@@ -106,7 +135,18 @@ export async function getTeam(data: { teamId: string }) {
   }
 
   return {
-    team: teams[0],
+    team: {
+      id: teams[0].id,
+      name: teams[0].name,
+      createdAt: teams[0].createdAt,
+      bingoRules: {
+        boardSize: teams[0].bingoBoardSize,
+        horizontal: teams[0].bingoWinHorizontal,
+        vertical: teams[0].bingoWinVertical,
+        diagonal: teams[0].bingoWinDiagonal,
+      },
+      defaultBingoRulesPresetId: teams[0].defaultBingoRulesPresetId,
+    },
     members,
     leaderboard: buildTeamLeaderboard(
       members,
@@ -117,11 +157,69 @@ export async function getTeam(data: { teamId: string }) {
       })),
     ),
     terms,
+    bingoRulesPresets,
     invitations: invitations.map((invitation) => ({
       ...invitation,
       status: getInvitationStatus(invitation, now),
     })),
   };
+}
+
+export async function saveTeamBingoRulesPreset(data: {
+  teamId: string;
+  name: string;
+  boardSize: number;
+  horizontal: boolean;
+  vertical: boolean;
+  diagonal: boolean;
+}) {
+  await requireTeamMembership(data.teamId);
+  const database = createDatabase(env.DB);
+
+  await database
+    .insert(teamBingoRulesPreset)
+    .values({
+      id: crypto.randomUUID(),
+      teamId: data.teamId,
+      name: data.name,
+      boardSize: data.boardSize,
+      winHorizontal: data.horizontal,
+      winVertical: data.vertical,
+      winDiagonal: data.diagonal,
+    })
+    .onConflictDoUpdate({
+      target: [teamBingoRulesPreset.teamId, teamBingoRulesPreset.name],
+      set: {
+        boardSize: data.boardSize,
+        winHorizontal: data.horizontal,
+        winVertical: data.vertical,
+        winDiagonal: data.diagonal,
+        updatedAt: new Date(),
+      },
+    });
+
+  return { status: "saved" as const };
+}
+
+export async function setTeamDefaultBingoRulesPreset(data: { teamId: string; presetId: string }) {
+  await requireTeamMembership(data.teamId);
+  const database = createDatabase(env.DB);
+  const presets = await database
+    .select({ id: teamBingoRulesPreset.id })
+    .from(teamBingoRulesPreset)
+    .where(
+      and(eq(teamBingoRulesPreset.id, data.presetId), eq(teamBingoRulesPreset.teamId, data.teamId)),
+    )
+    .limit(1);
+
+  if (!presets[0]) return { status: "not-found" as const };
+
+  await database
+    .update(team)
+    .set({ defaultBingoRulesPresetId: data.presetId })
+    .where(eq(team.id, data.teamId));
+
+  return { status: "updated" as const };
 }
 
 function getInvitationStatus(

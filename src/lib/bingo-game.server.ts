@@ -2,9 +2,15 @@ import { env } from "cloudflare:workers";
 import { and, asc, desc, eq, isNotNull } from "drizzle-orm";
 
 import { createDatabase } from "#/db/client";
-import { bingoCard, bingoCardCell, bingoTerm } from "#/db/schema";
+import { bingoCard, bingoCardCell, bingoTerm, team, teamBingoRulesPreset } from "#/db/schema";
 
-import { bingoCellCount, getBingoCompletionTime, hasBingo, selectBingoTerms } from "./bingo-game";
+import {
+  getBingoCellCount,
+  getBingoCompletionTime,
+  hasBingo,
+  selectBingoTerms,
+  type BingoRules,
+} from "./bingo-game";
 import { requireTeamMembership } from "./auth-guards.server";
 import { Metrics } from "./observability/metrics";
 
@@ -16,6 +22,10 @@ export async function getBingoGame(data: { teamId: string }) {
       id: bingoCard.id,
       createdAt: bingoCard.createdAt,
       completedAt: bingoCard.completedAt,
+      boardSize: bingoCard.boardSize,
+      winHorizontal: bingoCard.winHorizontal,
+      winVertical: bingoCard.winVertical,
+      winDiagonal: bingoCard.winDiagonal,
     })
     .from(bingoCard)
     .where(and(eq(bingoCard.teamId, data.teamId), eq(bingoCard.userId, session.user.id)))
@@ -37,34 +47,78 @@ export async function getBingoGame(data: { teamId: string }) {
 
   return {
     card: {
-      ...card,
+      id: card.id,
+      createdAt: card.createdAt,
+      completedAt: card.completedAt,
+      rules: readCardRules(card),
       cells,
-      bingo: hasBingo(cells.filter((cell) => cell.markedAt).map((cell) => cell.position)),
+      bingo: hasBingo(
+        cells.filter((cell) => cell.markedAt).map((cell) => cell.position),
+        readCardRules(card),
+      ),
     },
   };
 }
 
-export async function createBingoCard(data: { teamId: string }) {
+export async function createBingoCard(data: { teamId: string; presetId?: string | null }) {
   const { session } = await requireTeamMembership(data.teamId);
   const database = createDatabase(env.DB);
   const terms = await database
     .select({ id: bingoTerm.id, label: bingoTerm.label })
     .from(bingoTerm)
     .where(eq(bingoTerm.teamId, data.teamId));
+  const teams = await database
+    .select({
+      boardSize: team.bingoBoardSize,
+      horizontal: team.bingoWinHorizontal,
+      vertical: team.bingoWinVertical,
+      diagonal: team.bingoWinDiagonal,
+      defaultPresetId: team.defaultBingoRulesPresetId,
+    })
+    .from(team)
+    .where(eq(team.id, data.teamId))
+    .limit(1);
+  const rules = teams[0];
 
-  if (terms.length < bingoCellCount) {
-    return { status: "insufficient-terms" as const, available: terms.length };
+  if (!rules) throw new Response("Team not found", { status: 404 });
+  const presetId = data.presetId === undefined ? rules.defaultPresetId : data.presetId;
+  const presets = presetId
+    ? await database
+        .select({
+          boardSize: teamBingoRulesPreset.boardSize,
+          horizontal: teamBingoRulesPreset.winHorizontal,
+          vertical: teamBingoRulesPreset.winVertical,
+          diagonal: teamBingoRulesPreset.winDiagonal,
+        })
+        .from(teamBingoRulesPreset)
+        .where(
+          and(eq(teamBingoRulesPreset.id, presetId), eq(teamBingoRulesPreset.teamId, data.teamId)),
+        )
+        .limit(1)
+    : [];
+  if (data.presetId && !presets[0]) {
+    throw new Response("Bingo rules preset not found", { status: 404 });
+  }
+  const cardRules = presets[0] ?? rules;
+  const cellCount = getBingoCellCount(cardRules.boardSize);
+
+  if (terms.length < cellCount) {
+    return { status: "insufficient-terms" as const, available: terms.length, required: cellCount };
   }
 
   const cardId = crypto.randomUUID();
   const now = new Date();
-  const selectedTerms = selectBingoTerms(terms);
+  const selectedTerms = selectBingoTerms(terms, cellCount);
 
   await database.batch([
     database.insert(bingoCard).values({
       id: cardId,
       teamId: data.teamId,
       userId: session.user.id,
+      boardSize: cardRules.boardSize,
+      winHorizontal: cardRules.horizontal,
+      winVertical: cardRules.vertical,
+      winDiagonal: cardRules.diagonal,
       createdAt: now,
     }),
     ...selectedTerms.map((term, position) =>
@@ -86,7 +140,14 @@ export async function toggleBingoCell(data: { teamId: string; cardId: string; po
   const { session } = await requireTeamMembership(data.teamId);
   const database = createDatabase(env.DB);
   const matches = await database
-    .select({ markedAt: bingoCardCell.markedAt, completedAt: bingoCard.completedAt })
+    .select({
+      markedAt: bingoCardCell.markedAt,
+      completedAt: bingoCard.completedAt,
+      boardSize: bingoCard.boardSize,
+      winHorizontal: bingoCard.winHorizontal,
+      winVertical: bingoCard.winVertical,
+      winDiagonal: bingoCard.winDiagonal,
+    })
     .from(bingoCard)
     .innerJoin(
       bingoCardCell,
@@ -114,7 +175,10 @@ export async function toggleBingoCell(data: { teamId: string; cardId: string; po
     .select({ position: bingoCardCell.position })
     .from(bingoCardCell)
     .where(and(eq(bingoCardCell.cardId, data.cardId), isNotNull(bingoCardCell.markedAt)));
-  const bingo = hasBingo(markedCells.map((cell) => cell.position));
+  const bingo = hasBingo(
+    markedCells.map((cell) => cell.position),
+    readCardRules(match),
+  );
   const completedAt = getBingoCompletionTime(match.completedAt, bingo, new Date());
 
   await database.update(bingoCard).set({ completedAt }).where(eq(bingoCard.id, data.cardId));
@@ -124,6 +188,20 @@ export async function toggleBingoCell(data: { teamId: string; cardId: string; po
   }
 
   return { marked: Boolean(markedAt), bingo, completedAt };
+}
+
+function readCardRules(card: {
+  boardSize: number;
+  winHorizontal: boolean;
+  winVertical: boolean;
+  winDiagonal: boolean;
+}): BingoRules {
+  return {
+    boardSize: card.boardSize as BingoRules["boardSize"],
+    horizontal: card.winHorizontal,
+    vertical: card.winVertical,
+    diagonal: card.winDiagonal,
+  };
 }
 
 export async function resetBingoCard(data: { teamId: string; cardId: string }) {

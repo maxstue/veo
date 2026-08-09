@@ -15,6 +15,7 @@ import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as TeamsIndexRouteImport } from './routes/teams.index'
 import { Route as TeamsTeamIdRouteImport } from './routes/teams.$teamId'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as TeamsTeamIdBingoRulesRouteImport } from './routes/teams.$teamId_.bingo-rules'
 import { Route as TeamsTeamIdInvitationsRouteImport } from './routes/teams.$teamId_.invitations'
 import { Route as TeamsTeamIdLeaderboardRouteImport } from './routes/teams.$teamId_.leaderboard'
 import { Route as TeamsTeamIdMembersRouteImport } from './routes/teams.$teamId_.members'
@@ -51,6 +52,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TeamsTeamIdBingoRulesRoute = TeamsTeamIdBingoRulesRouteImport.update({
+  id: '/teams/$teamId_/bingo-rules',
+  path: '/teams/$teamId/bingo-rules',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TeamsTeamIdInvitationsRoute = TeamsTeamIdInvitationsRouteImport.update({
   id: '/teams/$teamId_/invitations',
   path: '/teams/$teamId/invitations',
@@ -84,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/teams/$teamId': typeof TeamsTeamIdRoute
   '/teams/': typeof TeamsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/teams/$teamId/bingo-rules': typeof TeamsTeamIdBingoRulesRoute
   '/teams/$teamId/invitations': typeof TeamsTeamIdInvitationsRoute
   '/teams/$teamId/leaderboard': typeof TeamsTeamIdLeaderboardRoute
   '/teams/$teamId/members': typeof TeamsTeamIdMembersRoute
@@ -97,6 +104,7 @@ export interface FileRoutesByTo {
   '/teams/$teamId': typeof TeamsTeamIdRoute
   '/teams': typeof TeamsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/teams/$teamId/bingo-rules': typeof TeamsTeamIdBingoRulesRoute
   '/teams/$teamId/invitations': typeof TeamsTeamIdInvitationsRoute
   '/teams/$teamId/leaderboard': typeof TeamsTeamIdLeaderboardRoute
   '/teams/$teamId/members': typeof TeamsTeamIdMembersRoute
@@ -111,6 +119,7 @@ export interface FileRoutesById {
   '/teams/$teamId': typeof TeamsTeamIdRoute
   '/teams/': typeof TeamsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/teams/$teamId_/bingo-rules': typeof TeamsTeamIdBingoRulesRoute
   '/teams/$teamId_/invitations': typeof TeamsTeamIdInvitationsRoute
   '/teams/$teamId_/leaderboard': typeof TeamsTeamIdLeaderboardRoute
   '/teams/$teamId_/members': typeof TeamsTeamIdMembersRoute
@@ -126,6 +135,7 @@ export interface FileRouteTypes {
     | '/teams/$teamId'
     | '/teams/'
     | '/api/auth/$'
+    | '/teams/$teamId/bingo-rules'
     | '/teams/$teamId/invitations'
     | '/teams/$teamId/leaderboard'
     | '/teams/$teamId/members'
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/teams/$teamId'
     | '/teams'
     | '/api/auth/$'
+    | '/teams/$teamId/bingo-rules'
     | '/teams/$teamId/invitations'
     | '/teams/$teamId/leaderboard'
     | '/teams/$teamId/members'
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/teams/$teamId'
     | '/teams/'
     | '/api/auth/$'
+    | '/teams/$teamId_/bingo-rules'
     | '/teams/$teamId_/invitations'
     | '/teams/$teamId_/leaderboard'
     | '/teams/$teamId_/members'
@@ -166,6 +178,7 @@ export interface RootRouteChildren {
   TeamsTeamIdRoute: typeof TeamsTeamIdRoute
   TeamsIndexRoute: typeof TeamsIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  TeamsTeamIdBingoRulesRoute: typeof TeamsTeamIdBingoRulesRoute
   TeamsTeamIdInvitationsRoute: typeof TeamsTeamIdInvitationsRoute
   TeamsTeamIdLeaderboardRoute: typeof TeamsTeamIdLeaderboardRoute
   TeamsTeamIdMembersRoute: typeof TeamsTeamIdMembersRoute
@@ -217,6 +230,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/teams/$teamId_/bingo-rules': {
+      id: '/teams/$teamId_/bingo-rules'
+      path: '/teams/$teamId/bingo-rules'
+      fullPath: '/teams/$teamId/bingo-rules'
+      preLoaderRoute: typeof TeamsTeamIdBingoRulesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/teams/$teamId_/invitations': {
       id: '/teams/$teamId_/invitations'
       path: '/teams/$teamId/invitations'
@@ -262,6 +282,7 @@ const rootRouteChildren: RootRouteChildren = {
   TeamsTeamIdRoute: TeamsTeamIdRoute,
   TeamsIndexRoute: TeamsIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  TeamsTeamIdBingoRulesRoute: TeamsTeamIdBingoRulesRoute,
   TeamsTeamIdInvitationsRoute: TeamsTeamIdInvitationsRoute,
   TeamsTeamIdLeaderboardRoute: TeamsTeamIdLeaderboardRoute,
   TeamsTeamIdMembersRoute: TeamsTeamIdMembersRoute,

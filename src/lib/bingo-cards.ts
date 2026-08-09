@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 
-import { bingoCellCount } from "./bingo-game";
+import { getBingoCellCount, supportedBingoBoardSizes } from "./bingo-game";
 
 export const getBingoGame = createServerFn({ method: "GET" })
   .validator((input: unknown) => ({ teamId: readId(input, "teamId") }))
@@ -10,7 +10,10 @@ export const getBingoGame = createServerFn({ method: "GET" })
   });
 
 export const createBingoCard = createServerFn({ method: "POST" })
-  .validator((input: unknown) => ({ teamId: readId(input, "teamId") }))
+  .validator((input: unknown) => ({
+    teamId: readId(input, "teamId"),
+    presetId: readOptionalId(input, "presetId"),
+  }))
   .handler(async ({ data }) => {
     const implementation = await import("./bingo-game.server");
     return implementation.createBingoCard(data);
@@ -46,6 +49,17 @@ function readId(input: unknown, field: string) {
   return value;
 }
 
+function readOptionalId(input: unknown, field: string) {
+  if (!input || typeof input !== "object") throw new Error("Invalid input");
+  const value = (input as Record<string, unknown>)[field];
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  if (typeof value !== "string" || !value || value.length > 100) {
+    throw new Error(`Invalid ${field}`);
+  }
+  return value;
+}
+
 function readPosition(input: unknown) {
   if (!input || typeof input !== "object") throw new Error("Invalid input");
   const position = (input as Record<string, unknown>).position;
@@ -53,7 +67,7 @@ function readPosition(input: unknown) {
     typeof position !== "number" ||
     !Number.isInteger(position) ||
     position < 0 ||
-    position >= bingoCellCount
+    position >= getBingoCellCount(supportedBingoBoardSizes.at(-1)!)
   ) {
     throw new Error("Invalid position");
   }

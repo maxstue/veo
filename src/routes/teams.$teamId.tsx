@@ -5,6 +5,7 @@ import { AppHeader } from "#/components/app-header";
 import { TeamInvitationsPreview } from "#/components/team-invitations";
 import { TeamLeaderboardPreview } from "#/components/team-leaderboard";
 import { TeamMembersPreview } from "#/components/team-members";
+import { TeamBingoRulesPreview } from "#/components/team-bingo-rules";
 import { TeamTermsPreview } from "#/components/team-terms";
 import { ButtonLink } from "#/components/ui/button-link";
 import { Card, CardContent } from "#/components/ui/card";
@@ -64,6 +65,11 @@ function TeamPage() {
 
           <TeamMembersPreview members={data.members} teamId={teamId} />
           <TeamTermsPreview teamId={teamId} terms={data.terms} />
+          <TeamBingoRulesPreview
+            presets={data.bingoRulesPresets}
+            rules={data.team.bingoRules}
+            teamId={teamId}
+          />
           <TeamLeaderboardPreview leaderboard={data.leaderboard} teamId={teamId} />
           <TeamInvitationsPreview invitations={data.invitations} teamId={teamId} />
         </div>

@@ -1,6 +1,12 @@
 import { describe, expect, test } from "vite-plus/test";
 
-import { bingoCellCount, getBingoCompletionTime, hasBingo, selectBingoTerms } from "./bingo-game";
+import {
+  bingoCellCount,
+  getBingoCompletionTime,
+  hasBingo,
+  selectBingoTerms,
+  type BingoRules,
+} from "./bingo-game";
 
 describe("bingo detection", () => {
   test.each([
@@ -16,6 +22,18 @@ describe("bingo detection", () => {
 
   test("does not recognize an incomplete or unrelated set", () => {
     expect(hasBingo([0, 1, 2, 3, 5, 6, 7, 8])).toBe(false);
+  });
+
+  test("uses only the team's configured patterns and card size", () => {
+    const horizontalOnly: BingoRules = {
+      boardSize: 8,
+      horizontal: true,
+      vertical: false,
+      diagonal: false,
+    };
+
+    expect(hasBingo([0, 8, 16, 24, 32, 40, 48, 56], horizontalOnly)).toBe(false);
+    expect(hasBingo([56, 57, 58, 59, 60, 61, 62, 63], horizontalOnly)).toBe(true);
   });
 
   test("keeps an achieved bingo in the score after the card changes", () => {
@@ -43,5 +61,11 @@ describe("bingo term selection", () => {
     expect(() => selectBingoTerms(Array.from({ length: 24 }), () => 0)).toThrow(
       "At least 25 bingo terms are required",
     );
+  });
+
+  test("selects the requested number of terms for larger cards", () => {
+    const selected = selectBingoTerms(Array.from({ length: 64 }), 64, () => 0);
+
+    expect(selected).toHaveLength(64);
   });
 });

@@ -1,5 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
+import { supportedBingoBoardSizes } from "./bingo-game";
+
 export const getViewer = createServerFn({ method: "GET" }).handler(async () => {
   const implementation = await import("./teams.server");
   return implementation.getViewer();
@@ -22,6 +24,26 @@ export const getTeam = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const implementation = await import("./teams.server");
     return implementation.getTeam(data);
+  });
+
+export const saveTeamBingoRulesPreset = createServerFn({ method: "POST" })
+  .validator((input: unknown) => ({
+    ...readBingoRules(input),
+    name: readString(input, "name", 1, 50),
+  }))
+  .handler(async ({ data }) => {
+    const implementation = await import("./teams.server");
+    return implementation.saveTeamBingoRulesPreset(data);
+  });
+
+export const setTeamDefaultBingoRulesPreset = createServerFn({ method: "POST" })
+  .validator((input: unknown) => ({
+    teamId: readId(input, "teamId"),
+    presetId: readId(input, "presetId"),
+  }))
+  .handler(async ({ data }) => {
+    const implementation = await import("./teams.server");
+    return implementation.setTeamDefaultBingoRulesPreset(data);
   });
 
 export const createInvitation = createServerFn({ method: "POST" })
@@ -72,4 +94,26 @@ function readString(input: unknown, field: string, min: number, max: number, tri
   const normalized = trim ? value.trim().replace(/\s+/g, " ") : value;
   if (normalized.length < min || normalized.length > max) throw new Error(`Invalid ${field}`);
   return normalized;
+}
+
+function readBingoRules(input: unknown) {
+  if (!input || typeof input !== "object") throw new Error("Invalid input");
+  const values = input as Record<string, unknown>;
+  const boardSize = values.boardSize;
+  const horizontal = values.horizontal;
+  const vertical = values.vertical;
+  const diagonal = values.diagonal;
+
+  if (
+    typeof boardSize !== "number" ||
+    !supportedBingoBoardSizes.includes(boardSize as (typeof supportedBingoBoardSizes)[number]) ||
+    typeof horizontal !== "boolean" ||
+    typeof vertical !== "boolean" ||
+    typeof diagonal !== "boolean" ||
+    (!horizontal && !vertical && !diagonal)
+  ) {
+    throw new Error("Invalid bingo rules");
+  }
+
+  return { teamId: readId(input, "teamId"), boardSize, horizontal, vertical, diagonal };
 }

@@ -1,11 +1,29 @@
 export const bingoBoardSize = 5;
 export const bingoCellCount = bingoBoardSize * bingoBoardSize;
+export const supportedBingoBoardSizes = [3, 4, 5, 6, 7, 8] as const;
 
-const winningLines = createWinningLines();
+export type BingoBoardSize = (typeof supportedBingoBoardSizes)[number];
+export type BingoRules = {
+  boardSize: BingoBoardSize;
+  horizontal: boolean;
+  vertical: boolean;
+  diagonal: boolean;
+};
 
-export function hasBingo(markedPositions: Iterable<number>) {
+export const defaultBingoRules: BingoRules = {
+  boardSize: bingoBoardSize,
+  horizontal: true,
+  vertical: true,
+  diagonal: true,
+};
+
+export function getBingoCellCount(boardSize: number) {
+  return boardSize * boardSize;
+}
+
+export function hasBingo(markedPositions: Iterable<number>, rules: BingoRules = defaultBingoRules) {
   const marked = new Set(markedPositions);
-  return winningLines.some((line) => line.every((position) => marked.has(position)));
+  return createWinningLines(rules).some((line) => line.every((position) => marked.has(position)));
 }
 
 /** Keeps a completed bingo in the team's score even when a card is reset later. */
@@ -13,9 +31,26 @@ export function getBingoCompletionTime(completedAt: Date | null, bingo: boolean,
   return completedAt ?? (bingo ? now : null);
 }
 
-export function selectBingoTerms<T>(terms: readonly T[], randomIndex = secureRandomIndex) {
-  if (terms.length < bingoCellCount) {
-    throw new Error(`At least ${bingoCellCount} bingo terms are required`);
+type RandomIndex = (upperBound: number) => number;
+
+export function selectBingoTerms<T>(terms: readonly T[], randomIndex?: RandomIndex): T[];
+export function selectBingoTerms<T>(
+  terms: readonly T[],
+  cellCount: number,
+  randomIndex?: RandomIndex,
+): T[];
+export function selectBingoTerms<T>(
+  terms: readonly T[],
+  cellCountOrRandomIndex: number | RandomIndex = bingoCellCount,
+  suppliedRandomIndex: RandomIndex = secureRandomIndex,
+) {
+  const cellCount =
+    typeof cellCountOrRandomIndex === "function" ? bingoCellCount : cellCountOrRandomIndex;
+  const randomIndex =
+    typeof cellCountOrRandomIndex === "function" ? cellCountOrRandomIndex : suppliedRandomIndex;
+
+  if (terms.length < cellCount) {
+    throw new Error(`At least ${cellCount} bingo terms are required`);
   }
 
   const shuffled = [...terms];
@@ -27,22 +62,26 @@ export function selectBingoTerms<T>(terms: readonly T[], randomIndex = secureRan
     [shuffled[current], shuffled[selected]] = [shuffled[selected]!, shuffled[current]!];
   }
 
-  return shuffled.slice(0, bingoCellCount);
+  return shuffled.slice(0, cellCount);
 }
 
-function createWinningLines() {
-  const rows = Array.from({ length: bingoBoardSize }, (_, row) =>
-    Array.from({ length: bingoBoardSize }, (_, column) => row * bingoBoardSize + column),
+function createWinningLines({ boardSize, horizontal, vertical, diagonal }: BingoRules) {
+  const rows = Array.from({ length: boardSize }, (_, row) =>
+    Array.from({ length: boardSize }, (_, column) => row * boardSize + column),
   );
-  const columns = Array.from({ length: bingoBoardSize }, (_, column) =>
-    Array.from({ length: bingoBoardSize }, (_, row) => row * bingoBoardSize + column),
+  const columns = Array.from({ length: boardSize }, (_, column) =>
+    Array.from({ length: boardSize }, (_, row) => row * boardSize + column),
   );
   const diagonals = [
-    Array.from({ length: bingoBoardSize }, (_, index) => index * (bingoBoardSize + 1)),
-    Array.from({ length: bingoBoardSize }, (_, index) => (index + 1) * (bingoBoardSize - 1)),
+    Array.from({ length: boardSize }, (_, index) => index * (boardSize + 1)),
+    Array.from({ length: boardSize }, (_, index) => (index + 1) * (boardSize - 1)),
   ];
 
-  return [...rows, ...columns, ...diagonals];
+  return [
+    ...(horizontal ? rows : []),
+    ...(vertical ? columns : []),
+    ...(diagonal ? diagonals : []),
+  ];
 }
 
 function secureRandomIndex(upperBound: number) {

@@ -1,7 +1,15 @@
 import { getTableConfig } from "drizzle-orm/sqlite-core";
 import { describe, expect, test } from "vite-plus/test";
 
-import { bingoCardCell, bingoTerm, teamMember, user } from "./index";
+import {
+  bingoCard,
+  bingoCardCell,
+  bingoTerm,
+  team,
+  teamBingoRulesPreset,
+  teamMember,
+  user,
+} from "./index";
 
 describe("database schema", () => {
   test("keeps user emails unique for Better Auth", () => {
@@ -50,5 +58,22 @@ describe("database schema", () => {
     expect(config.checks.map((constraint) => constraint.name)).toContain(
       "bingo_card_cell_position_check",
     );
+  });
+
+  test("persists a rules snapshot on cards and configurable defaults on teams", () => {
+    expect(team.bingoBoardSize.default).toBe(5);
+    expect(team.bingoWinHorizontal.default).toBe(true);
+    expect(bingoCard.boardSize.default).toBe(5);
+    expect(bingoCard.winDiagonal.default).toBe(true);
+    expect(team.defaultBingoRulesPresetId.notNull).toBe(false);
+  });
+
+  test("keeps reusable rule template names unique within a team", () => {
+    const config = getTableConfig(teamBingoRulesPreset);
+    const uniqueIndex = config.indexes.find(
+      (candidate) => candidate.config.name === "team_bingo_rules_preset_team_name_unique",
+    );
+
+    expect(uniqueIndex?.config.unique).toBe(true);
   });
 });

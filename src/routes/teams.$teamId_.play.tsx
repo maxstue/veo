@@ -17,19 +17,27 @@ export const Route = createFileRoute("/teams/$teamId_/play")({
       getTeam({ data: { teamId: params.teamId } }),
       getBingoGame({ data: { teamId: params.teamId } }),
     ]);
-    return { team: teamData.team, termCount: teamData.terms.length, game };
+    return {
+      team: teamData.team,
+      termCount: teamData.terms.length,
+      presets: teamData.bingoRulesPresets,
+      game,
+    };
   },
   component: BingoPage,
 });
 
 function BingoPage() {
-  const { game, team, termCount } = Route.useLoaderData();
+  const { game, presets, team, termCount } = Route.useLoaderData();
   const { teamId } = Route.useParams();
   const router = useRouter();
   const [pending, setPending] = useState<string>();
   const [error, setError] = useState<string>();
   const [celebration, setCelebration] = useState(0);
+  const [presetId, setPresetId] = useState(team.defaultBingoRulesPresetId ?? "");
   const card = game.card;
+  const selectedPreset = presets.find((preset) => preset.id === presetId);
+  const selectedBoardSize = selectedPreset?.boardSize ?? team.bingoRules.boardSize;
   const isTogglingCell = pending?.startsWith("cell-") ?? false;
 
   async function createCard() {
@@ -39,9 +47,11 @@ function BingoPage() {
     setError(undefined);
     setPending("create");
     try {
-      const result = await createBingoCard({ data: { teamId } });
+      const result = await createBingoCard({ data: { teamId, presetId: presetId || null } });
       if (result.status === "insufficient-terms") {
-        setError(`${25 - result.available} more bingo terms are needed to create a card.`);
+        setError(
+          `${result.required - result.available} more bingo terms are needed to create a card.`,
+        );
         return;
       }
       await router.invalidate();
@@ -104,10 +114,34 @@ function BingoPage() {
               {card?.bingo ? "Bingo!" : "Your bingo card"}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              {getGameInstructions(Boolean(card), termCount)}
+              {getGameInstructions(
+                Boolean(card),
+                termCount,
+                card?.rules.boardSize ?? selectedBoardSize,
+              )}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {presets.length > 0 && (
+              <label className="flex items-center gap-2 text-sm">
+                <span className="sr-only">Card template</span>
+                <select
+                  className="h-7 max-w-48 rounded-lg border bg-background px-2 text-[0.8rem]"
+                  disabled={Boolean(pending)}
+                  onChange={(event) => setPresetId(event.target.value)}
+                  value={presetId}
+                >
+                  <option value="">
+                    Team rules ({team.bingoRules.boardSize}×{team.bingoRules.boardSize})
+                  </option>
+                  {presets.map((preset) => (
+                    <option key={preset.id} value={preset.id}>
+                      {preset.name} ({preset.boardSize}×{preset.boardSize})
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
             {card && (
               <Button
                 className={isTogglingCell ? "disabled:opacity-100" : undefined}
@@ -122,7 +156,7 @@ function BingoPage() {
             )}
             <Button
               className={isTogglingCell ? "disabled:opacity-100" : undefined}
-              disabled={Boolean(pending) || termCount < 25}
+              disabled={Boolean(pending) || termCount < Math.pow(selectedBoardSize, 2)}
               onClick={() => void createCard()}
               size="sm"
             >
@@ -139,9 +173,10 @@ function BingoPage() {
         <div className="flex min-h-0 w-full items-center justify-center">
           {card ? (
             <fieldset
-              className={`grid aspect-square w-full max-w-full flex-none grid-cols-5 gap-1.5 rounded-xl border bg-card/80 p-2 shadow-xl backdrop-blur sm:h-full sm:max-h-full sm:w-auto sm:gap-3 sm:p-4 ${
+              className={`grid aspect-square w-full max-w-full flex-none gap-1.5 rounded-xl border bg-card/80 p-2 shadow-xl backdrop-blur sm:h-full sm:max-h-full sm:w-auto sm:gap-3 sm:p-4 ${
                 card.bingo ? "border-primary shadow-primary/15" : ""
               }`}
+              style={{ gridTemplateColumns: `repeat(${card.rules.boardSize}, minmax(0, 1fr))` }}
             >
               <legend className="sr-only">Bingo card</legend>
               {card.cells.map((cell) => {
@@ -196,17 +231,18 @@ function BingoPage() {
 
 const confettiColors = ["#7c3aed", "#ec4899", "#f59e0b", "#10b981", "#3b82f6"];
 
-function getGameInstructions(hasCard: boolean, termCount: number) {
+function getGameInstructions(hasCard: boolean, termCount: number, boardSize: number) {
   if (hasCard) {
     return "Tap a cell when you hear the term. Everything is saved automatically.";
   }
-  if (termCount >= 25) {
-    return "Shuffle your personal 5×5 card and start playing.";
+  const requiredTerms = Math.pow(boardSize, 2);
+  if (termCount >= requiredTerms) {
+    return `Shuffle your personal ${boardSize}×${boardSize} card and start playing.`;
   }
 
-  const missingTerms = 25 - termCount;
+  const missingTerms = requiredTerms - termCount;
   const subject = missingTerms === 1 ? "term is" : "terms are";
-  return `${missingTerms} more ${subject} needed before you can play.`;
+  return `${missingTerms} more ${subject} needed before you can play ${boardSize}×${boardSize}.`;
 }
 
 function Confetti() {
