@@ -202,7 +202,9 @@ export async function setTeamDefaultBingoRulesPreset(data: { teamId: string; pre
     .where(and(eq(teamBingoRulesPreset.id, data.presetId), eq(teamBingoRulesPreset.teamId, data.teamId)))
     .limit(1);
 
-  if (!presets[0]) return { status: 'not-found' as const };
+  if (!presets[0]) {
+    return { status: 'not-found' as const };
+  }
 
   await database.update(team).set({ defaultBingoRulesPresetId: data.presetId }).where(eq(team.id, data.teamId));
 
@@ -213,9 +215,15 @@ function getInvitationStatus(
   invitation: { expiresAt: Date; redeemedAt: Date | null; revokedAt: Date | null },
   now: Date,
 ) {
-  if (invitation.revokedAt) return 'revoked' as const;
-  if (invitation.redeemedAt) return 'redeemed' as const;
-  if (invitation.expiresAt <= now) return 'expired' as const;
+  if (invitation.revokedAt) {
+    return 'revoked' as const;
+  }
+  if (invitation.redeemedAt) {
+    return 'redeemed' as const;
+  }
+  if (invitation.expiresAt <= now) {
+    return 'expired' as const;
+  }
   return 'active' as const;
 }
 
@@ -274,10 +282,18 @@ export async function getInvitation(data: { token: string }) {
     .limit(1);
   const invitation = invitations[0];
 
-  if (!invitation) return { status: 'invalid' as const };
-  if (invitation.revokedAt) return { status: 'revoked' as const, teamName: invitation.teamName };
-  if (invitation.redeemedAt) return { status: 'redeemed' as const, teamName: invitation.teamName };
-  if (invitation.expiresAt <= new Date()) return { status: 'expired' as const, teamName: invitation.teamName };
+  if (!invitation) {
+    return { status: 'invalid' as const };
+  }
+  if (invitation.revokedAt) {
+    return { status: 'revoked' as const, teamName: invitation.teamName };
+  }
+  if (invitation.redeemedAt) {
+    return { status: 'redeemed' as const, teamName: invitation.teamName };
+  }
+  if (invitation.expiresAt <= new Date()) {
+    return { status: 'expired' as const, teamName: invitation.teamName };
+  }
 
   return {
     status: 'valid' as const,

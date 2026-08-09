@@ -79,7 +79,9 @@ export const redeemInvitation = createServerFn({ method: 'POST' })
 
 function readToken(input: unknown) {
   const token = readString(input, 'token', 40, 100, false);
-  if (!/^[A-Za-z0-9_-]+$/.test(token)) throw new Error('Invalid invitation token');
+  if (!/^[A-Za-z0-9_-]+$/.test(token)) {
+    throw new Error('Invalid invitation token');
+  }
   return token;
 }
 
@@ -88,16 +90,24 @@ function readId(input: unknown, field: string) {
 }
 
 function readString(input: unknown, field: string, min: number, max: number, trim = true) {
-  if (!input || typeof input !== 'object') throw new Error('Invalid input');
+  if (!input || typeof input !== 'object') {
+    throw new Error('Invalid input');
+  }
   const value = (input as Record<string, unknown>)[field];
-  if (typeof value !== 'string') throw new Error(`Invalid ${field}`);
+  if (typeof value !== 'string') {
+    throw new Error(`Invalid ${field}`);
+  }
   const normalized = trim ? value.trim().replace(/\s+/g, ' ') : value;
-  if (normalized.length < min || normalized.length > max) throw new Error(`Invalid ${field}`);
+  if (normalized.length < min || normalized.length > max) {
+    throw new Error(`Invalid ${field}`);
+  }
   return normalized;
 }
 
 function readBingoRules(input: unknown) {
-  if (!input || typeof input !== 'object') throw new Error('Invalid input');
+  if (!input || typeof input !== 'object') {
+    throw new Error('Invalid input');
+  }
   const values = input as Record<string, unknown>;
   const boardSize = values.boardSize;
   const horizontal = values.horizontal;

@@ -37,7 +37,9 @@ export async function updateBingoTerm(data: { teamId: string; termId: string; la
     .where(and(eq(bingoTerm.id, data.termId), eq(bingoTerm.teamId, data.teamId)))
     .limit(1);
 
-  if (!existing[0]) return { status: 'not-found' as const };
+  if (!existing[0]) {
+    return { status: 'not-found' as const };
+  }
 
   const duplicate = await database
     .select({ id: bingoTerm.id })
@@ -51,7 +53,9 @@ export async function updateBingoTerm(data: { teamId: string; termId: string; la
     )
     .limit(1);
 
-  if (duplicate[0]) return { status: 'duplicate' as const };
+  if (duplicate[0]) {
+    return { status: 'duplicate' as const };
+  }
 
   try {
     await database
@@ -70,7 +74,9 @@ export async function updateBingoTerm(data: { teamId: string; termId: string; la
         ),
       )
       .limit(1);
-    if (racedDuplicate[0]) return { status: 'duplicate' as const };
+    if (racedDuplicate[0]) {
+      return { status: 'duplicate' as const };
+    }
     throw error;
   }
 

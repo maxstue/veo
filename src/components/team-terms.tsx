@@ -104,12 +104,16 @@ export function TermLibrary({ teamId, terms }: { teamId: string; terms: TeamTerm
   }
 
   async function remove(term: TeamTerm) {
-    if (!window.confirm(`Delete “${term.label}”?`)) return;
+    if (!window.confirm(`Delete “${term.label}”?`)) {
+      return;
+    }
     setError(undefined);
     setPendingId(term.id);
     try {
       const result = await deleteBingoTerm({ data: { teamId, termId: term.id } });
-      if (result.status === 'not-found') setError('This term no longer exists.');
+      if (result.status === 'not-found') {
+        setError('This term no longer exists.');
+      }
       await router.invalidate();
     } catch {
       setError('The term could not be deleted.');
@@ -169,8 +173,12 @@ export function TermLibrary({ teamId, terms }: { teamId: string; terms: TeamTerm
                     maxLength={80}
                     onChange={(event) => setEditingLabel(event.target.value)}
                     onKeyDown={(event) => {
-                      if (event.key === 'Enter') void save(term.id);
-                      if (event.key === 'Escape') setEditingId(undefined);
+                      if (event.key === 'Enter') {
+                        void save(term.id);
+                      }
+                      if (event.key === 'Escape') {
+                        setEditingId(undefined);
+                      }
                     }}
                     value={editingLabel}
                   />

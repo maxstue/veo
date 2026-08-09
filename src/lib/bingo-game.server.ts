@@ -27,7 +27,9 @@ export async function getBingoGame(data: { teamId: string }) {
     .limit(1);
   const card = cards[0];
 
-  if (!card) return { card: null };
+  if (!card) {
+    return { card: null };
+  }
 
   const cells = await database
     .select({
@@ -74,7 +76,9 @@ export async function createBingoCard(data: { teamId: string; presetId?: string 
     .limit(1);
   const rules = teams[0];
 
-  if (!rules) throw new Response('Team not found', { status: 404 });
+  if (!rules) {
+    throw new Response('Team not found', { status: 404 });
+  }
   const presetId = data.presetId === undefined ? rules.defaultPresetId : data.presetId;
   const presets = presetId
     ? await database
@@ -146,7 +150,9 @@ export async function toggleBingoCell(data: { teamId: string; cardId: string; po
     .limit(1);
   const match = matches[0];
 
-  if (!match) throw new Response('Bingo cell not found', { status: 404 });
+  if (!match) {
+    throw new Response('Bingo cell not found', { status: 404 });
+  }
 
   const markedAt = match.markedAt ? null : new Date();
   await database
@@ -196,7 +202,9 @@ export async function resetBingoCard(data: { teamId: string; cardId: string }) {
     .where(and(eq(bingoCard.id, data.cardId), eq(bingoCard.teamId, data.teamId), eq(bingoCard.userId, session.user.id)))
     .limit(1);
 
-  if (!cards[0]) throw new Response('Bingo card not found', { status: 404 });
+  if (!cards[0]) {
+    throw new Response('Bingo card not found', { status: 404 });
+  }
 
   await database.update(bingoCardCell).set({ markedAt: null }).where(eq(bingoCardCell.cardId, data.cardId));
 

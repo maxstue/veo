@@ -25,6 +25,7 @@ const oxlintConfig = {
   ],
   plugins: ['typescript', 'eslint', 'jsdoc', 'react', 'react-perf'],
   rules: {
+    curly: ['error', 'all'],
     'eslint/no-unused-vars': [
       'error',
       {

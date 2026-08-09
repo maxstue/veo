@@ -12,7 +12,9 @@ type IstanbulWindow = Window & {
 };
 
 function persistIstanbulCoverage(coverage?: string) {
-  if (!coverage) return;
+  if (!coverage) {
+    return;
+  }
 
   mkdirSync(istanbulOutputDirectory, { recursive: true });
   const identifier = randomBytes(16).toString('hex');

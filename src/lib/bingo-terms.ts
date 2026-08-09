@@ -34,12 +34,16 @@ function readTermInput(input: unknown) {
 
 function readId(input: unknown, field: string) {
   const value = readString(input, field);
-  if (!value || value.length > 100) throw new Error(`Invalid ${field}`);
+  if (!value || value.length > 100) {
+    throw new Error(`Invalid ${field}`);
+  }
   return value;
 }
 
 function readString(input: unknown, field: string) {
-  if (!input || typeof input !== 'object') throw new Error('Invalid input');
+  if (!input || typeof input !== 'object') {
+    throw new Error('Invalid input');
+  }
   const value = (input as Record<string, unknown>)[field];
   if (typeof value !== 'string' || value.length > maximumBingoTermLength + 20) {
     throw new Error(`Invalid ${field}`);

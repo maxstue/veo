@@ -41,7 +41,9 @@ export const resetBingoCard = createServerFn({ method: 'POST' })
   });
 
 function readId(input: unknown, field: string) {
-  if (!input || typeof input !== 'object') throw new Error('Invalid input');
+  if (!input || typeof input !== 'object') {
+    throw new Error('Invalid input');
+  }
   const value = (input as Record<string, unknown>)[field];
   if (typeof value !== 'string' || !value || value.length > 100) {
     throw new Error(`Invalid ${field}`);
@@ -50,10 +52,16 @@ function readId(input: unknown, field: string) {
 }
 
 function readOptionalId(input: unknown, field: string) {
-  if (!input || typeof input !== 'object') throw new Error('Invalid input');
+  if (!input || typeof input !== 'object') {
+    throw new Error('Invalid input');
+  }
   const value = (input as Record<string, unknown>)[field];
-  if (value === undefined) return undefined;
-  if (value === null) return null;
+  if (value === undefined) {
+    return undefined;
+  }
+  if (value === null) {
+    return null;
+  }
   if (typeof value !== 'string' || !value || value.length > 100) {
     throw new Error(`Invalid ${field}`);
   }
@@ -61,7 +69,9 @@ function readOptionalId(input: unknown, field: string) {
 }
 
 function readPosition(input: unknown) {
-  if (!input || typeof input !== 'object') throw new Error('Invalid input');
+  if (!input || typeof input !== 'object') {
+    throw new Error('Invalid input');
+  }
   const position = (input as Record<string, unknown>).position;
   if (
     typeof position !== 'number' ||

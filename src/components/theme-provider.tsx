@@ -54,11 +54,15 @@ export function ThemeProvider({ children, defaultTheme = 'system', storageKey = 
   }, [defaultTheme, storageKey]);
 
   useEffect(() => {
-    if (mounted) applyTheme(theme);
+    if (mounted) {
+      applyTheme(theme);
+    }
   }, [mounted, theme]);
 
   useEffect(() => {
-    if (!mounted || theme !== 'system') return;
+    if (!mounted || theme !== 'system') {
+      return;
+    }
 
     const media = window.matchMedia('(prefers-color-scheme: dark)');
     const update = () => applyTheme('system');
@@ -88,6 +92,8 @@ export function ThemeProvider({ children, defaultTheme = 'system', storageKey = 
 
 export function useTheme() {
   const context = useContext(ThemeProviderContext);
-  if (!context) throw new Error('useTheme must be used within a ThemeProvider');
+  if (!context) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
   return context;
 }

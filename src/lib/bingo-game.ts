@@ -79,8 +79,9 @@ function secureRandomIndex(upperBound: number) {
   const unbiasedLimit = maximum - (maximum % upperBound);
   const value = new Uint32Array(1);
 
-  do crypto.getRandomValues(value);
-  while (value[0]! >= unbiasedLimit);
+  do {
+    crypto.getRandomValues(value);
+  } while (value[0]! >= unbiasedLimit);
 
   return value[0]! % upperBound;
 }

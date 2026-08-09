@@ -53,8 +53,12 @@ export function buildTeamLeaderboard<TMember extends LeaderboardMember>(
 }
 
 function getActivity(cardsStarted: number, completedCards: number): LeaderboardActivity {
-  if (completedCards > 0) return 'ranked';
-  if (cardsStarted > 0) return 'playing';
+  if (completedCards > 0) {
+    return 'ranked';
+  }
+  if (cardsStarted > 0) {
+    return 'playing';
+  }
   return 'inactive';
 }
 
