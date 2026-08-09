@@ -45,6 +45,7 @@
     "tw-animate-css": "catalog:"
   },
   "devDependencies": {
+    "@babel/core": "catalog:",
     "@cloudflare/vite-plugin": "catalog:",
     "@cloudflare/workers-types": "catalog:",
     "@playwright/test": "catalog:",
@@ -54,10 +55,12 @@
     "@tanstack/eslint-plugin-router": "catalog:",
     "@tanstack/router-cli": "catalog:",
     "@types/node": "catalog:",
+    "@types/babel__core": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
     "@vitest/coverage-v8": "catalog:",
+    "babel-plugin-react-compiler": "catalog:",
     "drizzle-kit": "catalog:",
     "eslint-plugin-react-hooks": "catalog:",
     "nyc": "catalog:",
