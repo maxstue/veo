@@ -1,49 +1,42 @@
-import { defineConfig, lazyPlugins, loadEnv } from "vite-plus";
-import babel from "@rolldown/plugin-babel";
-import { devtools } from "@tanstack/devtools-vite";
+import { cloudflare } from '@cloudflare/vite-plugin';
+import babel from '@rolldown/plugin-babel';
+import { sentryTanstackStart } from '@sentry/tanstackstart-react/vite';
+import tailwindcss from '@tailwindcss/vite';
+import { devtools } from '@tanstack/devtools-vite';
+import { tanstackStart } from '@tanstack/react-start/plugin/vite';
+import viteReact, { reactCompilerPreset } from '@vitejs/plugin-react';
+import istanbul from 'vite-plugin-istanbul';
+import { defineConfig, lazyPlugins, loadEnv } from 'vite-plus';
 
-import { tanstackStart } from "@tanstack/react-start/plugin/vite";
-
-import viteReact, { reactCompilerPreset } from "@vitejs/plugin-react";
-import tailwindcss from "@tailwindcss/vite";
-import { cloudflare } from "@cloudflare/vite-plugin";
-import { sentryTanstackStart } from "@sentry/tanstackstart-react/vite";
-import istanbul from "vite-plugin-istanbul";
+import oxfmtConfig from './oxfmt.config';
+import oxlintConfig from './oxlint.config';
 
 const config = defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), "");
-  const collectE2ECoverage = env.VITE_COVERAGE === "true";
+  const env = loadEnv(mode, process.cwd(), '');
+  const collectE2ECoverage = env.VITE_COVERAGE === 'true';
 
   return {
     build: collectE2ECoverage ? { sourcemap: true } : undefined,
     staged: {
-      "*": "vp check --fix",
+      '*': 'vp check --fix',
     },
-    fmt: {
-      ignorePatterns: ["src/routeTree.gen.ts"],
-    },
-    lint: {
-      ignorePatterns: ["src/routeTree.gen.ts"],
-      jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
-      rules: { "vite-plus/prefer-vite-plus-imports": "error" },
-      options: { typeAware: true, typeCheck: true },
-    },
+    fmt: oxfmtConfig,
+    lint: oxlintConfig,
     test: {
-      include: ["src/**/*.test.{ts,tsx}"],
+      include: ['src/**/*.test.{ts,tsx}'],
       passWithNoTests: true,
-      reporters:
-        process.env.GITHUB_ACTIONS === "true" ? ["default", "github-actions"] : ["default"],
+      reporters: process.env.GITHUB_ACTIONS === 'true' ? ['default', 'github-actions'] : ['default'],
       coverage: {
-        exclude: ["src/**/*.test.{ts,tsx}", "src/routeTree.gen.ts", "src/vite-env.d.ts"],
-        provider: "v8",
-        reporter: ["text", "html", "lcov"],
-        reportsDirectory: "coverage/unit",
+        exclude: ['src/**/*.test.{ts,tsx}', 'src/routeTree.gen.ts', 'src/vite-env.d.ts'],
+        provider: 'v8',
+        reporter: ['text', 'html', 'lcov'],
+        reportsDirectory: 'coverage/unit',
       },
     },
     resolve: { tsconfigPaths: true },
     plugins: lazyPlugins(() => [
       devtools(),
-      mode === "test" ? undefined : cloudflare({ viteEnvironment: { name: "ssr" } }),
+      mode === 'test' ? undefined : cloudflare({ viteEnvironment: { name: 'ssr' } }),
       tailwindcss(),
       tanstackStart(),
       viteReact(),
@@ -52,22 +45,22 @@ const config = defineConfig(({ mode }) => {
       }),
       collectE2ECoverage
         ? istanbul({
-            include: ["src/**/*"],
+            include: ['src/**/*'],
             exclude: [
-              "node_modules/**",
-              "e2e/**",
-              "src/**/*.server.ts",
-              "src/**/*.test.{ts,tsx}",
-              "src/routeTree.gen.ts",
-              "src/vite-env.d.ts",
+              'node_modules/**',
+              'e2e/**',
+              'src/**/*.server.ts',
+              'src/**/*.test.{ts,tsx}',
+              'src/routeTree.gen.ts',
+              'src/vite-env.d.ts',
             ],
-            extension: [".js", ".jsx", ".ts", ".tsx"],
+            extension: ['.js', '.jsx', '.ts', '.tsx'],
             requireEnv: true,
           })
         : undefined,
       sentryTanstackStart({
-        org: "maxstue",
-        project: "veo",
+        org: 'maxstue',
+        project: 'veo',
         authToken: env.SENTRY_AUTH_TOKEN,
         autoInstrumentMiddleware: false,
         tunnelRoute: true,

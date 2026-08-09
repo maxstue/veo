@@ -1,5 +1,5 @@
 allowBuilds:
-  "@sentry/cli": false
+  '@sentry/cli': false
   esbuild: true
   lightningcss: true
   sharp: true
@@ -10,34 +10,36 @@ onlyBuiltDependencies:
   - sharp
   - workerd
 catalog:
-  "@base-ui/react": 1.6.0
-  "@better-auth/drizzle-adapter": 1.6.25
-  "@cloudflare/vite-plugin": 1.50.0
-  "@cloudflare/workers-types": 5.20260801.1
-  "@fontsource-variable/inter": 5.3.0
-  "@fontsource-variable/space-grotesk": 5.3.0
-  "@playwright/test": 1.62.1
-  "@rolldown/plugin-babel": ^0.2.3
-  "@sentry/cloudflare": 10.69.0
-  "@sentry/tanstackstart-react": 10.69.0
-  "@tailwindcss/typography": 0.5.20
-  "@tailwindcss/vite": 4.3.3
-  "@tanstack/devtools-vite": 0.8.3
-  "@tanstack/react-devtools": 0.10.9
-  "@tanstack/react-router": 1.170.18
-  "@tanstack/react-router-devtools": 1.167.0
-  "@tanstack/react-start": 1.168.34
-  "@tanstack/router-cli": 1.167.21
-  "@types/node": 26.1.2
-  "@types/react": 19.2.18
-  "@types/react-dom": 19.2.4
-  "@vitejs/plugin-react": 6.0.5
-  "@vitest/coverage-v8": ^4.1.10
+  '@base-ui/react': 1.6.0
+  '@better-auth/drizzle-adapter': 1.6.25
+  '@cloudflare/vite-plugin': 1.50.0
+  '@cloudflare/workers-types': 5.20260801.1
+  '@fontsource-variable/inter': 5.3.0
+  '@fontsource-variable/space-grotesk': 5.3.0
+  '@playwright/test': 1.62.1
+  '@rolldown/plugin-babel': ^0.2.3
+  '@sentry/cloudflare': 10.69.0
+  '@sentry/tanstackstart-react': 10.69.0
+  '@tailwindcss/typography': 0.5.20
+  '@tailwindcss/vite': 4.3.3
+  '@tanstack/devtools-vite': 0.8.3
+  '@tanstack/eslint-plugin-router': ^1.162.0
+  '@tanstack/react-devtools': 0.10.9
+  '@tanstack/react-router': 1.170.18
+  '@tanstack/react-router-devtools': 1.167.0
+  '@tanstack/react-start': 1.168.34
+  '@tanstack/router-cli': 1.167.21
+  '@types/node': 26.1.2
+  '@types/react': 19.2.18
+  '@types/react-dom': 19.2.4
+  '@vitejs/plugin-react': 6.0.5
+  '@vitest/coverage-v8': ^4.1.10
   better-auth: 1.6.25
   class-variance-authority: 0.7.1
   clsx: 2.1.1
   drizzle-kit: 0.31.10
   drizzle-orm: 0.45.2
+  eslint-plugin-react-hooks: ^7.1.1
   lucide-react: 1.28.0
   nyc: ^18.0.0
   react: 19.2.8
@@ -52,9 +54,9 @@ catalog:
   vite-plus: 0.2.7
   wrangler: 4.118.0
 overrides:
-  vite: "catalog:"
+  vite: 'catalog:'
 peerDependencyRules:
   allowAny:
     - vite
   allowedVersions:
-    vite: "*"
+    vite: '*'
