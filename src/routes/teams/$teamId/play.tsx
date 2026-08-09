@@ -8,9 +8,11 @@ import { createBingoCard, getBingoGame, resetBingoCard, toggleBingoCell } from '
 import { hasBingo } from '#/lib/bingo-game';
 import { getTeam, getViewer } from '#/lib/teams';
 
-export const Route = createFileRoute('/teams/$teamId_/play')({
+export const Route = createFileRoute('/teams/$teamId/play')({
   beforeLoad: async ({ params }) => {
-    if (!(await getViewer())) throw redirect({ to: '/auth', search: { returnTo: `/teams/${params.teamId}/play` } });
+    if (!(await getViewer())) {
+      throw redirect({ to: '/auth', search: { returnTo: `/teams/${params.teamId}/play` } });
+    }
   },
   loader: async ({ params }) => {
     const [teamData, game] = await Promise.all([
@@ -39,7 +41,9 @@ function BingoPage() {
   const [card, updateOptimisticCell] = useOptimistic(
     game.card,
     (currentCard, { marked, position }: { marked: boolean; position: number }) => {
-      if (!currentCard) return currentCard;
+      if (!currentCard) {
+        return currentCard;
+      }
 
       const cells = currentCard.cells.map((cell) =>
         cell.position === position ? { ...cell, markedAt: marked ? new Date() : null } : cell,
@@ -78,7 +82,9 @@ function BingoPage() {
   }
 
   function toggle(cardId: string, position: number) {
-    if (card?.id !== cardId) return;
+    if (card?.id !== cardId) {
+      return;
+    }
 
     setError(undefined);
     const hadBingo = card.bingo;
@@ -87,7 +93,9 @@ function BingoPage() {
       updateOptimisticCell({ marked, position });
       try {
         const result = await toggleBingoCell({ data: { teamId, cardId, position } });
-        if (result.bingo && !hadBingo) setCelebration((value) => value + 1);
+        if (result.bingo && !hadBingo) {
+          setCelebration((value) => value + 1);
+        }
         await router.invalidate();
       } catch {
         setError('The mark could not be saved.');
@@ -96,7 +104,9 @@ function BingoPage() {
   }
 
   async function reset(cardId: string) {
-    if (!window.confirm('Clear all marks on this card?')) return;
+    if (!window.confirm('Clear all marks on this card?')) {
+      return;
+    }
     setError(undefined);
     setPending('reset');
     try {

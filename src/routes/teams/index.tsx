@@ -10,7 +10,9 @@ import { createTeam, getViewer, listTeams } from '#/lib/teams';
 
 export const Route = createFileRoute('/teams/')({
   beforeLoad: async () => {
-    if (!(await getViewer())) throw redirect({ to: '/auth', search: { returnTo: '/teams' } });
+    if (!(await getViewer())) {
+      throw redirect({ to: '/auth', search: { returnTo: '/teams' } });
+    }
   },
   loader: () => listTeams(),
   component: TeamsPage,

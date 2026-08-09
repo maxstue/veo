@@ -1,22 +1,26 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import { ArrowLeft, Link2 } from 'lucide-react';
+import { ArrowLeft, Trophy } from 'lucide-react';
 
 import { AppHeader } from '#/components/app-header';
-import { TeamInvitations } from '#/components/team-invitations';
+import { TeamLeaderboard } from '#/components/team-leaderboard';
 import { ButtonLink } from '#/components/ui/button-link';
 import { getTeam, getViewer } from '#/lib/teams';
 
-export const Route = createFileRoute('/teams/$teamId_/invitations')({
+export const Route = createFileRoute('/teams/$teamId/leaderboard')({
   beforeLoad: async ({ params }) => {
-    if (!(await getViewer()))
-      throw redirect({ to: '/auth', search: { returnTo: `/teams/${params.teamId}/invitations` } });
+    if (!(await getViewer())) {
+      throw redirect({
+        to: '/auth',
+        search: { returnTo: `/teams/${params.teamId}/leaderboard` },
+      });
+    }
   },
   loader: ({ params }) => getTeam({ data: { teamId: params.teamId } }),
-  component: TeamInvitationsPage,
+  component: TeamLeaderboardPage,
 });
 
-function TeamInvitationsPage() {
-  const { invitations, team } = Route.useLoaderData();
+function TeamLeaderboardPage() {
+  const { leaderboard, team } = Route.useLoaderData();
   const { teamId } = Route.useParams();
 
   return (
@@ -30,11 +34,11 @@ function TeamInvitationsPage() {
         <div className='mb-8'>
           <p className='text-primary text-sm font-medium'>{team.name}</p>
           <h1 className='mt-1 flex items-center gap-2 text-4xl font-semibold tracking-tight'>
-            <Link2 className='text-primary size-8 dark:text-violet-300' aria-hidden='true' />
-            Invitations
+            <Trophy className='text-primary size-8' aria-hidden='true' />
+            Team leaderboard
           </h1>
         </div>
-        <TeamInvitations invitations={invitations} teamId={teamId} />
+        <TeamLeaderboard leaderboard={leaderboard} />
       </section>
     </main>
   );

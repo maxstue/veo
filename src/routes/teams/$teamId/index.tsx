@@ -11,9 +11,11 @@ import { ButtonLink } from '#/components/ui/button-link';
 import { Card, CardContent } from '#/components/ui/card';
 import { getTeam, getViewer } from '#/lib/teams';
 
-export const Route = createFileRoute('/teams/$teamId')({
+export const Route = createFileRoute('/teams/$teamId/')({
   beforeLoad: async ({ params }) => {
-    if (!(await getViewer())) throw redirect({ to: '/auth', search: { returnTo: `/teams/${params.teamId}` } });
+    if (!(await getViewer())) {
+      throw redirect({ to: '/auth', search: { returnTo: `/teams/${params.teamId}` } });
+    }
   },
   loader: ({ params }) => getTeam({ data: { teamId: params.teamId } }),
   component: TeamPage,

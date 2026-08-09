@@ -1,22 +1,23 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import { ArrowLeft, Settings2 } from 'lucide-react';
+import { ArrowLeft, Dices } from 'lucide-react';
 
 import { AppHeader } from '#/components/app-header';
-import { BingoRulesLibrary } from '#/components/team-bingo-rules';
+import { TermLibrary } from '#/components/team-terms';
 import { ButtonLink } from '#/components/ui/button-link';
 import { getTeam, getViewer } from '#/lib/teams';
 
-export const Route = createFileRoute('/teams/$teamId_/bingo-rules')({
+export const Route = createFileRoute('/teams/$teamId/terms')({
   beforeLoad: async ({ params }) => {
-    if (!(await getViewer()))
-      throw redirect({ to: '/auth', search: { returnTo: `/teams/${params.teamId}/bingo-rules` } });
+    if (!(await getViewer())) {
+      throw redirect({ to: '/auth', search: { returnTo: `/teams/${params.teamId}/terms` } });
+    }
   },
   loader: ({ params }) => getTeam({ data: { teamId: params.teamId } }),
-  component: TeamBingoRulesPage,
+  component: TeamTermsPage,
 });
 
-function TeamBingoRulesPage() {
-  const { bingoRulesPresets, team } = Route.useLoaderData();
+function TeamTermsPage() {
+  const { team, terms } = Route.useLoaderData();
   const { teamId } = Route.useParams();
 
   return (
@@ -30,16 +31,11 @@ function TeamBingoRulesPage() {
         <div className='mb-8'>
           <p className='text-primary text-sm font-medium'>{team.name}</p>
           <h1 className='mt-1 flex items-center gap-2 text-4xl font-semibold tracking-tight'>
-            <Settings2 className='size-8' aria-hidden='true' />
-            Bingo rules
+            <Dices className='size-8' aria-hidden='true' />
+            Bingo terms
           </h1>
         </div>
-        <BingoRulesLibrary
-          defaultPresetId={team.defaultBingoRulesPresetId}
-          presets={bingoRulesPresets}
-          rules={team.bingoRules}
-          teamId={teamId}
-        />
+        <TermLibrary teamId={teamId} terms={terms} />
       </section>
     </main>
   );
