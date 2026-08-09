@@ -4,6 +4,9 @@ import * as Sentry from '@sentry/cloudflare';
 type ProductMetricName =
   | 'veo.game.completed'
   | 'veo.game.started'
+  | 'veo.password_reset.email.failed'
+  | 'veo.password_reset.email.sent'
+  | 'veo.password_reset.requested'
   | 'veo.team.created'
   | 'veo.user.deleted'
   | 'veo.user.registered';
@@ -31,6 +34,21 @@ export const Metrics = {
   /** Records the successful creation of a new bingo card as a started game. */
   recordGameStarted(): void {
     recordProductEvent({ metric: 'veo.game.started', message: 'Bingo game started' });
+  },
+
+  /** Records a password-reset email that Resend did not accept or deliver to its queue. */
+  recordPasswordResetEmailFailed(): void {
+    recordProductEvent({ metric: 'veo.password_reset.email.failed', message: 'Password reset email failed' });
+  },
+
+  /** Records a password-reset email accepted by Resend for delivery. */
+  recordPasswordResetEmailSent(): void {
+    recordProductEvent({ metric: 'veo.password_reset.email.sent', message: 'Password reset email sent' });
+  },
+
+  /** Records a valid user's password-reset request before delivery is scheduled. */
+  recordPasswordResetRequested(): void {
+    recordProductEvent({ metric: 'veo.password_reset.requested', message: 'Password reset requested' });
   },
 
   /** Records the successful creation of a team. */

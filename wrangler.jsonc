@@ -21,7 +21,7 @@
     },
   },
   "secrets": {
-    "required": ["BETTER_AUTH_SECRET", "SENTRY_DSN"],
+    "required": ["BETTER_AUTH_SECRET", "RESEND_API_KEY", "SENTRY_DSN"],
   },
   "d1_databases": [
     {

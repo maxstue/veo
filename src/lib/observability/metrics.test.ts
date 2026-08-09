@@ -23,6 +23,9 @@ describe('Metrics', () => {
   it.each([
     ['recordGameCompleted', 'veo.game.completed', 'Bingo game completed'],
     ['recordGameStarted', 'veo.game.started', 'Bingo game started'],
+    ['recordPasswordResetEmailFailed', 'veo.password_reset.email.failed', 'Password reset email failed'],
+    ['recordPasswordResetEmailSent', 'veo.password_reset.email.sent', 'Password reset email sent'],
+    ['recordPasswordResetRequested', 'veo.password_reset.requested', 'Password reset requested'],
     ['recordTeamCreated', 'veo.team.created', 'Team created'],
     ['recordUserDeleted', 'veo.user.deleted', 'User account deleted'],
     ['recordUserRegistered', 'veo.user.registered', 'User registered'],
