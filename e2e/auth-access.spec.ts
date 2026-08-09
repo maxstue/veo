@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./coverage-fixture";
 
 test("signed-out viewers are redirected from protected team routes", async ({ page }) => {
   await page.goto("/teams");

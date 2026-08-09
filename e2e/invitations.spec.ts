@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./coverage-fixture";
 
 test("invalid invitation links show a useful recovery path", async ({ page }) => {
   await page.goto(`/invite/${"invalid-token".padEnd(40, "0")}`);

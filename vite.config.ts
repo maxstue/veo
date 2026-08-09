@@ -7,11 +7,14 @@ import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { cloudflare } from "@cloudflare/vite-plugin";
 import { sentryTanstackStart } from "@sentry/tanstackstart-react/vite";
+import istanbul from "vite-plugin-istanbul";
 
 const config = defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
+  const collectE2ECoverage = env.VITE_COVERAGE === "true";
 
   return {
+    build: collectE2ECoverage ? { sourcemap: true } : undefined,
     staged: {
       "*": "vp check --fix",
     },
@@ -27,6 +30,14 @@ const config = defineConfig(({ mode }) => {
     test: {
       include: ["src/**/*.test.{ts,tsx}"],
       passWithNoTests: true,
+      reporters:
+        process.env.GITHUB_ACTIONS === "true" ? ["default", "github-actions"] : ["default"],
+      coverage: {
+        exclude: ["src/**/*.test.{ts,tsx}", "src/routeTree.gen.ts", "src/vite-env.d.ts"],
+        provider: "v8",
+        reporter: ["text", "html", "lcov"],
+        reportsDirectory: "coverage/unit",
+      },
     },
     resolve: { tsconfigPaths: true },
     plugins: lazyPlugins(() => [
@@ -35,6 +46,21 @@ const config = defineConfig(({ mode }) => {
       tailwindcss(),
       tanstackStart(),
       viteReact(),
+      collectE2ECoverage
+        ? istanbul({
+            include: ["src/**/*"],
+            exclude: [
+              "node_modules/**",
+              "e2e/**",
+              "src/**/*.server.ts",
+              "src/**/*.test.{ts,tsx}",
+              "src/routeTree.gen.ts",
+              "src/vite-env.d.ts",
+            ],
+            extension: [".js", ".jsx", ".ts", ".tsx"],
+            requireEnv: true,
+          })
+        : undefined,
       sentryTanstackStart({
         org: "maxstue",
         project: "veo",

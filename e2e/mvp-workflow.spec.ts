@@ -1,4 +1,5 @@
-import { expect, test, type Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
+import { collectIstanbulCoverage, enableIstanbulCoverage, expect, test } from "./coverage-fixture";
 
 const password = "playwright-password-123";
 
@@ -10,6 +11,7 @@ test("registration, team, terms, invitation, and bingo work end to end", async (
   const runId = `${Date.now()}-${test.info().project.name}`;
   const teamName = `Playwright Team ${runId}`;
   const guestContext = await browser.newContext();
+  await enableIstanbulCoverage(guestContext);
 
   try {
     await signUp(ownerPage, {
@@ -21,6 +23,7 @@ test("registration, team, terms, invitation, and bingo work end to end", async (
     await ownerPage.getByLabel("Team name").fill(teamName);
     await ownerPage.getByRole("button", { name: "Create team" }).click();
     await expect(ownerPage.getByRole("heading", { level: 1, name: teamName })).toBeVisible();
+    await ownerPage.getByRole("link", { name: "Manage terms" }).click();
 
     const termInput = ownerPage.getByLabel("New bingo term");
     for (let index = 1; index <= 25; index += 1) {
@@ -30,12 +33,15 @@ test("registration, team, terms, invitation, and bingo work end to end", async (
     }
     await expect(ownerPage.getByText("25 / 25")).toBeVisible();
 
+    await ownerPage.getByRole("link", { name: "Back to team" }).click();
+    await ownerPage.getByRole("link", { name: "Manage invitations" }).click();
     await ownerPage.getByRole("button", { name: "Create invitation link" }).click();
     const invitationLink = await ownerPage
       .locator("p")
       .filter({ hasText: "http://localhost:5173/invite/" })
       .textContent();
     expect(invitationLink).toBeTruthy();
+    await ownerPage.getByRole("link", { name: "Back to team" }).click();
 
     const guestPage = await guestContext.newPage();
     await guestPage.goto(invitationLink!);
@@ -54,7 +60,7 @@ test("registration, team, terms, invitation, and bingo work end to end", async (
 
     await ownerPage.reload();
     await expect(ownerPage.getByText("2 members")).toBeVisible();
-    await ownerPage.getByRole("link", { name: "Play bingo" }).click();
+    await ownerPage.getByRole("link", { name: "Start bingo" }).click();
     const card = ownerPage.getByRole("group", { name: "Bingo card" });
     const createCardButton = ownerPage.getByRole("button", { name: "Shuffle card" });
     await expect(async () => {
@@ -70,6 +76,7 @@ test("registration, team, terms, invitation, and bingo work end to end", async (
     }
     await expect(ownerPage.getByRole("heading", { level: 1, name: "Bingo!" })).toBeVisible();
   } finally {
+    await collectIstanbulCoverage(guestContext);
     await guestContext.close().catch(() => undefined);
   }
 });

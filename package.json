@@ -16,7 +16,10 @@
     "generate-routes": "tsr generate",
     "lint": "vp lint",
     "test:e2e": "playwright test",
+    "test:e2e:coverage": "vp run test:e2e && vp run test:e2e:coverage-report",
+    "test:e2e:coverage-report": "nyc report --temp-dir .nyc_output --report-dir coverage/e2e --reporter=lcov --reporter=text-summary --exclude-after-remap=false",
     "test:e2e:server": "vp run db:migrate:local && vp dev",
+    "test:coverage": "vp test --coverage",
     "deploy": "vp build && vp exec wrangler deploy --keep-vars",
     "prepare": "vp config"
   },
@@ -55,9 +58,12 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
     "drizzle-kit": "catalog:",
+    "nyc": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
+    "vite-plugin-istanbul": "catalog:",
     "vite-plus": "catalog:",
     "wrangler": "catalog:"
   },

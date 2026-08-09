@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: quality-${{ github.workflow }}-${{ github.ref }}
@@ -22,6 +23,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Set up Vite+
@@ -43,8 +45,17 @@ jobs:
       - name: Check formatting, linting, and types together
         run: vp check
 
-      - name: Run unit tests
-        run: vp test
+      - name: Run unit tests with coverage
+        run: vp run test:coverage
+
+      - name: Upload Vitest coverage report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: vitest-coverage-report
+          path: coverage/unit
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Build application
         run: vp build
@@ -52,8 +63,36 @@ jobs:
       - name: Install Playwright browser
         run: vp exec playwright install --with-deps chromium
 
-      - name: Run end-to-end tests
+      - name: Run end-to-end tests with coverage
         run: vp run test:e2e
+
+      - name: Generate Playwright coverage report
+        if: always()
+        run: vp run test:e2e:coverage-report
+
+      - name: Upload Playwright reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: playwright-reports
+          path: |
+            playwright-report
+            coverage/e2e
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Publish SonarQube Cloud analysis
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        uses: SonarSource/sonarqube-scan-action@c7ee0f9df90b7aa20e8dcf9695dcfe2e7da5b4f2 # v7
+        with:
+          args: >
+            -Dsonar.projectKey=maxstue_veo
+            -Dsonar.organization=maxstue
+            -Dsonar.sources=src
+            -Dsonar.tests=src,e2e
+            -Dsonar.test.inclusions=src/**/*.test.ts,src/**/*.test.tsx,e2e/**/*.spec.ts
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   deploy:
     name: Deploy production

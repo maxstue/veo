@@ -133,6 +133,7 @@ vp run db:check
 | `vp check`                 | Check formatting, linting, and TypeScript together     |
 | `vp check --fix`           | Fix supported formatting and linting issues            |
 | `vp test`                  | Run Vitest                                             |
+| `vp run test:coverage`     | Generate Vitest LCOV coverage for SonarQube Cloud      |
 | `vp run test:e2e`          | Run the Playwright MVP workflow on desktop and mobile  |
 | `vp build`                 | Create the production build for Cloudflare             |
 | `vp preview`               | Preview the production build locally                   |
@@ -260,6 +261,29 @@ code-quality and security analysis. We use the hosted service because it integra
 with GitHub and requires no separately operated SonarQube server. The badge at the top of this
 README shows the current Quality Gate; implementation and operating details are documented in
 [QUEST-48](https://linear.app/justmax/issue/QUEST-48/sonarqube-oder-sonarcloud-integrieren).
+
+### Coverage and test reports
+
+CI creates `coverage/unit/lcov.info` from Vitest. For E2E coverage, Vite instruments the browser
+code with Istanbul, Playwright collects `window.__coverage__`, and NYC creates
+`coverage/e2e/lcov.info`. SonarQube Cloud imports both reports and combines them for the analyzed
+TypeScript sources without a custom coverage-conversion script.
+
+Run both locally with:
+
+```bash
+vp run test:coverage
+vp run test:e2e:coverage
+```
+
+The quality target is at least **80% coverage on new code**. Generated router and environment
+typing files and server-only modules are excluded from browser coverage because they are not
+maintained client logic. In GitHub Actions, Vitest writes native test annotations and a job
+summary, while Playwright writes native failure annotations. The workflow also uploads the Vitest
+coverage pages and the Playwright HTML and coverage reports as artifacts for 14 days. CI needs a
+repository Actions secret named
+`SONAR_TOKEN` to publish the analysis. Pull requests from forks still run tests but skip publishing
+because GitHub does not expose repository secrets to them.
 
 ## Deployment
 

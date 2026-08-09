@@ -3,6 +3,8 @@ node_modules
 .DS_Store
 dist
 dist-ssr
+coverage
+.nyc_output
 *.local
 .env*
 .dev.vars*
