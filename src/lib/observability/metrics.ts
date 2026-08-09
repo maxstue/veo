@@ -1,7 +1,12 @@
 import * as Sentry from '@sentry/cloudflare';
 
 /** Names of the low-cardinality product counters emitted by Veo. */
-type ProductMetricName = 'veo.game.completed' | 'veo.game.started' | 'veo.team.created';
+type ProductMetricName =
+  | 'veo.game.completed'
+  | 'veo.game.started'
+  | 'veo.team.created'
+  | 'veo.user.deleted'
+  | 'veo.user.registered';
 
 /** Describes a product event sent as both a counter metric and a structured log. */
 interface ProductEvent {
@@ -31,6 +36,16 @@ export const Metrics = {
   /** Records the successful creation of a team. */
   recordTeamCreated(): void {
     recordProductEvent({ metric: 'veo.team.created', message: 'Team created' });
+  },
+
+  /** Records the successful permanent deletion of a user account. */
+  recordUserDeleted(): void {
+    recordProductEvent({ metric: 'veo.user.deleted', message: 'User account deleted' });
+  },
+
+  /** Records the successful registration of a new user account. */
+  recordUserRegistered(): void {
+    recordProductEvent({ metric: 'veo.user.registered', message: 'User registered' });
   },
 } as const;
 

@@ -6,6 +6,8 @@ import { env } from 'cloudflare:workers';
 import { createDatabase } from '#/db/client';
 import * as schema from '#/db/schema';
 
+import { Metrics } from './observability/metrics';
+
 function createAuth(runtime: Cloudflare.Env) {
   if (!runtime.BETTER_AUTH_SECRET || runtime.BETTER_AUTH_SECRET.length < 32) {
     throw new Error('BETTER_AUTH_SECRET must be configured with at least 32 characters. See .env.example.');
@@ -21,10 +23,23 @@ function createAuth(runtime: Cloudflare.Env) {
       provider: 'sqlite',
       schema,
     }),
+    databaseHooks: {
+      user: {
+        create: {
+          after: async () => Metrics.recordUserRegistered(),
+        },
+      },
+    },
     emailAndPassword: {
       enabled: true,
       minPasswordLength: 8,
       requireEmailVerification: false,
+    },
+    user: {
+      deleteUser: {
+        afterDelete: async () => Metrics.recordUserDeleted(),
+        enabled: true,
+      },
     },
     trustedOrigins: ['https://veo.justmax.xyz', 'https://veo.maxstue2304-aaa.workers.dev', 'http://localhost:5173'],
     plugins: [tanstackStartCookies()],

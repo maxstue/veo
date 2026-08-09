@@ -32,6 +32,26 @@ test('users can view their profile and connected email sign-in method', async ({
   await expect(accountContent.getByText('Connected', { exact: true })).toBeVisible();
 });
 
+test('users can permanently delete their account', async ({ page }) => {
+  const runId = `${Date.now()}-${test.info().project.name}`;
+  const user = {
+    email: `delete-account-${runId}@example.test`,
+    name: 'Delete Account Playwright',
+  };
+
+  await signUp(page, user);
+  await page.getByRole('link', { name: 'Account' }).click();
+  await page.getByRole('button', { name: 'Delete account' }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.getByLabel('Type DELETE to confirm').fill('DELETE');
+  await page.getByRole('button', { name: 'Delete account permanently' }).click();
+
+  await expect(page).toHaveURL('/auth');
+
+  await page.goto('/account');
+  await expect(page).toHaveURL(/\/auth\?returnTo=%2Faccount/);
+});
+
 async function signUp(page: Page, user: { email: string; name: string }) {
   await page.goto('/auth');
   await expect(async () => {
