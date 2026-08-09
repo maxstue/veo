@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as TeamsRouteRouteImport } from './routes/teams/route'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
@@ -27,6 +28,11 @@ import { Route as TeamsTeamIdTermsRouteImport } from './routes/teams/$teamId/ter
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -98,6 +104,7 @@ const TeamsTeamIdTermsRoute = TeamsTeamIdTermsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/teams': typeof TeamsRouteRouteWithChildren
+  '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/teams/$teamId': typeof TeamsTeamIdRouteRouteWithChildren
   '/invite/$token': typeof InviteTokenRoute
@@ -113,6 +120,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/invite/$token': typeof InviteTokenRoute
   '/teams': typeof TeamsIndexRoute
@@ -129,6 +137,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/teams': typeof TeamsRouteRouteWithChildren
+  '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/teams/$teamId': typeof TeamsTeamIdRouteRouteWithChildren
   '/invite/$token': typeof InviteTokenRoute
@@ -147,6 +156,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/teams'
+    | '/account'
     | '/auth'
     | '/teams/$teamId'
     | '/invite/$token'
@@ -162,6 +172,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/account'
     | '/auth'
     | '/invite/$token'
     | '/teams'
@@ -177,6 +188,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/teams'
+    | '/account'
     | '/auth'
     | '/teams/$teamId'
     | '/invite/$token'
@@ -194,6 +206,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   TeamsRouteRoute: typeof TeamsRouteRouteWithChildren
+  AccountRoute: typeof AccountRoute
   AuthRoute: typeof AuthRoute
   InviteTokenRoute: typeof InviteTokenRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -206,6 +219,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -342,6 +362,7 @@ const TeamsRouteRouteWithChildren = TeamsRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   TeamsRouteRoute: TeamsRouteRouteWithChildren,
+  AccountRoute: AccountRoute,
   AuthRoute: AuthRoute,
   InviteTokenRoute: InviteTokenRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

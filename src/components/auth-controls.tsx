@@ -1,4 +1,4 @@
-import { LogOut, Users } from 'lucide-react';
+import { CircleUserRound, LogOut, Users } from 'lucide-react';
 
 import { authClient } from '#/lib/auth-client';
 
@@ -22,7 +22,10 @@ export function AuthControls() {
 
   return (
     <div className='flex items-center gap-2'>
-      <span className='text-muted-foreground hidden max-w-48 truncate text-sm sm:block'>{session.user.name}</span>
+      <ButtonLink aria-label='Account' size='sm' to='/account' variant='ghost'>
+        <CircleUserRound aria-hidden='true' />
+        <span className='hidden max-w-36 truncate sm:inline'>{session.user.name}</span>
+      </ButtonLink>
       <ButtonLink aria-label='Teams' size='sm' to='/teams' variant='ghost'>
         <Users aria-hidden='true' />
         <span className='hidden sm:inline'>Teams</span>
