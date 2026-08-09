@@ -1,10 +1,11 @@
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router';
 import { ArrowLeft, Dices, LoaderCircle, RotateCcw, Trophy } from 'lucide-react';
-import { type CSSProperties, useState } from 'react';
+import { type CSSProperties, useOptimistic, useState, useTransition } from 'react';
 
 import { Button } from '#/components/ui/button';
 import { ButtonLink } from '#/components/ui/button-link';
 import { createBingoCard, getBingoGame, resetBingoCard, toggleBingoCell } from '#/lib/bingo-cards';
+import { hasBingo } from '#/lib/bingo-game';
 import { getTeam, getViewer } from '#/lib/teams';
 
 export const Route = createFileRoute('/teams/$teamId_/play')({
@@ -34,10 +35,27 @@ function BingoPage() {
   const [error, setError] = useState<string>();
   const [celebration, setCelebration] = useState(0);
   const [presetId, setPresetId] = useState(team.defaultBingoRulesPresetId ?? '');
-  const card = game.card;
+  const [isTogglingCell, startToggleTransition] = useTransition();
+  const [card, updateOptimisticCell] = useOptimistic(
+    game.card,
+    (currentCard, { marked, position }: { marked: boolean; position: number }) => {
+      if (!currentCard) return currentCard;
+
+      const cells = currentCard.cells.map((cell) =>
+        cell.position === position ? { ...cell, markedAt: marked ? new Date() : null } : cell,
+      );
+      return {
+        ...currentCard,
+        cells,
+        bingo: hasBingo(
+          cells.filter((cell) => cell.markedAt).map((cell) => cell.position),
+          currentCard.rules,
+        ),
+      };
+    },
+  );
   const selectedPreset = presets.find((preset) => preset.id === presetId);
   const selectedBoardSize = selectedPreset?.boardSize ?? team.bingoRules.boardSize;
-  const isTogglingCell = pending?.startsWith('cell-') ?? false;
 
   async function createCard() {
     if (card && !window.confirm('Create a new card and replace the current one?')) {
@@ -59,18 +77,22 @@ function BingoPage() {
     }
   }
 
-  async function toggle(cardId: string, position: number) {
+  function toggle(cardId: string, position: number) {
+    if (card?.id !== cardId) return;
+
     setError(undefined);
-    setPending(`cell-${position}`);
-    try {
-      const result = await toggleBingoCell({ data: { teamId, cardId, position } });
-      if (result.bingo && !card?.bingo) setCelebration((value) => value + 1);
-      await router.invalidate();
-    } catch {
-      setError('The mark could not be saved.');
-    } finally {
-      setPending(undefined);
-    }
+    const hadBingo = card.bingo;
+    const marked = !card.cells.find((cell) => cell.position === position)?.markedAt;
+    startToggleTransition(async () => {
+      updateOptimisticCell({ marked, position });
+      try {
+        const result = await toggleBingoCell({ data: { teamId, cardId, position } });
+        if (result.bingo && !hadBingo) setCelebration((value) => value + 1);
+        await router.invalidate();
+      } catch {
+        setError('The mark could not be saved.');
+      }
+    });
   }
 
   async function reset(cardId: string) {
@@ -116,7 +138,7 @@ function BingoPage() {
                 <span className='sr-only'>Card template</span>
                 <select
                   className='bg-background h-7 max-w-48 rounded-lg border px-2 text-[0.8rem]'
-                  disabled={Boolean(pending)}
+                  disabled={Boolean(pending) || isTogglingCell}
                   onChange={(event) => setPresetId(event.target.value)}
                   value={presetId}
                 >
@@ -134,7 +156,7 @@ function BingoPage() {
             {card && (
               <Button
                 className={isTogglingCell ? 'disabled:opacity-100' : undefined}
-                disabled={Boolean(pending)}
+                disabled={Boolean(pending) || isTogglingCell}
                 onClick={() => void reset(card.id)}
                 size='sm'
                 variant='outline'
@@ -145,7 +167,7 @@ function BingoPage() {
             )}
             <Button
               className={isTogglingCell ? 'disabled:opacity-100' : undefined}
-              disabled={Boolean(pending) || termCount < Math.pow(selectedBoardSize, 2)}
+              disabled={Boolean(pending) || isTogglingCell || termCount < Math.pow(selectedBoardSize, 2)}
               onClick={() => void createCard()}
               size='sm'
             >
@@ -170,7 +192,6 @@ function BingoPage() {
               <legend className='sr-only'>Bingo card</legend>
               {card.cells.map((cell) => {
                 const marked = Boolean(cell.markedAt);
-                const isPending = pending === `cell-${cell.position}`;
                 return (
                   <button
                     aria-label={`${cell.labelSnapshot}${marked ? ', marked' : ', not marked'}`}
@@ -179,10 +200,10 @@ function BingoPage() {
                       marked
                         ? 'border-primary bg-primary text-primary-foreground scale-[0.97] shadow-md'
                         : 'bg-background hover:border-primary/50 hover:bg-primary/5 hover:-translate-y-0.5'
-                    } ${isPending ? 'opacity-60' : ''}`}
-                    disabled={Boolean(pending)}
+                    }`}
+                    disabled={Boolean(pending) || isTogglingCell}
                     key={cell.position}
-                    onClick={() => void toggle(card.id, cell.position)}
+                    onClick={() => toggle(card.id, cell.position)}
                     type='button'
                   >
                     <span className='line-clamp-4'>{cell.labelSnapshot}</span>
