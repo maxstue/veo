@@ -1,11 +1,12 @@
 import { drizzleAdapter } from '@better-auth/drizzle-adapter';
 import { betterAuth } from 'better-auth/minimal';
 import { tanstackStartCookies } from 'better-auth/tanstack-start';
-import { env } from 'cloudflare:workers';
+import { env, waitUntil } from 'cloudflare:workers';
 
 import { createDatabase } from '#/db/client';
 import * as schema from '#/db/schema';
 
+import { sendPasswordResetEmail } from './email.server';
 import { Metrics } from './observability/metrics';
 
 function createAuth(runtime: Cloudflare.Env) {
@@ -34,6 +35,18 @@ function createAuth(runtime: Cloudflare.Env) {
       enabled: true,
       minPasswordLength: 8,
       requireEmailVerification: false,
+      resetPasswordTokenExpiresIn: 60 * 60,
+      revokeSessionsOnPasswordReset: true,
+      sendResetPassword: async ({ url, user }) => {
+        Metrics.recordPasswordResetRequested();
+
+        const delivery = sendPasswordResetEmail(runtime.RESEND_API_KEY, {
+          resetUrl: url,
+          to: user.email,
+        });
+
+        waitUntil(delivery);
+      },
     },
     user: {
       deleteUser: {

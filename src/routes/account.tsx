@@ -2,6 +2,7 @@ import { createFileRoute, redirect, useNavigate, useRouter } from '@tanstack/rea
 import { CircleUserRound, KeyRound, LoaderCircle, Mail, ShieldCheck, Trash2 } from 'lucide-react';
 import { type FormEvent, useRef, useState } from 'react';
 
+import { AccountSecurity } from '#/components/account-security';
 import { AppHeader } from '#/components/app-header';
 import { Badge } from '#/components/ui/badge';
 import { Button } from '#/components/ui/button';
@@ -122,6 +123,8 @@ function AccountPage() {
             </CardContent>
           </Card>
         </div>
+
+        <AccountSecurity email={user.email} />
 
         <Card className='border-destructive/50 mt-8'>
           <CardHeader>
