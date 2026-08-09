@@ -1,9 +1,10 @@
 import { defineConfig, lazyPlugins, loadEnv } from "vite-plus";
+import babel from "@rolldown/plugin-babel";
 import { devtools } from "@tanstack/devtools-vite";
 
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 
-import viteReact from "@vitejs/plugin-react";
+import viteReact, { reactCompilerPreset } from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { cloudflare } from "@cloudflare/vite-plugin";
 import { sentryTanstackStart } from "@sentry/tanstackstart-react/vite";
@@ -46,6 +47,9 @@ const config = defineConfig(({ mode }) => {
       tailwindcss(),
       tanstackStart(),
       viteReact(),
+      babel({
+        presets: [reactCompilerPreset()],
+      }),
       collectE2ECoverage
         ? istanbul({
             include: ["src/**/*"],
