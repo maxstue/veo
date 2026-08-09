@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from "vite-plus/test";
+import { beforeEach, describe, expect, test, vi } from 'vite-plus/test';
 
 const mocks = vi.hoisted(() => ({
   createDatabase: vi.fn(),
@@ -6,23 +6,23 @@ const mocks = vi.hoisted(() => ({
   getSession: vi.fn(),
 }));
 
-vi.mock("cloudflare:workers", () => ({ env: { DB: { binding: "test" } } }));
-vi.mock("@tanstack/react-start/server", () => ({
+vi.mock('cloudflare:workers', () => ({ env: { DB: { binding: 'test' } } }));
+vi.mock('@tanstack/react-start/server', () => ({
   getRequestHeaders: mocks.getRequestHeaders,
 }));
-vi.mock("#/db/client", () => ({ createDatabase: mocks.createDatabase }));
-vi.mock("./auth.server", () => ({
+vi.mock('#/db/client', () => ({ createDatabase: mocks.createDatabase }));
+vi.mock('./auth.server', () => ({
   getAuth: () => ({ api: { getSession: mocks.getSession } }),
 }));
 
-import { requireTeamMembership, requireUser } from "./auth-guards.server";
+import { requireTeamMembership, requireUser } from './auth-guards.server';
 
 const session = {
-  session: { id: "session-1" },
-  user: { id: "user-1", name: "Ada" },
+  session: { id: 'session-1' },
+  user: { id: 'user-1', name: 'Ada' },
 };
 
-function membershipDatabase(rows: { teamId: string }[]) {
+function membershipDatabase(rows: Array<{ teamId: string }>) {
   const query = {
     from: vi.fn(),
     limit: vi.fn().mockResolvedValue(rows),
@@ -42,52 +42,48 @@ async function expectHttpResponse(promise: Promise<unknown>, status: number, mes
   await expect((error as Response).text()).resolves.toBe(message);
 }
 
-describe("authentication guards", () => {
+describe('authentication guards', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.getRequestHeaders.mockReturnValue(new Headers({ cookie: "session=test" }));
+    mocks.getRequestHeaders.mockReturnValue(new Headers({ cookie: 'session=test' }));
   });
 
-  test("returns the active session using the current request headers", async () => {
+  test('returns the active session using the current request headers', async () => {
     mocks.getSession.mockResolvedValue(session);
 
     await expect(requireUser()).resolves.toBe(session);
     expect(mocks.getSession).toHaveBeenCalledWith({ headers: expect.any(Headers) });
   });
 
-  test("rejects a request without an active session with 401", async () => {
+  test('rejects a request without an active session with 401', async () => {
     mocks.getSession.mockResolvedValue(null);
 
-    await expectHttpResponse(requireUser(), 401, "Authentication required");
+    await expectHttpResponse(requireUser(), 401, 'Authentication required');
   });
 
-  test("returns the authenticated membership for the requested team", async () => {
+  test('returns the authenticated membership for the requested team', async () => {
     mocks.getSession.mockResolvedValue(session);
-    const database = membershipDatabase([{ teamId: "team-1" }]);
+    const database = membershipDatabase([{ teamId: 'team-1' }]);
     mocks.createDatabase.mockReturnValue(database);
 
-    await expect(requireTeamMembership("team-1")).resolves.toEqual({
+    await expect(requireTeamMembership('team-1')).resolves.toEqual({
       session,
-      teamId: "team-1",
+      teamId: 'team-1',
     });
     expect(database.select).toHaveBeenCalledOnce();
   });
 
-  test("rejects an authenticated non-member with 403", async () => {
+  test('rejects an authenticated non-member with 403', async () => {
     mocks.getSession.mockResolvedValue(session);
     mocks.createDatabase.mockReturnValue(membershipDatabase([]));
 
-    await expectHttpResponse(
-      requireTeamMembership("private-team"),
-      403,
-      "Team membership required",
-    );
+    await expectHttpResponse(requireTeamMembership('private-team'), 403, 'Team membership required');
   });
 
-  test("does not query team membership when authentication fails", async () => {
+  test('does not query team membership when authentication fails', async () => {
     mocks.getSession.mockResolvedValue(null);
 
-    await expectHttpResponse(requireTeamMembership("team-1"), 401, "Authentication required");
+    await expectHttpResponse(requireTeamMembership('team-1'), 401, 'Authentication required');
     expect(mocks.createDatabase).not.toHaveBeenCalled();
   });
 });

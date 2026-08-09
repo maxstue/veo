@@ -1,26 +1,24 @@
-import { env } from "cloudflare:workers";
-import { drizzleAdapter } from "@better-auth/drizzle-adapter";
-import { betterAuth } from "better-auth/minimal";
-import { tanstackStartCookies } from "better-auth/tanstack-start";
+import { drizzleAdapter } from '@better-auth/drizzle-adapter';
+import { betterAuth } from 'better-auth/minimal';
+import { tanstackStartCookies } from 'better-auth/tanstack-start';
+import { env } from 'cloudflare:workers';
 
-import { createDatabase } from "#/db/client";
-import * as schema from "#/db/schema";
+import { createDatabase } from '#/db/client';
+import * as schema from '#/db/schema';
 
 function createAuth(runtime: Cloudflare.Env) {
   if (!runtime.BETTER_AUTH_SECRET || runtime.BETTER_AUTH_SECRET.length < 32) {
-    throw new Error(
-      "BETTER_AUTH_SECRET must be configured with at least 32 characters. See .env.example.",
-    );
+    throw new Error('BETTER_AUTH_SECRET must be configured with at least 32 characters. See .env.example.');
   }
 
   return betterAuth({
-    appName: "Veo",
+    appName: 'Veo',
     baseURL: {
-      allowedHosts: ["veo.justmax.xyz", "veo.maxstue2304-aaa.workers.dev", "localhost:5173"],
+      allowedHosts: ['veo.justmax.xyz', 'veo.maxstue2304-aaa.workers.dev', 'localhost:5173'],
     },
     secret: runtime.BETTER_AUTH_SECRET,
     database: drizzleAdapter(createDatabase(runtime.DB), {
-      provider: "sqlite",
+      provider: 'sqlite',
       schema,
     }),
     emailAndPassword: {
@@ -28,11 +26,7 @@ function createAuth(runtime: Cloudflare.Env) {
       minPasswordLength: 8,
       requireEmailVerification: false,
     },
-    trustedOrigins: [
-      "https://veo.justmax.xyz",
-      "https://veo.maxstue2304-aaa.workers.dev",
-      "http://localhost:5173",
-    ],
+    trustedOrigins: ['https://veo.justmax.xyz', 'https://veo.maxstue2304-aaa.workers.dev', 'http://localhost:5173'],
     plugins: [tanstackStartCookies()],
   });
 }

@@ -1,9 +1,10 @@
-import { randomBytes } from "node:crypto";
-import { mkdirSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
-import { test as baseTest, type BrowserContext } from "@playwright/test";
+import { randomBytes } from 'node:crypto';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 
-const istanbulOutputDirectory = join(process.cwd(), ".nyc_output");
+import { test as baseTest, type BrowserContext } from '@playwright/test';
+
+const istanbulOutputDirectory = join(process.cwd(), '.nyc_output');
 
 type IstanbulWindow = Window & {
   __coverage__?: unknown;
@@ -14,14 +15,14 @@ function persistIstanbulCoverage(coverage?: string) {
   if (!coverage) return;
 
   mkdirSync(istanbulOutputDirectory, { recursive: true });
-  const identifier = randomBytes(16).toString("hex");
+  const identifier = randomBytes(16).toString('hex');
   writeFileSync(join(istanbulOutputDirectory, `playwright_coverage_${identifier}.json`), coverage);
 }
 
 export async function enableIstanbulCoverage(context: BrowserContext) {
-  await context.exposeFunction("collectIstanbulCoverage", persistIstanbulCoverage);
+  await context.exposeFunction('collectIstanbulCoverage', persistIstanbulCoverage);
   await context.addInitScript(() => {
-    window.addEventListener("beforeunload", () => {
+    window.addEventListener('beforeunload', () => {
       const coverageWindow = window as unknown as IstanbulWindow;
       coverageWindow.collectIstanbulCoverage(JSON.stringify(coverageWindow.__coverage__));
     });

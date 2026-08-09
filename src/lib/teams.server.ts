@@ -1,27 +1,19 @@
-import { env } from "cloudflare:workers";
-import { and, asc, count, desc, eq, isNull, sql } from "drizzle-orm";
+import { env } from 'cloudflare:workers';
+import { and, asc, count, desc, eq, isNull, sql } from 'drizzle-orm';
 
-import { createDatabase } from "#/db/client";
-import {
-  bingoCard,
-  bingoTerm,
-  team,
-  teamBingoRulesPreset,
-  teamInvitation,
-  teamMember,
-  user,
-} from "#/db/schema";
+import { createDatabase } from '#/db/client';
+import { bingoCard, bingoTerm, team, teamBingoRulesPreset, teamInvitation, teamMember, user } from '#/db/schema';
 
-import { getAuth } from "./auth.server";
-import { requireTeamMembership, requireUser } from "./auth-guards.server";
-import { createToken, hashToken } from "./invitation-tokens";
-import { Metrics } from "./observability/metrics";
-import { buildTeamLeaderboard } from "./team-leaderboard";
+import { requireTeamMembership, requireUser } from './auth-guards.server';
+import { getAuth } from './auth.server';
+import { createToken, hashToken } from './invitation-tokens';
+import { Metrics } from './observability/metrics';
+import { buildTeamLeaderboard } from './team-leaderboard';
 
 const invitationLifetimeMs = 7 * 24 * 60 * 60 * 1000;
 
 export async function getViewer() {
-  const { getRequestHeaders } = await import("@tanstack/react-start/server");
+  const { getRequestHeaders } = await import('@tanstack/react-start/server');
   const session = await getAuth().api.getSession({ headers: getRequestHeaders() });
 
   return session ? { id: session.user.id, name: session.user.name } : null;
@@ -131,7 +123,7 @@ export async function getTeam(data: { teamId: string }) {
   ]);
 
   if (!teams[0]) {
-    throw new Response("Team not found", { status: 404 });
+    throw new Response('Team not found', { status: 404 });
   }
 
   return {
@@ -198,7 +190,7 @@ export async function saveTeamBingoRulesPreset(data: {
       },
     });
 
-  return { status: "saved" as const };
+  return { status: 'saved' as const };
 }
 
 export async function setTeamDefaultBingoRulesPreset(data: { teamId: string; presetId: string }) {
@@ -207,29 +199,24 @@ export async function setTeamDefaultBingoRulesPreset(data: { teamId: string; pre
   const presets = await database
     .select({ id: teamBingoRulesPreset.id })
     .from(teamBingoRulesPreset)
-    .where(
-      and(eq(teamBingoRulesPreset.id, data.presetId), eq(teamBingoRulesPreset.teamId, data.teamId)),
-    )
+    .where(and(eq(teamBingoRulesPreset.id, data.presetId), eq(teamBingoRulesPreset.teamId, data.teamId)))
     .limit(1);
 
-  if (!presets[0]) return { status: "not-found" as const };
+  if (!presets[0]) return { status: 'not-found' as const };
 
-  await database
-    .update(team)
-    .set({ defaultBingoRulesPresetId: data.presetId })
-    .where(eq(team.id, data.teamId));
+  await database.update(team).set({ defaultBingoRulesPresetId: data.presetId }).where(eq(team.id, data.teamId));
 
-  return { status: "updated" as const };
+  return { status: 'updated' as const };
 }
 
 function getInvitationStatus(
   invitation: { expiresAt: Date; redeemedAt: Date | null; revokedAt: Date | null },
   now: Date,
 ) {
-  if (invitation.revokedAt) return "revoked" as const;
-  if (invitation.redeemedAt) return "redeemed" as const;
-  if (invitation.expiresAt <= now) return "expired" as const;
-  return "active" as const;
+  if (invitation.revokedAt) return 'revoked' as const;
+  if (invitation.redeemedAt) return 'redeemed' as const;
+  if (invitation.expiresAt <= now) return 'expired' as const;
+  return 'active' as const;
 }
 
 export async function createInvitation(data: { teamId: string }) {
@@ -266,7 +253,7 @@ export async function revokeInvitation(data: { teamId: string; invitationId: str
     );
 
   if (!result.meta.changes) {
-    throw new Response("Invitation is no longer active", { status: 409 });
+    throw new Response('Invitation is no longer active', { status: 409 });
   }
 
   return { success: true };
@@ -287,14 +274,13 @@ export async function getInvitation(data: { token: string }) {
     .limit(1);
   const invitation = invitations[0];
 
-  if (!invitation) return { status: "invalid" as const };
-  if (invitation.revokedAt) return { status: "revoked" as const, teamName: invitation.teamName };
-  if (invitation.redeemedAt) return { status: "redeemed" as const, teamName: invitation.teamName };
-  if (invitation.expiresAt <= new Date())
-    return { status: "expired" as const, teamName: invitation.teamName };
+  if (!invitation) return { status: 'invalid' as const };
+  if (invitation.revokedAt) return { status: 'revoked' as const, teamName: invitation.teamName };
+  if (invitation.redeemedAt) return { status: 'redeemed' as const, teamName: invitation.teamName };
+  if (invitation.expiresAt <= new Date()) return { status: 'expired' as const, teamName: invitation.teamName };
 
   return {
-    status: "valid" as const,
+    status: 'valid' as const,
     teamName: invitation.teamName,
     expiresAt: invitation.expiresAt,
   };
@@ -325,7 +311,7 @@ export async function redeemInvitation(data: { token: string }) {
   ]);
 
   if (!results[0]?.meta.changes) {
-    throw new Response("Invitation is not active", { status: 409 });
+    throw new Response('Invitation is not active', { status: 409 });
   }
 
   const invitation = await createDatabase(env.DB)

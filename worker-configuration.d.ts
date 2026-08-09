@@ -7,7 +7,7 @@ interface __BaseEnv_Env {
 }
 declare namespace Cloudflare {
   interface GlobalProps {
-    mainModule: typeof import("./src/server");
+    mainModule: typeof import('./src/server');
   }
   interface Env extends __BaseEnv_Env {}
 }
@@ -16,7 +16,5 @@ type StringifyValues<EnvType extends Record<string, unknown>> = {
   [Binding in keyof EnvType]: EnvType[Binding] extends string ? EnvType[Binding] : string;
 };
 declare namespace NodeJS {
-  interface ProcessEnv extends StringifyValues<
-    Pick<Cloudflare.Env, "BETTER_AUTH_SECRET" | "SENTRY_DSN">
-  > {}
+  interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, 'BETTER_AUTH_SECRET' | 'SENTRY_DSN'>> {}
 }

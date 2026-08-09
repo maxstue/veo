@@ -1,7 +1,7 @@
-import { ScriptOnce } from "@tanstack/react-router";
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { ScriptOnce } from '@tanstack/react-router';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-export type Theme = "system" | "light" | "dark";
+export type Theme = 'system' | 'light' | 'dark';
 
 type ThemeProviderProps = {
   children: React.ReactNode;
@@ -25,34 +25,28 @@ function getThemeScript(storageKey: string, defaultTheme: Theme) {
 
 function applyTheme(theme: Theme) {
   const root = document.documentElement;
-  let resolved: "light" | "dark";
+  let resolved: 'light' | 'dark';
 
-  if (theme === "system") {
-    resolved = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  if (theme === 'system') {
+    resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   } else {
     resolved = theme;
   }
 
-  root.classList.remove("light", "dark");
+  root.classList.remove('light', 'dark');
   root.classList.add(resolved);
   root.dataset.theme = theme;
   root.style.colorScheme = resolved;
 }
 
-export function ThemeProvider({
-  children,
-  defaultTheme = "system",
-  storageKey = "veo-theme",
-}: ThemeProviderProps) {
+export function ThemeProvider({ children, defaultTheme = 'system', storageKey = 'veo-theme' }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(defaultTheme);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem(storageKey);
-      setTheme(
-        stored === "light" || stored === "dark" || stored === "system" ? stored : defaultTheme,
-      );
+      setTheme(stored === 'light' || stored === 'dark' || stored === 'system' ? stored : defaultTheme);
     } catch {
       setTheme(defaultTheme);
     }
@@ -64,12 +58,12 @@ export function ThemeProvider({
   }, [mounted, theme]);
 
   useEffect(() => {
-    if (!mounted || theme !== "system") return;
+    if (!mounted || theme !== 'system') return;
 
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const update = () => applyTheme("system");
-    media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const update = () => applyTheme('system');
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
   }, [mounted, theme]);
 
   const updateTheme = useCallback(
@@ -82,10 +76,7 @@ export function ThemeProvider({
     [storageKey],
   );
 
-  const contextValue = useMemo<ThemeProviderState>(
-    () => ({ theme, setTheme: updateTheme }),
-    [theme, updateTheme],
-  );
+  const contextValue = useMemo<ThemeProviderState>(() => ({ theme, setTheme: updateTheme }), [theme, updateTheme]);
 
   return (
     <ThemeProviderContext value={contextValue}>
@@ -97,6 +88,6 @@ export function ThemeProvider({
 
 export function useTheme() {
   const context = useContext(ThemeProviderContext);
-  if (!context) throw new Error("useTheme must be used within a ThemeProvider");
+  if (!context) throw new Error('useTheme must be used within a ThemeProvider');
   return context;
 }

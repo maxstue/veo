@@ -1,18 +1,12 @@
-import { env } from "cloudflare:workers";
-import { and, asc, desc, eq, isNotNull } from "drizzle-orm";
+import { env } from 'cloudflare:workers';
+import { and, asc, desc, eq, isNotNull } from 'drizzle-orm';
 
-import { createDatabase } from "#/db/client";
-import { bingoCard, bingoCardCell, bingoTerm, team, teamBingoRulesPreset } from "#/db/schema";
+import { createDatabase } from '#/db/client';
+import { bingoCard, bingoCardCell, bingoTerm, team, teamBingoRulesPreset } from '#/db/schema';
 
-import {
-  getBingoCellCount,
-  getBingoCompletionTime,
-  hasBingo,
-  selectBingoTerms,
-  type BingoRules,
-} from "./bingo-game";
-import { requireTeamMembership } from "./auth-guards.server";
-import { Metrics } from "./observability/metrics";
+import { requireTeamMembership } from './auth-guards.server';
+import { getBingoCellCount, getBingoCompletionTime, hasBingo, selectBingoTerms, type BingoRules } from './bingo-game';
+import { Metrics } from './observability/metrics';
 
 export async function getBingoGame(data: { teamId: string }) {
   const { session } = await requireTeamMembership(data.teamId);
@@ -80,7 +74,7 @@ export async function createBingoCard(data: { teamId: string; presetId?: string 
     .limit(1);
   const rules = teams[0];
 
-  if (!rules) throw new Response("Team not found", { status: 404 });
+  if (!rules) throw new Response('Team not found', { status: 404 });
   const presetId = data.presetId === undefined ? rules.defaultPresetId : data.presetId;
   const presets = presetId
     ? await database
@@ -91,19 +85,17 @@ export async function createBingoCard(data: { teamId: string; presetId?: string 
           diagonal: teamBingoRulesPreset.winDiagonal,
         })
         .from(teamBingoRulesPreset)
-        .where(
-          and(eq(teamBingoRulesPreset.id, presetId), eq(teamBingoRulesPreset.teamId, data.teamId)),
-        )
+        .where(and(eq(teamBingoRulesPreset.id, presetId), eq(teamBingoRulesPreset.teamId, data.teamId)))
         .limit(1)
     : [];
   if (data.presetId && !presets[0]) {
-    throw new Response("Bingo rules preset not found", { status: 404 });
+    throw new Response('Bingo rules preset not found', { status: 404 });
   }
   const cardRules = presets[0] ?? rules;
   const cellCount = getBingoCellCount(cardRules.boardSize);
 
   if (terms.length < cellCount) {
-    return { status: "insufficient-terms" as const, available: terms.length, required: cellCount };
+    return { status: 'insufficient-terms' as const, available: terms.length, required: cellCount };
   }
 
   const cardId = crypto.randomUUID();
@@ -133,7 +125,7 @@ export async function createBingoCard(data: { teamId: string; presetId?: string 
 
   Metrics.recordGameStarted();
 
-  return { status: "created" as const, cardId };
+  return { status: 'created' as const, cardId };
 }
 
 export async function toggleBingoCell(data: { teamId: string; cardId: string; position: number }) {
@@ -149,21 +141,12 @@ export async function toggleBingoCell(data: { teamId: string; cardId: string; po
       winDiagonal: bingoCard.winDiagonal,
     })
     .from(bingoCard)
-    .innerJoin(
-      bingoCardCell,
-      and(eq(bingoCardCell.cardId, bingoCard.id), eq(bingoCardCell.position, data.position)),
-    )
-    .where(
-      and(
-        eq(bingoCard.id, data.cardId),
-        eq(bingoCard.teamId, data.teamId),
-        eq(bingoCard.userId, session.user.id),
-      ),
-    )
+    .innerJoin(bingoCardCell, and(eq(bingoCardCell.cardId, bingoCard.id), eq(bingoCardCell.position, data.position)))
+    .where(and(eq(bingoCard.id, data.cardId), eq(bingoCard.teamId, data.teamId), eq(bingoCard.userId, session.user.id)))
     .limit(1);
   const match = matches[0];
 
-  if (!match) throw new Response("Bingo cell not found", { status: 404 });
+  if (!match) throw new Response('Bingo cell not found', { status: 404 });
 
   const markedAt = match.markedAt ? null : new Date();
   await database
@@ -197,7 +180,7 @@ function readCardRules(card: {
   winDiagonal: boolean;
 }): BingoRules {
   return {
-    boardSize: card.boardSize as BingoRules["boardSize"],
+    boardSize: card.boardSize as BingoRules['boardSize'],
     horizontal: card.winHorizontal,
     vertical: card.winVertical,
     diagonal: card.winDiagonal,
@@ -210,21 +193,12 @@ export async function resetBingoCard(data: { teamId: string; cardId: string }) {
   const cards = await database
     .select({ id: bingoCard.id })
     .from(bingoCard)
-    .where(
-      and(
-        eq(bingoCard.id, data.cardId),
-        eq(bingoCard.teamId, data.teamId),
-        eq(bingoCard.userId, session.user.id),
-      ),
-    )
+    .where(and(eq(bingoCard.id, data.cardId), eq(bingoCard.teamId, data.teamId), eq(bingoCard.userId, session.user.id)))
     .limit(1);
 
-  if (!cards[0]) throw new Response("Bingo card not found", { status: 404 });
+  if (!cards[0]) throw new Response('Bingo card not found', { status: 404 });
 
-  await database
-    .update(bingoCardCell)
-    .set({ markedAt: null })
-    .where(eq(bingoCardCell.cardId, data.cardId));
+  await database.update(bingoCardCell).set({ markedAt: null }).where(eq(bingoCardCell.cardId, data.cardId));
 
-  return { status: "reset" as const };
+  return { status: 'reset' as const };
 }

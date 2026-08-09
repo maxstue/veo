@@ -1,15 +1,13 @@
-const relativeUrlOrigin = "https://veo.invalid";
+const relativeUrlOrigin = 'https://veo.invalid';
 
 /**
  * Applies Veo's privacy rules to a URL before it is sent to Sentry.
  *
- * Query strings and fragments are removed because they can contain tokens or
- * user-provided values. Invitation tokens are embedded in Veo's route path, so
- * the token segment in `/invite/<token>` is replaced with `[redacted]` as well.
+ * Query strings and fragments are removed because they can contain tokens or user-provided values. Invitation tokens
+ * are embedded in Veo's route path, so the token segment in `/invite/<token>` is replaced with `[redacted]` as well.
  * Absolute URLs remain absolute and relative paths remain relative.
  *
- * This function only sanitizes known URL data. It must not be treated as a
- * general-purpose personal-data scrubber.
+ * This function only sanitizes known URL data. It must not be treated as a general-purpose personal-data scrubber.
  *
  * @param value - Absolute URL or relative path to sanitize.
  * @returns The sanitized URL without query, fragment, or invitation token.
@@ -32,5 +30,5 @@ export function sanitizeUrl(value: string): string {
  * @returns The pathname with sensitive route parameters replaced.
  */
 function redactSensitivePath(pathname: string): string {
-  return pathname.replace(/(^|\/)invite\/[^/]+/, "$1invite/[redacted]");
+  return pathname.replace(/(^|\/)invite\/[^/]+/, '$1invite/[redacted]');
 }

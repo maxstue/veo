@@ -1,11 +1,11 @@
-import { env } from "cloudflare:workers";
-import { and, eq, ne } from "drizzle-orm";
+import { env } from 'cloudflare:workers';
+import { and, eq, ne } from 'drizzle-orm';
 
-import { createDatabase } from "#/db/client";
-import { bingoTerm } from "#/db/schema";
+import { createDatabase } from '#/db/client';
+import { bingoTerm } from '#/db/schema';
 
-import { parseBingoTermLabel } from "./bingo-term-label";
-import { requireTeamMembership } from "./auth-guards.server";
+import { requireTeamMembership } from './auth-guards.server';
+import { parseBingoTermLabel } from './bingo-term-label';
 
 export async function createBingoTerm(data: { teamId: string; label: string }) {
   const { session } = await requireTeamMembership(data.teamId);
@@ -24,9 +24,7 @@ export async function createBingoTerm(data: { teamId: string; label: string }) {
 
   const result = await database.insert(bingoTerm).values(term).onConflictDoNothing();
 
-  return result.meta.changes
-    ? { status: "created" as const, term }
-    : { status: "duplicate" as const };
+  return result.meta.changes ? { status: 'created' as const, term } : { status: 'duplicate' as const };
 }
 
 export async function updateBingoTerm(data: { teamId: string; termId: string; label: string }) {
@@ -39,7 +37,7 @@ export async function updateBingoTerm(data: { teamId: string; termId: string; la
     .where(and(eq(bingoTerm.id, data.termId), eq(bingoTerm.teamId, data.teamId)))
     .limit(1);
 
-  if (!existing[0]) return { status: "not-found" as const };
+  if (!existing[0]) return { status: 'not-found' as const };
 
   const duplicate = await database
     .select({ id: bingoTerm.id })
@@ -53,7 +51,7 @@ export async function updateBingoTerm(data: { teamId: string; termId: string; la
     )
     .limit(1);
 
-  if (duplicate[0]) return { status: "duplicate" as const };
+  if (duplicate[0]) return { status: 'duplicate' as const };
 
   try {
     await database
@@ -72,11 +70,11 @@ export async function updateBingoTerm(data: { teamId: string; termId: string; la
         ),
       )
       .limit(1);
-    if (racedDuplicate[0]) return { status: "duplicate" as const };
+    if (racedDuplicate[0]) return { status: 'duplicate' as const };
     throw error;
   }
 
-  return { status: "updated" as const };
+  return { status: 'updated' as const };
 }
 
 export async function deleteBingoTerm(data: { teamId: string; termId: string }) {
@@ -85,5 +83,5 @@ export async function deleteBingoTerm(data: { teamId: string; termId: string }) 
     .delete(bingoTerm)
     .where(and(eq(bingoTerm.id, data.termId), eq(bingoTerm.teamId, data.teamId)));
 
-  return { status: result.meta.changes ? ("deleted" as const) : ("not-found" as const) };
+  return { status: result.meta.changes ? ('deleted' as const) : ('not-found' as const) };
 }

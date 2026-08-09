@@ -34,20 +34,14 @@ export function getBingoCompletionTime(completedAt: Date | null, bingo: boolean,
 type RandomIndex = (upperBound: number) => number;
 
 export function selectBingoTerms<T>(terms: readonly T[], randomIndex?: RandomIndex): T[];
-export function selectBingoTerms<T>(
-  terms: readonly T[],
-  cellCount: number,
-  randomIndex?: RandomIndex,
-): T[];
+export function selectBingoTerms<T>(terms: readonly T[], cellCount: number, randomIndex?: RandomIndex): T[];
 export function selectBingoTerms<T>(
   terms: readonly T[],
   cellCountOrRandomIndex: number | RandomIndex = bingoCellCount,
   suppliedRandomIndex: RandomIndex = secureRandomIndex,
 ) {
-  const cellCount =
-    typeof cellCountOrRandomIndex === "function" ? bingoCellCount : cellCountOrRandomIndex;
-  const randomIndex =
-    typeof cellCountOrRandomIndex === "function" ? cellCountOrRandomIndex : suppliedRandomIndex;
+  const cellCount = typeof cellCountOrRandomIndex === 'function' ? bingoCellCount : cellCountOrRandomIndex;
+  const randomIndex = typeof cellCountOrRandomIndex === 'function' ? cellCountOrRandomIndex : suppliedRandomIndex;
 
   if (terms.length < cellCount) {
     throw new Error(`At least ${cellCount} bingo terms are required`);
@@ -57,7 +51,7 @@ export function selectBingoTerms<T>(
   for (let current = shuffled.length - 1; current > 0; current -= 1) {
     const selected = randomIndex(current + 1);
     if (!Number.isInteger(selected) || selected < 0 || selected > current) {
-      throw new Error("Random index is outside the requested range");
+      throw new Error('Random index is outside the requested range');
     }
     [shuffled[current], shuffled[selected]] = [shuffled[selected]!, shuffled[current]!];
   }
@@ -77,11 +71,7 @@ function createWinningLines({ boardSize, horizontal, vertical, diagonal }: Bingo
     Array.from({ length: boardSize }, (_, index) => (index + 1) * (boardSize - 1)),
   ];
 
-  return [
-    ...(horizontal ? rows : []),
-    ...(vertical ? columns : []),
-    ...(diagonal ? diagonals : []),
-  ];
+  return [...(horizontal ? rows : []), ...(vertical ? columns : []), ...(diagonal ? diagonals : [])];
 }
 
 function secureRandomIndex(upperBound: number) {

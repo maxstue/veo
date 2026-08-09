@@ -1,8 +1,8 @@
-import * as Sentry from "@sentry/cloudflare";
-import { wrapFetchWithSentry } from "@sentry/tanstackstart-react";
-import handler from "@tanstack/react-start/server-entry";
+import * as Sentry from '@sentry/cloudflare';
+import { wrapFetchWithSentry } from '@sentry/tanstackstart-react';
+import handler from '@tanstack/react-start/server-entry';
 
-import { sanitizeUrl } from "#/lib/observability/privacy";
+import { sanitizeUrl } from '#/lib/observability/privacy';
 
 export default Sentry.withSentry(
   (env: Env) => ({

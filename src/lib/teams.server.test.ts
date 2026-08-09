@@ -1,9 +1,9 @@
-import { describe, expect, test } from "vite-plus/test";
+import { describe, expect, test } from 'vite-plus/test';
 
-import { createToken, hashToken } from "./invitation-tokens";
+import { createToken, hashToken } from './invitation-tokens';
 
-describe("team invitation tokens", () => {
-  test("creates URL-safe tokens with enough entropy", () => {
+describe('team invitation tokens', () => {
+  test('creates URL-safe tokens with enough entropy', () => {
     const first = createToken();
     const second = createToken();
 
@@ -11,7 +11,7 @@ describe("team invitation tokens", () => {
     expect(second).not.toBe(first);
   });
 
-  test("hashes tokens deterministically without storing the source token", async () => {
+  test('hashes tokens deterministically without storing the source token', async () => {
     const token = createToken();
     const hash = await hashToken(token);
 

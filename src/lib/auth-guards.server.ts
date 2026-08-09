@@ -1,17 +1,17 @@
-import { env } from "cloudflare:workers";
-import { getRequestHeaders } from "@tanstack/react-start/server";
-import { and, eq } from "drizzle-orm";
+import { getRequestHeaders } from '@tanstack/react-start/server';
+import { env } from 'cloudflare:workers';
+import { and, eq } from 'drizzle-orm';
 
-import { createDatabase } from "#/db/client";
-import { teamMember } from "#/db/schema";
+import { createDatabase } from '#/db/client';
+import { teamMember } from '#/db/schema';
 
-import { getAuth } from "./auth.server";
+import { getAuth } from './auth.server';
 
 export async function requireUser() {
   const session = await getAuth().api.getSession({ headers: getRequestHeaders() });
 
   if (!session) {
-    throw new Response("Authentication required", { status: 401 });
+    throw new Response('Authentication required', { status: 401 });
   }
 
   return session;
@@ -27,7 +27,7 @@ export async function requireTeamMembership(teamId: string) {
     .limit(1);
 
   if (!membership[0]) {
-    throw new Response("Team membership required", { status: 403 });
+    throw new Response('Team membership required', { status: 403 });
   }
 
   return { session, teamId: membership[0].teamId };
