@@ -54,14 +54,18 @@ uses `catalog:` references. The lockfile records the exact resolved versions.
 
 - Git
 - Vite+ (`vp`)
+- Infisical CLI (`infisical`)
 
 Vite+ automatically installs the required Node.js and pnpm versions. See the
 [Vite+ documentation](https://viteplus.dev/guide/) for installation instructions.
+Install the Infisical CLI using the
+[official instructions](https://infisical.com/docs/cli/overview).
 
 ## Local development
 
 Local development requires neither Docker nor a Cloudflare login. Wrangler uses Miniflare and
-`workerd` to provide a local Workers environment with a D1 binding.
+`workerd` to provide a local Workers environment with a D1 binding. Infisical is the sole source
+of truth for secrets and injects the `dev` environment directly into the local process.
 
 ### First run
 
@@ -69,32 +73,31 @@ Local development requires neither Docker nor a Cloudflare login. Wrangler uses 
 git clone https://github.com/maxstue/veo.git
 cd veo
 vp install
+infisical login
+infisical init
 vp run db:migrate:local
-vp dev
+vp run dev
 ```
 
 The application is available at `http://localhost:5173` by default. The first migration run
 creates the local D1 database exclusively from the versioned SQL files in `migrations/`.
 
-Local authentication also requires a secret. Copy `.env.example` to `.env` and replace the
-placeholder with a random value of at least 32 characters. The file is ignored by Git and must
-never be committed. In production, the same binding name is stored only as a Cloudflare Worker
-secret:
-
-```bash
-vp exec wrangler secret put BETTER_AUTH_SECRET
-```
+During `infisical init`, select the existing Veo project. Do not copy managed values into a local
+`.env`; `vp run dev` fetches them from the Infisical `dev` environment, keeps them in the
+child process, and restarts the development server when they change.
 
 Sentry is optional locally and disabled unless `VITE_SENTRY_DSN` is set. Production sampling,
 privacy, retention, feedback, product metrics, and verification decisions are documented in the
 [Veo Linear project](https://linear.app/justmax/document/observability-und-feedback-6907469d263b).
+Secret ownership and the complete local workflow are documented in
+[ADR-005](https://linear.app/justmax/document/adr-005-infisical-als-einziges-secret-management-a241e5506ee6).
 
 ### Daily workflow
 
 After the first run, the following is usually sufficient:
 
 ```bash
-vp dev
+vp run dev
 ```
 
 The local database persists between runs in `.wrangler/`. If the repository contains new
@@ -103,7 +106,7 @@ migrations, apply them before starting the development server:
 ```bash
 vp install
 vp run db:migrate:local
-vp dev
+vp run dev
 ```
 
 Local and production data are strictly separated. Commands with `--local` operate only on local
@@ -123,27 +126,29 @@ vp run db:check
 
 ## Common commands
 
-| Command                    | Purpose                                                |
-| -------------------------- | ------------------------------------------------------ |
-| `vp install`               | Install dependencies with the pinned pnpm version      |
-| `vp dev`                   | Start the development server                           |
-| `vp run fmt`               | Format supported files in place                        |
-| `vp run fmt:check`         | Check formatting without changing files                |
-| `vp run lint`              | Run the configured type-aware linter                   |
-| `vp check`                 | Check formatting, linting, and TypeScript together     |
-| `vp check --fix`           | Fix supported formatting and linting issues            |
-| `vp test`                  | Run Vitest                                             |
-| `vp run test:coverage`     | Generate Vitest LCOV coverage for SonarQube Cloud      |
-| `vp run test:e2e`          | Run the Playwright MVP workflow on desktop and mobile  |
-| `vp build`                 | Create the production build for Cloudflare             |
-| `vp preview`               | Preview the production build locally                   |
-| `vp run cf:typegen`        | Generate Worker binding types from `wrangler.jsonc`    |
-| `vp run db:check`          | Check the consistency of Drizzle migrations            |
-| `vp run db:generate`       | Generate a migration after a schema change             |
-| `vp run db:migrate:local`  | Apply pending migrations to the local D1 database      |
-| `vp run db:migrate:remote` | Apply pending migrations to the production D1 database |
-| `vp run generate-routes`   | Explicitly regenerate TanStack routes                  |
-| `vp run deploy`            | Build and deploy with Wrangler                         |
+| Command                     | Purpose                                                |
+| --------------------------- | ------------------------------------------------------ |
+| `vp install`                | Install dependencies with the pinned pnpm version      |
+| `vp run dev`                | Start development with Infisical `dev` secrets         |
+| `vp dev`                    | Start Vite+ directly without secret injection          |
+| `vp run fmt`                | Format supported files in place                        |
+| `vp run fmt:check`          | Check formatting without changing files                |
+| `vp run lint`               | Run the configured type-aware linter                   |
+| `vp check`                  | Check formatting, linting, and TypeScript together     |
+| `vp check --fix`            | Fix supported formatting and linting issues            |
+| `vp test`                   | Run Vitest                                             |
+| `vp run test:coverage`      | Generate Vitest LCOV coverage for SonarQube Cloud      |
+| `vp run test:e2e`           | Run the Playwright MVP workflow on desktop and mobile  |
+| `vp run test:e2e:infisical` | Run Playwright with Infisical `dev` secrets            |
+| `vp build`                  | Create the production build for Cloudflare             |
+| `vp preview`                | Preview the production build locally                   |
+| `vp run cf:typegen`         | Generate Worker binding types from `wrangler.jsonc`    |
+| `vp run db:check`           | Check the consistency of Drizzle migrations            |
+| `vp run db:generate`        | Generate a migration after a schema change             |
+| `vp run db:migrate:local`   | Apply pending migrations to the local D1 database      |
+| `vp run db:migrate:remote`  | Apply pending migrations to the production D1 database |
+| `vp run generate-routes`    | Explicitly regenerate TanStack routes                  |
+| `vp run deploy`             | Build and deploy with Wrangler                         |
 
 `vp <command>` runs a built-in Vite+ command. Project-specific scripts from `package.json` run
 with `vp run <command>`.
@@ -293,7 +298,7 @@ protected `production` GitHub environment. The production job applies all remote
 before deploying the Worker. A concurrency group prevents two production releases from running
 migrations at the same time.
 
-Only these secrets belong in the `production` GitHub environment:
+Only these secrets are synchronized from Infisical into the `production` GitHub environment:
 
 - `CLOUDFLARE_ACCOUNT_ID`: the Cloudflare account ID,
 - `CLOUDFLARE_API_TOKEN`: a token restricted to the Veo account with `Workers Scripts: Edit` and
@@ -302,12 +307,11 @@ Only these secrets belong in the `production` GitHub environment:
 Configure the desired deployment protection rules on the GitHub environment before the first
 release.
 
-`BETTER_AUTH_SECRET` remains a Cloudflare Worker secret and is stored neither in GitHub nor in
-the repository. Set it once before the first deployment:
-
-```bash
-vp exec wrangler secret put BETTER_AUTH_SECRET
-```
+The runtime values `BETTER_AUTH_SECRET`, `RESEND_API_KEY`, and `SENTRY_DSN` are managed only in
+Infisical and synchronized directly to Cloudflare Worker Secrets. Rotate values in Infisical,
+then verify the relevant GitHub or Cloudflare sync; do not maintain separate copies manually.
+The ownership model and operating workflow are documented in
+[ADR-005](https://linear.app/justmax/document/adr-005-infisical-als-einziges-secret-management-a241e5506ee6).
 
 The Worker is configured with `workers_dev` disabled. Configure the production route or custom
 domain in Cloudflare before deployment, and ensure the API token and account can access the

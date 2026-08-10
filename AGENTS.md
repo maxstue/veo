@@ -19,6 +19,23 @@ Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.de
 
 <!--VITE PLUS END-->
 
+# Documentation location
+
+Project documentation belongs in the Veo Linear project, not in the repository. This includes
+research results, architecture and product decisions, evaluations, migration plans, operational
+plans, meeting notes, and ticket completion summaries.
+
+- Create or update a Linear document and link it to the relevant Linear issue or project.
+- Keep implementation details and verification results in the relevant Linear issue when a
+  separate document is unnecessary.
+- Do not create repository documentation files or add project-decision sections to `README.md`
+  unless the user explicitly requests repository documentation.
+- Repository documentation is allowed only when it is required to use, develop, test, deploy, or
+  operate the checked-in code. Keep such documentation narrowly focused on the code and link to
+  Linear for broader context and decisions.
+- Before changing documentation, check Linear first and update the existing source of truth
+  instead of duplicating it in the repository.
+
 <!-- sonar:begin:codex-secrets-on-read -->
 
 # SonarQube secrets scanning for files protocol
