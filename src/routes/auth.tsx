@@ -159,12 +159,9 @@ function AuthPage() {
                 </p>
               )}
               {notice && (
-                <p
-                  className='rounded-lg bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-400'
-                  role='status'
-                >
+                <output className='block rounded-lg bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-400'>
                   {notice}
-                </p>
+                </output>
               )}
 
               <Button className='w-full' disabled={isSubmitting} size='lg' type='submit'>

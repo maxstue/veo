@@ -95,7 +95,7 @@ function readString(input: unknown, field: string, min: number, max: number, tri
   }
   const value = (input as Record<string, unknown>)[field];
   if (typeof value !== 'string') {
-    throw new Error(`Invalid ${field}`);
+    throw new TypeError(`Invalid ${field}`);
   }
   const normalized = trim ? value.trim().replace(/\s+/g, ' ') : value;
   if (normalized.length < min || normalized.length > max) {

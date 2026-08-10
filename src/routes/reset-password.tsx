@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { KeyRound, LoaderCircle } from 'lucide-react';
-import { type FormEvent, useState } from 'react';
+import { type SubmitEvent, useState } from 'react';
 
 import { Button } from '#/components/ui/button';
 import { ButtonLink } from '#/components/ui/button-link';
@@ -23,7 +23,7 @@ function ResetPasswordPage() {
 
   const invalidLink = Boolean(linkError) || !token;
 
-  async function resetPassword(event: FormEvent<HTMLFormElement>) {
+  async function resetPassword(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(undefined);
 
@@ -48,6 +48,28 @@ function ResetPasswordPage() {
     setIsSuccessful(true);
   }
 
+  let content = (
+    <form className='grid gap-4' onSubmit={resetPassword}>
+      <PasswordField label='New password' name='newPassword' />
+      <PasswordField label='Confirm new password' name='passwordConfirmation' />
+      {error && (
+        <p className='bg-destructive/10 text-destructive rounded-lg px-3 py-2 text-sm' role='alert'>
+          {error}
+        </p>
+      )}
+      <Button disabled={isSubmitting} size='lg' type='submit'>
+        {isSubmitting && <LoaderCircle className='animate-spin' aria-hidden='true' />}
+        Set new password
+      </Button>
+    </form>
+  );
+
+  if (invalidLink) {
+    content = <RecoveryMessage message='This reset link is invalid or has expired.' />;
+  } else if (isSuccessful) {
+    content = <RecoveryMessage message='Your password has been updated. You can now sign in with your new password.' />;
+  }
+
   return (
     <main className='mx-auto grid min-h-screen max-w-6xl place-items-center px-5 py-12 sm:px-8 lg:px-10'>
       <Card className='shadow-primary/10 w-full max-w-md border-0 shadow-2xl'>
@@ -58,27 +80,7 @@ function ResetPasswordPage() {
           <CardTitle className='text-2xl'>Reset password</CardTitle>
           <CardDescription>Choose a new password for your Veo account.</CardDescription>
         </CardHeader>
-        <CardContent>
-          {invalidLink ? (
-            <RecoveryMessage message='This reset link is invalid or has expired.' />
-          ) : isSuccessful ? (
-            <RecoveryMessage message='Your password has been updated. You can now sign in with your new password.' />
-          ) : (
-            <form className='grid gap-4' onSubmit={resetPassword}>
-              <PasswordField label='New password' name='newPassword' />
-              <PasswordField label='Confirm new password' name='passwordConfirmation' />
-              {error && (
-                <p className='bg-destructive/10 text-destructive rounded-lg px-3 py-2 text-sm' role='alert'>
-                  {error}
-                </p>
-              )}
-              <Button disabled={isSubmitting} size='lg' type='submit'>
-                {isSubmitting && <LoaderCircle className='animate-spin' aria-hidden='true' />}
-                Set new password
-              </Button>
-            </form>
-          )}
-        </CardContent>
+        <CardContent>{content}</CardContent>
       </Card>
     </main>
   );
@@ -87,9 +89,7 @@ function ResetPasswordPage() {
 function RecoveryMessage({ message }: { message: string }) {
   return (
     <div className='grid gap-5 text-center'>
-      <p className='text-muted-foreground text-sm leading-6' role='status'>
-        {message}
-      </p>
+      <output className='text-muted-foreground text-sm leading-6'>{message}</output>
       <ButtonLink search={{ returnTo: undefined }} size='lg' to='/auth'>
         Back to sign in
       </ButtonLink>

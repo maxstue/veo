@@ -1,6 +1,6 @@
 import { useRouter } from '@tanstack/react-router';
 import { BookmarkPlus, ChevronRight, LoaderCircle, Settings2, Star } from 'lucide-react';
-import { type FormEvent, useState } from 'react';
+import { type SubmitEvent, useState } from 'react';
 
 import { Badge } from '#/components/ui/badge';
 import { Button } from '#/components/ui/button';
@@ -36,11 +36,7 @@ export function TeamBingoRulesPreview({
         <CardDescription>{getRulesSummary(rules)}</CardDescription>
       </CardHeader>
       <CardContent className='flex flex-1 flex-col gap-4'>
-        <p className='text-muted-foreground text-sm'>
-          {presets.length
-            ? `${presets.length} saved ${presets.length === 1 ? 'template' : 'templates'} available.`
-            : 'Configure card sizes, winning patterns, and reusable templates.'}
-        </p>
+        <p className='text-muted-foreground text-sm'>{getPresetSummary(presets.length)}</p>
         <ButtonLink className='mt-auto w-full' params={{ teamId }} to='/teams/$teamId/bingo-rules' variant='outline'>
           Manage bingo rules
           <ChevronRight aria-hidden='true' />
@@ -72,7 +68,7 @@ export function BingoRulesLibrary({
   const selectedPatternCount = Number(horizontal) + Number(vertical) + Number(diagonal);
   const termCount = boardSize * boardSize;
 
-  async function savePreset(event: FormEvent<HTMLFormElement>) {
+  async function savePreset(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!selectedPatternCount) {
       setError('Select at least one winning pattern.');
@@ -127,7 +123,7 @@ export function BingoRulesLibrary({
       </CardHeader>
       <CardContent className='flex flex-1 flex-col gap-4'>
         <label className='grid gap-1.5 text-sm font-medium'>
-          Card size
+          <span>Card size</span>
           <select
             className='bg-background focus-visible:border-ring focus-visible:ring-ring/30 h-10 rounded-lg border px-3 font-normal outline-none focus-visible:ring-3'
             disabled={pending}
@@ -231,6 +227,14 @@ function getRulesSummary(rules: BingoRulesConfig) {
     .filter(Boolean)
     .join(', ');
   return `${rules.boardSize}×${rules.boardSize} · ${patterns}`;
+}
+
+function getPresetSummary(presetCount: number) {
+  if (!presetCount) {
+    return 'Configure card sizes, winning patterns, and reusable templates.';
+  }
+  const templateLabel = presetCount === 1 ? 'template' : 'templates';
+  return `${presetCount} saved ${templateLabel} available.`;
 }
 
 function RuleCheckbox({

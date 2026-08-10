@@ -1,5 +1,5 @@
 import { KeyRound, LoaderCircle, Mail } from 'lucide-react';
-import { type FormEvent, useState } from 'react';
+import { type SubmitEvent, useState } from 'react';
 
 import { authClient } from '#/lib/auth-client';
 
@@ -14,7 +14,7 @@ export function AccountSecurity({ email }: { email: string }) {
   const [resetError, setResetError] = useState<string>();
   const [resetSuccess, setResetSuccess] = useState<string>();
 
-  async function changePassword(event: FormEvent<HTMLFormElement>) {
+  async function changePassword(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     const formElement = event.currentTarget;
     setChangeError(undefined);
@@ -134,17 +134,18 @@ function PasswordField({ autoComplete, label, name }: { autoComplete: string; la
 }
 
 function Message({ children, kind }: { children: string; kind: 'error' | 'success' }) {
+  if (kind === 'error') {
+    return (
+      <p className='bg-destructive/10 text-destructive rounded-lg px-3 py-2 text-sm' role='alert'>
+        {children}
+      </p>
+    );
+  }
+
   return (
-    <p
-      className={
-        kind === 'error'
-          ? 'bg-destructive/10 text-destructive rounded-lg px-3 py-2 text-sm'
-          : 'rounded-lg bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-400'
-      }
-      role={kind === 'error' ? 'alert' : 'status'}
-    >
+    <output className='rounded-lg bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-400'>
       {children}
-    </p>
+    </output>
   );
 }
 

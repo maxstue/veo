@@ -1,6 +1,6 @@
 import { createFileRoute, redirect, useNavigate, useRouter } from '@tanstack/react-router';
 import { CircleUserRound, KeyRound, LoaderCircle, Mail, ShieldCheck, Trash2 } from 'lucide-react';
-import { type FormEvent, useRef, useState } from 'react';
+import { type SubmitEvent, useRef, useState } from 'react';
 
 import { AccountSecurity } from '#/components/account-security';
 import { AppHeader } from '#/components/app-header';
@@ -31,7 +31,7 @@ function AccountPage() {
   const navigate = useNavigate();
   const router = useRouter();
 
-  async function deleteAccount(event: FormEvent<HTMLFormElement>) {
+  async function deleteAccount(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     setDeleteError(undefined);
 
@@ -166,7 +166,7 @@ function AccountPage() {
 
             <form className='mt-6 grid gap-4' onSubmit={deleteAccount}>
               <label className='grid gap-2 text-sm font-medium'>
-                Type DELETE to confirm
+                <span>Type DELETE to confirm</span>
                 <input
                   autoComplete='off'
                   autoFocus
