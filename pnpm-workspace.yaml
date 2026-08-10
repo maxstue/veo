@@ -10,7 +10,7 @@ onlyBuiltDependencies:
   - sharp
   - workerd
 catalog:
-  '@babel/core': 7.29.7
+  '@babel/core': 8.0.1
   '@base-ui/react': 1.6.0
   '@better-auth/drizzle-adapter': 1.6.25
   '@cloudflare/vite-plugin': 1.50.0
