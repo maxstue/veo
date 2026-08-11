@@ -15,7 +15,7 @@ export const Errors = {
    *
    * @param error - The error value supplied by TanStack Router.
    */
-  captureRouteError(error: unknown): void {
+  captureRouteError(error: unknown) {
     if (!Sentry.isInitialized()) {
       return;
     }

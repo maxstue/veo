@@ -238,6 +238,13 @@ previews, and renderers without SVG support.
 
 ## Quality and Git workflow
 
+### TypeScript style
+
+Prefer TypeScript's inferred return types for function implementations. Do not add an explicit
+return type when the compiler can infer the same type. Keep explicit return types only when
+inference cannot preserve the intended contract, such as for overload or type signatures and type
+predicates.
+
 At minimum, run these checks before committing:
 
 ```bash

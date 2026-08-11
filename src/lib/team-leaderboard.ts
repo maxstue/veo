@@ -22,7 +22,7 @@ type LeaderboardActivity = TeamLeaderboardEntry<LeaderboardMember>['activity'];
 export function buildTeamLeaderboard<TMember extends LeaderboardMember>(
   members: readonly TMember[],
   activities: readonly TeamBingoActivity[],
-): Array<TeamLeaderboardEntry<TMember>> {
+) {
   const activitiesByMemberId = new Map(activities.map((activity) => [activity.memberId, activity]));
   const entries: Array<TeamLeaderboardEntry<TMember>> = members.map((member) => {
     const activity = activitiesByMemberId.get(member.id);
@@ -52,7 +52,7 @@ export function buildTeamLeaderboard<TMember extends LeaderboardMember>(
   return [...ranked, ...unranked];
 }
 
-function getActivity(cardsStarted: number, completedCards: number): LeaderboardActivity {
+function getActivity(cardsStarted: number, completedCards: number) {
   if (completedCards > 0) {
     return 'ranked';
   }

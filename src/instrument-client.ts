@@ -12,7 +12,7 @@ type TanStackRouter = Parameters<typeof Sentry.tanstackRouterBrowserTracingInteg
  *
  * @param router - Browser router used to instrument TanStack navigations.
  */
-export function createSentryClient(router: TanStackRouter): void {
+export function createSentryClient(router: TanStackRouter) {
   if (Sentry.isInitialized()) {
     return;
   }

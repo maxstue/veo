@@ -6,6 +6,7 @@ import { Button } from '#/components/ui/button';
 import { ButtonLink } from '#/components/ui/button-link';
 import { createBingoCard, getBingoGame, resetBingoCard, toggleBingoCell } from '#/lib/bingo-cards';
 import { hasBingo } from '#/lib/bingo-game';
+import { playBingoWinSound } from '#/lib/bingo-win-sound';
 import { getTeam, getViewer } from '#/lib/teams';
 
 export const Route = createFileRoute('/teams/$teamId/play')({
@@ -94,6 +95,9 @@ function BingoPage() {
       try {
         const result = await toggleBingoCell({ data: { teamId, cardId, position } });
         if (result.bingo && !hadBingo) {
+          if (game.winnerSoundConfig) {
+            playBingoWinSound(game.winnerSoundConfig);
+          }
           setCelebration((value) => value + 1);
         }
         await router.invalidate();

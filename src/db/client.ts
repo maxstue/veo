@@ -4,6 +4,6 @@ import * as schema from './schema';
 
 export type Database = DrizzleD1Database<typeof schema>;
 
-export function createDatabase(binding: D1Database): Database {
+export function createDatabase(binding: D1Database) {
   return drizzle(binding, { schema });
 }

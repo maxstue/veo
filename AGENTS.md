@@ -19,6 +19,13 @@ Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.de
 
 <!--VITE PLUS END-->
 
+# TypeScript style
+
+- Prefer inferred return types for function implementations.
+- Do not add explicit function return annotations when TypeScript can infer the same type.
+- Keep explicit return types only when inference cannot preserve the intended contract, such as
+  for overload or type signatures and type predicates.
+
 # Documentation location
 
 Project documentation belongs in the Veo Linear project, not in the repository. This includes

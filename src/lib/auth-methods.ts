@@ -13,7 +13,7 @@ const providerLabels: Record<string, string> = {
   microsoft: 'Microsoft',
 };
 
-export function getAuthMethods(providerIds: string[]): AuthMethod[] {
+export function getAuthMethods(providerIds: string[]) {
   return [...new Set(providerIds)].map((providerId) => ({
     providerId,
     label: providerLabels[providerId] ?? 'Other sign-in method',

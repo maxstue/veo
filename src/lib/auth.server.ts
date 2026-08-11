@@ -63,7 +63,7 @@ export type Auth = ReturnType<typeof createAuth>;
 
 let auth: Auth | undefined;
 
-export function getAuth(): Auth {
+export function getAuth() {
   auth ??= createAuth(env);
   return auth;
 }

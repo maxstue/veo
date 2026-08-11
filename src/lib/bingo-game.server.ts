@@ -6,11 +6,13 @@ import { bingoCard, bingoCardCell, bingoTerm, team, teamBingoRulesPreset } from 
 
 import { requireTeamMembership } from './auth-guards.server';
 import { getBingoCellCount, getBingoCompletionTime, hasBingo, selectBingoTerms, type BingoRules } from './bingo-game';
+import { parseWinnerSoundConfig } from './bingo-win-sound-config';
 import { Metrics } from './observability/metrics';
 
 export async function getBingoGame(data: { teamId: string }) {
   const { session } = await requireTeamMembership(data.teamId);
   const database = createDatabase(env.DB);
+  const winnerSoundConfig = await getWinnerSoundConfig();
   const cards = await database
     .select({
       id: bingoCard.id,
@@ -28,7 +30,7 @@ export async function getBingoGame(data: { teamId: string }) {
   const card = cards[0];
 
   if (!card) {
-    return { card: null };
+    return { card: null, winnerSoundConfig };
   }
 
   const cells = await database
@@ -42,6 +44,7 @@ export async function getBingoGame(data: { teamId: string }) {
     .orderBy(asc(bingoCardCell.position));
 
   return {
+    winnerSoundConfig,
     card: {
       id: card.id,
       createdAt: card.createdAt,
@@ -54,6 +57,29 @@ export async function getBingoGame(data: { teamId: string }) {
       ),
     },
   };
+}
+
+async function getWinnerSoundConfig() {
+  try {
+    const namespace = (env as Env & { VEO_SOUND_CONFIG?: KVNamespace }).VEO_SOUND_CONFIG;
+    if (!namespace) {
+      Metrics.recordWinnerSoundConfigFailed('binding-missing');
+      return null;
+    }
+    const value = await namespace.get('audio-config', { cacheTtl: 60, type: 'json' });
+    if (value === null) {
+      Metrics.recordWinnerSoundConfigFailed('key-missing');
+      return null;
+    }
+    const config = parseWinnerSoundConfig(value);
+    if (!config) {
+      Metrics.recordWinnerSoundConfigFailed('invalid');
+    }
+    return config;
+  } catch {
+    Metrics.recordWinnerSoundConfigFailed('unavailable');
+    return null;
+  }
 }
 
 export async function createBingoCard(data: { teamId: string; presetId?: string | null }) {
@@ -184,7 +210,7 @@ function readCardRules(card: {
   winHorizontal: boolean;
   winVertical: boolean;
   winDiagonal: boolean;
-}): BingoRules {
+}) {
   return {
     boardSize: card.boardSize as BingoRules['boardSize'],
     horizontal: card.winHorizontal,

@@ -2,13 +2,14 @@ import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 
 const sentry = vi.hoisted(() => ({
   count: vi.fn(),
+  error: vi.fn(),
   info: vi.fn(),
   isInitialized: vi.fn(),
 }));
 
 vi.mock('@sentry/cloudflare', () => ({
   isInitialized: sentry.isInitialized,
-  logger: { info: sentry.info },
+  logger: { error: sentry.error, info: sentry.info },
   metrics: { count: sentry.count },
 }));
 
@@ -43,5 +44,13 @@ describe('Metrics', () => {
 
     expect(sentry.count).not.toHaveBeenCalled();
     expect(sentry.info).not.toHaveBeenCalled();
+  });
+
+  it('emits a structured error when the winner-sound configuration fails', () => {
+    Metrics.recordWinnerSoundConfigFailed('invalid');
+
+    const attributes = { reason: 'invalid', source: 'server' };
+    expect(sentry.count).toHaveBeenCalledWith('veo.bingo_sound.config_failed', 1, { attributes });
+    expect(sentry.error).toHaveBeenCalledWith('Winner sound configuration unavailable', attributes);
   });
 });

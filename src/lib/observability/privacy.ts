@@ -12,7 +12,7 @@ const relativeUrlOrigin = 'https://veo.invalid';
  * @param value - Absolute URL or relative path to sanitize.
  * @returns The sanitized URL without query, fragment, or invitation token.
  */
-export function sanitizeUrl(value: string): string {
+export function sanitizeUrl(value: string) {
   try {
     const url = new URL(value, relativeUrlOrigin);
     const pathname = redactSensitivePath(url.pathname);
@@ -29,6 +29,6 @@ export function sanitizeUrl(value: string): string {
  * @param pathname - URL pathname without a query string or fragment.
  * @returns The pathname with sensitive route parameters replaced.
  */
-function redactSensitivePath(pathname: string): string {
+function redactSensitivePath(pathname: string) {
   return pathname.replace(/(^|\/)invite\/[^/]+/, '$1invite/[redacted]');
 }

@@ -31,4 +31,10 @@
       "migrations_dir": "migrations",
     },
   ],
+  "kv_namespaces": [
+    {
+      "binding": "VEO_SOUND_CONFIG",
+      "id": "d962c25db01b48a6bdb76a6e7f58f739",
+    },
+  ],
 }
