@@ -15,7 +15,7 @@ import {
 import {
   type CSSProperties,
   type Dispatch,
-  type FormEvent,
+  type FormEventHandler,
   type SetStateAction,
   useEffect,
   useRef,
@@ -45,6 +45,17 @@ import {
 import { getViewer } from '#/lib/teams';
 
 type ClientGameSessionScore = Omit<GameSessionScore, 'completedAt'> & { completedAt: Date | null };
+
+type GameSessionSocketHandlers = {
+  onCardUpdate: (card: GameSessionCard) => void;
+  onMessages: Dispatch<SetStateAction<GameSessionChatMessage[]>>;
+  onParticipants: (participants: GameSessionParticipant[]) => void;
+  onScoreUpdate: (score: GameSessionScore) => void;
+  onScores: (scores: GameSessionScore[]) => void;
+  onSessionStarted: () => void;
+  onSessionEnded: (endedBy: string) => void;
+  onSessionDeleted: () => void;
+};
 
 export const Route = createFileRoute('/teams/$teamId/sessions/$sessionId')({
   beforeLoad: async ({ params }) => {
@@ -76,6 +87,7 @@ function GameSessionPage() {
   const [messages, setMessages] = useState<GameSessionChatMessage[]>([]);
   const [participants, setParticipants] = useState<GameSessionParticipant[]>([]);
   const [presenceKnown, setPresenceKnown] = useState(false);
+  const [endedBy, setEndedBy] = useState<string>();
   const [liveCard, setLiveCard] = useState<ReturnType<typeof normalizeLiveCard> | null>();
   const [liveScores, setLiveScores] = useState<typeof sessionData.cards>();
   const card = liveCard === undefined ? (game?.card ?? null) : liveCard;
@@ -84,6 +96,7 @@ function GameSessionPage() {
     ? participants.every((participant) => participant.userId === sessionData.viewerUserId)
     : sessionData.canDelete;
   const autoCardRequested = useRef(false);
+  const endDialog = useRef<HTMLDialogElement>(null);
   const socket = useGameSessionSocket(sessionData.session.status !== 'ended' ? sessionId : undefined, {
     onCardUpdate(card) {
       setLiveCard(normalizeLiveCard(card));
@@ -102,7 +115,8 @@ function GameSessionPage() {
     onSessionStarted() {
       void router.invalidate();
     },
-    onSessionEnded() {
+    onSessionEnded(endedByName) {
+      setEndedBy(endedByName);
       void router.invalidate();
     },
     onSessionDeleted() {
@@ -150,9 +164,7 @@ function GameSessionPage() {
   }
 
   async function end() {
-    if (!window.confirm('End this bingo session for everyone?')) {
-      return;
-    }
+    endDialog.current?.close();
     setError(undefined);
     setIsPending('end');
     try {
@@ -200,7 +212,7 @@ function GameSessionPage() {
   }
 
   async function toggle(cardId: string, position: number) {
-    if (!game || !card || card.id !== cardId || pendingCell !== undefined) {
+    if (!game || !card || card.id !== cardId || pendingCell !== undefined || card.bingo) {
       return;
     }
     setError(undefined);
@@ -266,11 +278,7 @@ function GameSessionPage() {
             <p className='text-primary text-sm font-medium'>{session.teamName}</p>
             <h1 className='mt-1 flex items-center gap-2 text-3xl font-semibold tracking-tight sm:text-4xl'>
               <Radio className={`size-8 ${active ? 'text-primary animate-pulse' : ''}`} aria-hidden='true' />
-              {session.status === 'created'
-                ? 'Bingo session ready'
-                : session.status === 'ended'
-                  ? 'Bingo session ended'
-                  : 'Live bingo'}
+              {getSessionTitle(session.status)}
             </h1>
             <p className='text-muted-foreground mt-2 text-sm'>
               {getSessionDescription(session.status, socket.connected)}
@@ -298,7 +306,17 @@ function GameSessionPage() {
               </Button>
             )}
             {active && (
-              <Button disabled={Boolean(isPending)} onClick={() => void end()} variant='destructive'>
+              <Button
+                disabled={Boolean(isPending)}
+                onClick={() => {
+                  if (participants.length > 1) {
+                    endDialog.current?.showModal();
+                  } else {
+                    void end();
+                  }
+                }}
+                variant='destructive'
+              >
                 {isPending === 'end' ? (
                   <LoaderCircle className='animate-spin' aria-hidden='true' />
                 ) : (
@@ -360,10 +378,9 @@ function GameSessionPage() {
               <CardContent>
                 {card ? (
                   <>
-                    <div
+                    <fieldset
                       aria-label='Bingo card'
                       className='grid gap-2'
-                      role='group'
                       style={{ gridTemplateColumns: `repeat(${card.rules.boardSize}, minmax(0, 1fr))` }}
                     >
                       {card.cells.map((cell) => {
@@ -377,7 +394,7 @@ function GameSessionPage() {
                                 ? 'border-primary bg-primary text-primary-foreground scale-[0.97] shadow-md'
                                 : 'bg-background hover:border-primary/50 hover:bg-primary/5'
                             }`}
-                            disabled={pendingCell !== undefined || Boolean(isPending)}
+                            disabled={pendingCell !== undefined || Boolean(isPending) || Boolean(card.bingo)}
                             key={cell.position}
                             onClick={() => void toggle(card.id, cell.position)}
                             type='button'
@@ -386,10 +403,10 @@ function GameSessionPage() {
                           </button>
                         );
                       })}
-                    </div>
+                    </fieldset>
                     <Button
                       className='mt-4'
-                      disabled={Boolean(isPending)}
+                      disabled={Boolean(isPending) || Boolean(card.bingo)}
                       onClick={() => void reset(card.id)}
                       variant='outline'
                     >
@@ -398,10 +415,10 @@ function GameSessionPage() {
                     </Button>
                   </>
                 ) : (
-                  <div className='text-muted-foreground flex items-center gap-2 text-sm' role='status'>
+                  <output className='text-muted-foreground flex items-center gap-2 text-sm'>
                     <LoaderCircle className='size-4 animate-spin' aria-hidden='true' />
                     Preparing your card…
-                  </div>
+                  </output>
                 )}
               </CardContent>
             </Card>
@@ -440,11 +457,47 @@ function GameSessionPage() {
               <Trophy className='text-primary mx-auto mb-3 size-10' aria-hidden='true' />
               <h2 className='font-semibold'>Thanks for playing</h2>
               <p className='text-muted-foreground mt-1 text-sm'>
-                This session is closed and can no longer be joined or changed.
+                {endedBy ? `${endedBy} ended this session. ` : ''}This session is closed and can no longer be joined or
+                changed.
               </p>
             </CardContent>
           </Card>
         )}
+
+        <dialog
+          aria-describedby='end-session-description'
+          aria-labelledby='end-session-title'
+          className='m-auto w-[calc(100%-2rem)] max-w-lg border-0 bg-transparent p-0 [&::backdrop]:bg-black/60 [&::backdrop]:backdrop-blur-sm'
+          onCancel={(event) => {
+            if (isPending === 'end') {
+              event.preventDefault();
+            }
+          }}
+          ref={endDialog}
+        >
+          <div className='bg-background text-foreground rounded-xl border p-6 shadow-2xl'>
+            <h2 className='text-xl font-semibold' id='end-session-title'>
+              End bingo session?
+            </h2>
+            <p className='text-muted-foreground mt-2 text-sm leading-6' id='end-session-description'>
+              Everyone currently in the session will see that you ended the game. No more cards can be changed.
+            </p>
+            <div className='mt-6 flex justify-end gap-3'>
+              <Button
+                disabled={isPending === 'end'}
+                onClick={() => endDialog.current?.close()}
+                type='button'
+                variant='outline'
+              >
+                Cancel
+              </Button>
+              <Button disabled={isPending === 'end'} onClick={() => void end()} type='button' variant='destructive'>
+                {isPending === 'end' && <LoaderCircle className='animate-spin' aria-hidden='true' />}
+                End session
+              </Button>
+            </div>
+          </div>
+        </dialog>
 
         {error && (
           <p className='text-destructive rounded-lg border border-current/20 px-4 py-3 text-sm' role='alert'>
@@ -531,7 +584,7 @@ function LiveChat({
 }) {
   const [content, setContent] = useState('');
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  function submit(event: Parameters<FormEventHandler<HTMLFormElement>>[0]) {
     event.preventDefault();
     if (onSend(content)) {
       setContent('');
@@ -582,19 +635,7 @@ function LiveChat({
   );
 }
 
-function useGameSessionSocket(
-  sessionId: string | undefined,
-  handlers: {
-    onCardUpdate: (card: GameSessionCard) => void;
-    onMessages: Dispatch<SetStateAction<GameSessionChatMessage[]>>;
-    onParticipants: (participants: GameSessionParticipant[]) => void;
-    onScoreUpdate: (score: GameSessionScore) => void;
-    onScores: (scores: GameSessionScore[]) => void;
-    onSessionStarted: () => void;
-    onSessionEnded: () => void;
-    onSessionDeleted: () => void;
-  },
-) {
+function useGameSessionSocket(sessionId: string | undefined, handlers: GameSessionSocketHandlers) {
   const socket = useRef<WebSocket | null>(null);
   const handlersRef = useRef(handlers);
   const [connected, setConnected] = useState(false);
@@ -617,33 +658,7 @@ function useGameSessionSocket(
       socket.current = connection;
       connection.addEventListener('open', () => setConnected(true));
       connection.addEventListener('message', (event) => {
-        const message = parseLiveEvent(event.data);
-        if (!message) {
-          return;
-        }
-        if (message.type === 'snapshot') {
-          if (message.card) {
-            handlersRef.current.onCardUpdate(message.card);
-          }
-          handlersRef.current.onMessages(message.messages);
-          handlersRef.current.onParticipants(message.participants);
-          handlersRef.current.onScores(message.scores);
-        } else if (message.type === 'presence') {
-          handlersRef.current.onParticipants(message.participants);
-        } else if (message.type === 'chat-message') {
-          handlersRef.current.onMessages((current) => [...current, message.message].slice(-100));
-        } else if (message.type === 'card-updated') {
-          handlersRef.current.onCardUpdate(message.card);
-        } else if (message.type === 'score-updated') {
-          handlersRef.current.onScoreUpdate(message.score);
-        } else if (message.type === 'session-started') {
-          handlersRef.current.onSessionStarted();
-        } else if (message.type === 'session-ended') {
-          handlersRef.current.onSessionEnded();
-        } else if (message.type === 'session-deleted') {
-          disposed = true;
-          handlersRef.current.onSessionDeleted();
-        }
+        disposed = handleGameSessionSocketMessage(event.data, handlersRef.current) || disposed;
       });
       connection.addEventListener('close', () => {
         setConnected(false);
@@ -699,6 +714,48 @@ function parseLiveEvent(value: unknown) {
   }
 }
 
+function handleGameSessionSocketMessage(value: unknown, handlers: GameSessionSocketHandlers) {
+  const message = parseLiveEvent(value);
+  if (!message) {
+    return false;
+  }
+  if (message.type === 'snapshot') {
+    if (message.card) {
+      handlers.onCardUpdate(message.card);
+    }
+    handlers.onMessages(message.messages);
+    handlers.onParticipants(message.participants);
+    handlers.onScores(message.scores);
+    return false;
+  }
+  if (message.type === 'presence') {
+    handlers.onParticipants(message.participants);
+    return false;
+  }
+  if (message.type === 'chat-message') {
+    handlers.onMessages((current) => [...current, message.message].slice(-100));
+    return false;
+  }
+  if (message.type === 'card-updated') {
+    handlers.onCardUpdate(message.card);
+    return false;
+  }
+  if (message.type === 'score-updated') {
+    handlers.onScoreUpdate(message.score);
+    return false;
+  }
+  if (message.type === 'session-started') {
+    handlers.onSessionStarted();
+    return false;
+  }
+  if (message.type === 'session-ended') {
+    handlers.onSessionEnded(message.endedBy);
+    return false;
+  }
+  handlers.onSessionDeleted();
+  return true;
+}
+
 function mergeScore(scores: ClientGameSessionScore[], score: GameSessionScore) {
   return [...scores.filter((candidate) => candidate.userId !== score.userId), normalizeLiveScore(score)];
 }
@@ -748,4 +805,14 @@ function getSessionDescription(status: 'active' | 'created' | 'ended', connected
     return 'The shared game state is preserved, but no longer changeable.';
   }
   return connected ? 'Live game state is synchronised with your team.' : 'Restoring the live connection…';
+}
+
+function getSessionTitle(status: 'active' | 'created' | 'ended') {
+  if (status === 'created') {
+    return 'Bingo session ready';
+  }
+  if (status === 'ended') {
+    return 'Bingo session ended';
+  }
+  return 'Live bingo';
 }

@@ -55,7 +55,7 @@ export type GameSessionLiveEvent =
   | { type: 'presence'; participants: GameSessionParticipant[] }
   | { type: 'score-updated'; score: GameSessionScore }
   | { type: 'session-started' }
-  | { type: 'session-ended' }
+  | { type: 'session-ended'; endedBy: string }
   | { type: 'session-deleted' }
   | {
       type: 'snapshot';

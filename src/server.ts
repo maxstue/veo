@@ -2,7 +2,7 @@ import * as Sentry from '@sentry/cloudflare';
 import { wrapFetchWithSentry } from '@sentry/tanstackstart-react';
 import handler from '@tanstack/react-start/server-entry';
 
-import { GameSession } from '#/lib/game-session-durable-object';
+export { GameSession } from '#/lib/game-session-durable-object';
 import { isGameSessionSocketRequest, proxyGameSessionSocket } from '#/lib/game-session-websocket.server';
 import { sanitizeUrl } from '#/lib/observability/privacy';
 
@@ -14,8 +14,6 @@ const applicationHandler = wrapFetchWithSentry({
     return handler.fetch(request);
   },
 });
-
-export { GameSession };
 
 export default Sentry.withSentry(
   (env: Env) => ({

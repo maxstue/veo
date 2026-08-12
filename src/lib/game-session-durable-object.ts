@@ -51,7 +51,7 @@ type CleanupRow = {
 export class GameSession extends DurableObject<Env> {
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
-    ctx.blockConcurrencyWhile(async () => this.migrate());
+    this.migrate();
   }
 
   async fetch(request: Request) {
@@ -126,6 +126,13 @@ export class GameSession extends DurableObject<Env> {
 
   async toggleCell(userId: string, position: number) {
     this.assertOpen();
+    const currentCard = this.getCard(userId);
+    if (!currentCard) {
+      return null;
+    }
+    if (currentCard.completedAt !== null || currentCard.bingo) {
+      throw new Error('Bingo card is already complete');
+    }
     const updated = this.ctx.storage.sql
       .exec<{ marked: number }>(
         `UPDATE session_card_cell
@@ -159,6 +166,10 @@ export class GameSession extends DurableObject<Env> {
 
   async resetCard(userId: string) {
     this.assertOpen();
+    const currentCard = this.getCard(userId);
+    if (currentCard?.completedAt != null || currentCard?.bingo) {
+      throw new Error('Bingo card is already complete');
+    }
     const exists = this.ctx.storage.sql
       .exec<{ found: number }>('SELECT 1 as found FROM session_card WHERE user_id = ? LIMIT 1', userId)
       .toArray()[0];
@@ -184,7 +195,7 @@ export class GameSession extends DurableObject<Env> {
       status,
     );
     const cleanup = this.getCleanup();
-    if (!cleanup || cleanup.sessionId !== sessionId || cleanup.teamId !== teamId) {
+    if (cleanup?.sessionId !== sessionId || cleanup?.teamId !== teamId) {
       throw new Error('Durable Object is already assigned to another session');
     }
     await this.ctx.storage.setAlarm(cleanup.expiresAt);
@@ -244,8 +255,8 @@ export class GameSession extends DurableObject<Env> {
   }
 
   /** Closes connected participants after the final results have been persisted in D1. */
-  async completeEnd() {
-    this.broadcast({ type: 'session-ended' });
+  async completeEnd(endedBy: string) {
+    this.broadcast({ type: 'session-ended', endedBy });
     for (const socket of this.ctx.getWebSockets()) {
       socket.close(1000, 'Session ended');
     }

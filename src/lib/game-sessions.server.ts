@@ -80,6 +80,7 @@ export async function getGameSession(data: { sessionId: string; teamId: string }
     session,
     cards,
     viewerUserId: viewerSession.user.id,
+    viewerUserName: viewerSession.user.name,
   };
 }
 
@@ -158,11 +159,11 @@ export async function deleteGameSession(data: { sessionId: string; teamId: strin
 }
 
 export async function endGameSession(data: { sessionId: string; teamId: string }) {
-  await requireTeamMembership(data.teamId);
+  const { session: viewerSession } = await requireTeamMembership(data.teamId);
   const coordinator = env.GAME_SESSION.getByName(data.sessionId);
   const current = await readCurrentSessionStatus(createDatabase(env.DB), data);
   if (current.status === 'ended') {
-    await coordinator.completeEnd();
+    await coordinator.completeEnd(viewerSession.user.name);
     return current;
   }
 
@@ -184,7 +185,7 @@ export async function endGameSession(data: { sessionId: string; teamId: string }
   results[Symbol.dispose]();
   const persisted = await env.DB.batch(statements);
   const updated = persisted.at(-1)?.meta.changes ?? 0;
-  await coordinator.completeEnd();
+  await coordinator.completeEnd(viewerSession.user.name);
   if (updated) {
     Metrics.recordGameSessionEnded();
   }

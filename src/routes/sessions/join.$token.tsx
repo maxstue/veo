@@ -24,6 +24,9 @@ function GameSessionInvitationPage() {
   const [error, setError] = useState<string>();
   const returnTo = `/sessions/join/${token}`;
   const available = invitation.status === 'active' || invitation.status === 'created';
+  const invitationDescription = available
+    ? getInvitationDescription(invitation.status)
+    : unavailableText[invitation.status];
 
   async function join() {
     setError(undefined);
@@ -53,13 +56,7 @@ function GameSessionInvitationPage() {
             {available ? <TicketCheck aria-hidden='true' /> : <TriangleAlert aria-hidden='true' />}
           </span>
           <CardTitle>{available ? `Join bingo with ${invitation.teamName}` : 'Session unavailable'}</CardTitle>
-          <CardDescription>
-            {available
-              ? invitation.status === 'created'
-                ? 'Join the team and wait with everyone for the session to start.'
-                : 'Join the team and play in this live bingo session.'
-              : unavailableText[invitation.status]}
-          </CardDescription>
+          <CardDescription>{invitationDescription}</CardDescription>
         </CardHeader>
         <CardContent>
           {available && !viewer && (
@@ -93,3 +90,9 @@ const unavailableText = {
   ended: 'This bingo session has already ended.',
   invalid: 'This session link is invalid.',
 } as const;
+
+function getInvitationDescription(status: 'active' | 'created') {
+  return status === 'created'
+    ? 'Join the team and wait with everyone for the session to start.'
+    : 'Join the team and play in this live bingo session.';
+}

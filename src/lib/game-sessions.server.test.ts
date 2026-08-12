@@ -130,7 +130,7 @@ describe('game-session finalization', () => {
         ]),
       ),
     };
-    mocks.requireTeamMembership.mockResolvedValue({ session: { user: { id: 'user-1' } } });
+    mocks.requireTeamMembership.mockResolvedValue({ session: { user: { id: 'user-1', name: 'Ada' } } });
     mocks.getByName.mockReturnValue(coordinator);
     mocks.createDatabase.mockReturnValue(selectDatabase([{ status: 'active' }]));
     mocks.prepare.mockImplementation((sql: string) => ({ bind: vi.fn().mockReturnValue({ sql }) }));
@@ -141,7 +141,7 @@ describe('game-session finalization', () => {
     expect(coordinator.finalize).toHaveBeenCalledOnce();
     expect(mocks.prepare).toHaveBeenCalledTimes(3);
     expect(mocks.batch).toHaveBeenCalledOnce();
-    expect(coordinator.completeEnd).toHaveBeenCalledOnce();
+    expect(coordinator.completeEnd).toHaveBeenCalledWith('Ada');
   });
 
   test('keeps the sealed durable state available when persisting final results fails', async () => {
@@ -161,7 +161,7 @@ describe('game-session finalization', () => {
 
   test('retries coordinator cleanup without rewriting results for an already ended session', async () => {
     const coordinator = { completeEnd: vi.fn().mockResolvedValue(undefined), finalize: vi.fn() };
-    mocks.requireTeamMembership.mockResolvedValue(userSession);
+    mocks.requireTeamMembership.mockResolvedValue({ session: { user: { id: 'user-1', name: 'Ada' } } });
     mocks.getByName.mockReturnValue(coordinator);
     mocks.createDatabase.mockReturnValue(selectDatabase([{ status: 'ended' }]));
 
@@ -169,7 +169,7 @@ describe('game-session finalization', () => {
 
     expect(coordinator.finalize).not.toHaveBeenCalled();
     expect(mocks.batch).not.toHaveBeenCalled();
-    expect(coordinator.completeEnd).toHaveBeenCalledOnce();
+    expect(coordinator.completeEnd).toHaveBeenCalledWith('Ada');
   });
 });
 
