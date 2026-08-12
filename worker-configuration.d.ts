@@ -6,11 +6,11 @@ interface __BaseEnv_Env {
   BETTER_AUTH_SECRET: string;
   RESEND_API_KEY: string;
   SENTRY_DSN: string;
-  GAME_SESSION: DurableObjectNamespace<import('./src/server').GameSession>;
+  GAME_SESSION: DurableObjectNamespace<import('./src/app/server').GameSession>;
 }
 declare namespace Cloudflare {
   interface GlobalProps {
-    mainModule: typeof import('./src/server');
+    mainModule: typeof import('./src/app/server');
     durableNamespaces: 'GameSession';
   }
   interface Env extends __BaseEnv_Env {}

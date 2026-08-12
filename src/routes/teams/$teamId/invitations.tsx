@@ -1,10 +1,10 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { ArrowLeft, Link2 } from 'lucide-react';
 
-import { AppHeader } from '#/components/app-header';
-import { TeamInvitations } from '#/components/team-invitations';
-import { ButtonLink } from '#/components/ui/button-link';
-import { getTeam, getViewer } from '#/lib/teams';
+import { AppHeader } from '#/app/shell/app-header';
+import { getTeam, getViewer } from '#/app/teams/api';
+import { TeamInvitations } from '#/app/teams/invitations/team-invitations';
+import { ButtonLink } from '#/shared/ui/button-link';
 
 export const Route = createFileRoute('/teams/$teamId/invitations')({
   beforeLoad: async ({ params }) => {

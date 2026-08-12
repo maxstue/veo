@@ -1,10 +1,10 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { ArrowLeft, Settings2 } from 'lucide-react';
 
-import { AppHeader } from '#/components/app-header';
-import { BingoRulesLibrary } from '#/components/team-bingo-rules';
-import { ButtonLink } from '#/components/ui/button-link';
-import { getTeam, getViewer } from '#/lib/teams';
+import { AppHeader } from '#/app/shell/app-header';
+import { getTeam, getViewer } from '#/app/teams/api';
+import { BingoRulesLibrary } from '#/app/teams/team-bingo-rules';
+import { ButtonLink } from '#/shared/ui/button-link';
 
 export const Route = createFileRoute('/teams/$teamId/bingo-rules')({
   beforeLoad: async ({ params }) => {

@@ -38,7 +38,12 @@ const config = defineConfig(({ mode }) => {
       devtools(),
       mode === 'test' ? undefined : cloudflare({ viteEnvironment: { name: 'ssr' } }),
       tailwindcss(),
-      tanstackStart(),
+      tanstackStart({
+        start: { entry: 'app/start.ts' },
+        router: { entry: 'app/router.tsx' },
+        client: { entry: 'app/client.tsx' },
+        server: { entry: 'app/server.ts' },
+      }),
       viteReact(),
       babel({
         presets: [reactCompilerPreset()],

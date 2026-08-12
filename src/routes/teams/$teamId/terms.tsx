@@ -1,10 +1,10 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { ArrowLeft, Dices } from 'lucide-react';
 
-import { AppHeader } from '#/components/app-header';
-import { TermLibrary } from '#/components/team-terms';
-import { ButtonLink } from '#/components/ui/button-link';
-import { getTeam, getViewer } from '#/lib/teams';
+import { AppHeader } from '#/app/shell/app-header';
+import { getTeam, getViewer } from '#/app/teams/api';
+import { TermLibrary } from '#/app/teams/terms/team-terms';
+import { ButtonLink } from '#/shared/ui/button-link';
 
 export const Route = createFileRoute('/teams/$teamId/terms')({
   beforeLoad: async ({ params }) => {

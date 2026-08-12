@@ -2,11 +2,11 @@ import { TanStackDevtools } from '@tanstack/react-devtools';
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 
-import { AppErrorPage } from '#/components/app-error-page';
-import { NotFoundPage } from '#/components/not-found-page';
-import { ThemeProvider } from '#/components/theme-provider';
+import { AppErrorPage } from '#/app/shell/app-error-page';
+import { NotFoundPage } from '#/app/shell/not-found-page';
+import { ThemeProvider } from '#/shared/components/theme-provider';
 
-import appCss from '../styles.css?url';
+import appCss from '../app/styles.css?url';
 
 export const Route = createRootRoute({
   head: () => ({

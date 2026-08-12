@@ -1,10 +1,10 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { ArrowLeft, Users } from 'lucide-react';
 
-import { AppHeader } from '#/components/app-header';
-import { TeamMembers } from '#/components/team-members';
-import { ButtonLink } from '#/components/ui/button-link';
-import { getTeam, getViewer } from '#/lib/teams';
+import { AppHeader } from '#/app/shell/app-header';
+import { getTeam, getViewer } from '#/app/teams/api';
+import { TeamMembers } from '#/app/teams/team-members';
+import { ButtonLink } from '#/shared/ui/button-link';
 
 export const Route = createFileRoute('/teams/$teamId/members')({
   beforeLoad: async ({ params }) => {

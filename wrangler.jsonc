@@ -3,7 +3,7 @@
   "name": "veo",
   "compatibility_date": "2026-08-02",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "src/server.ts",
+  "main": "src/app/server.ts",
   "workers_dev": false,
   "observability": {
     "enabled": true,
