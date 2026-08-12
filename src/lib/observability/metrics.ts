@@ -5,6 +5,12 @@ type ProductMetricName =
   | 'veo.bingo_sound.config_failed'
   | 'veo.game.completed'
   | 'veo.game.started'
+  | 'veo.game_session.created'
+  | 'veo.game_session.deleted'
+  | 'veo.game_session.ended'
+  | 'veo.game_session.expired'
+  | 'veo.game_session.joined'
+  | 'veo.game_session.started'
   | 'veo.password_reset.email.failed'
   | 'veo.password_reset.email.sent'
   | 'veo.password_reset.requested'
@@ -46,6 +52,36 @@ export const Metrics = {
   /** Records the successful creation of a new bingo card as a started game. */
   recordGameStarted() {
     recordProductEvent({ metric: 'veo.game.started', message: 'Bingo game started' });
+  },
+
+  /** Records that a multiplayer game session was created. */
+  recordGameSessionCreated() {
+    recordProductEvent({ metric: 'veo.game_session.created', message: 'Game session created' });
+  },
+
+  /** Records that an authorized team member manually deleted an open session. */
+  recordGameSessionDeleted() {
+    recordProductEvent({ metric: 'veo.game_session.deleted', message: 'Game session deleted' });
+  },
+
+  /** Records that a multiplayer game session was ended. */
+  recordGameSessionEnded() {
+    recordProductEvent({ metric: 'veo.game_session.ended', message: 'Game session ended' });
+  },
+
+  /** Records that an abandoned open session was removed by its Durable Object alarm. */
+  recordGameSessionExpired() {
+    recordProductEvent({ metric: 'veo.game_session.expired', message: 'Game session expired' });
+  },
+
+  /** Records a successful session-link join without recording participant identity. */
+  recordGameSessionJoined() {
+    recordProductEvent({ metric: 'veo.game_session.joined', message: 'Game session joined' });
+  },
+
+  /** Records the first transition of a multiplayer session into the active state. */
+  recordGameSessionStarted() {
+    recordProductEvent({ metric: 'veo.game_session.started', message: 'Game session started' });
   },
 
   /** Records a password-reset email that Resend did not accept or deliver to its queue. */

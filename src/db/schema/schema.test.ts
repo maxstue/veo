@@ -1,7 +1,17 @@
 import { getTableConfig } from 'drizzle-orm/sqlite-core';
 import { describe, expect, test } from 'vite-plus/test';
 
-import { bingoCard, bingoCardCell, bingoTerm, team, teamBingoRulesPreset, teamMember, user } from './index';
+import {
+  bingoCard,
+  bingoCardCell,
+  bingoTerm,
+  gameSession,
+  gameSessionResult,
+  team,
+  teamBingoRulesPreset,
+  teamMember,
+  user,
+} from './index';
 
 describe('database schema', () => {
   test('keeps user emails unique for Better Auth', () => {
@@ -59,5 +69,20 @@ describe('database schema', () => {
     );
 
     expect(uniqueIndex?.config.unique).toBe(true);
+  });
+
+  test('models game-session lifecycle and keeps join tokens unique', () => {
+    const config = getTableConfig(gameSession);
+    const uniqueIndex = config.indexes.find(
+      (candidate) => candidate.config.name === 'game_session_invite_token_hash_unique',
+    );
+
+    expect(gameSession.status.notNull).toBe(true);
+    expect(config.checks.map((constraint) => constraint.name)).toContain('game_session_status_check');
+    expect(uniqueIndex?.config.unique).toBe(true);
+    expect(getTableConfig(gameSessionResult).primaryKeys[0]?.columns.map((column) => column.name)).toEqual([
+      'session_id',
+      'user_id',
+    ]);
   });
 });

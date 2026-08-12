@@ -26,6 +26,14 @@ export function hasBingo(markedPositions: Iterable<number>, rules: BingoRules = 
   return createWinningLines(rules).some((line) => line.every((position) => marked.has(position)));
 }
 
+export function getLongestMarkedLineLength(markedPositions: Iterable<number>, rules: BingoRules = defaultBingoRules) {
+  const marked = new Set(markedPositions);
+  return Math.max(
+    0,
+    ...createWinningLines(rules).map((line) => line.filter((position) => marked.has(position)).length),
+  );
+}
+
 /** Keeps a completed bingo in the team's score even when a card is reset later. */
 export function getBingoCompletionTime(completedAt: Date | null, bingo: boolean, now: Date) {
   return completedAt ?? (bingo ? now : null);

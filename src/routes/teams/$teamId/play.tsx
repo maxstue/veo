@@ -46,14 +46,12 @@ function BingoPage() {
         return currentCard;
       }
 
-      const cells = currentCard.cells.map((cell) =>
-        cell.position === position ? { ...cell, markedAt: marked ? new Date() : null } : cell,
-      );
+      const cells = currentCard.cells.map((cell) => (cell.position === position ? { ...cell, marked } : cell));
       return {
         ...currentCard,
         cells,
         bingo: hasBingo(
-          cells.filter((cell) => cell.markedAt).map((cell) => cell.position),
+          cells.filter((cell) => cell.marked).map((cell) => cell.position),
           currentCard.rules,
         ),
       };
@@ -89,7 +87,7 @@ function BingoPage() {
 
     setError(undefined);
     const hadBingo = card.bingo;
-    const marked = !card.cells.find((cell) => cell.position === position)?.markedAt;
+    const marked = !card.cells.find((cell) => cell.position === position)?.marked;
     startToggleTransition(async () => {
       updateOptimisticCell({ marked, position });
       try {
@@ -205,7 +203,7 @@ function BingoPage() {
             >
               <legend className='sr-only'>Bingo card</legend>
               {card.cells.map((cell) => {
-                const marked = Boolean(cell.markedAt);
+                const marked = cell.marked;
                 return (
                   <button
                     aria-label={`${cell.labelSnapshot}${marked ? ', marked' : ', not marked'}`}

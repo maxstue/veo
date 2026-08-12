@@ -18,6 +18,7 @@ import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as TeamsIndexRouteImport } from './routes/teams/index'
 import { Route as TeamsTeamIdRouteRouteImport } from './routes/teams/$teamId/route'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as SessionsJoinTokenRouteImport } from './routes/sessions/join.$token'
 import { Route as TeamsTeamIdIndexRouteImport } from './routes/teams/$teamId/index'
 import { Route as TeamsTeamIdBingoRulesRouteImport } from './routes/teams/$teamId/bingo-rules'
 import { Route as TeamsTeamIdInvitationsRouteImport } from './routes/teams/$teamId/invitations'
@@ -25,6 +26,7 @@ import { Route as TeamsTeamIdLeaderboardRouteImport } from './routes/teams/$team
 import { Route as TeamsTeamIdMembersRouteImport } from './routes/teams/$teamId/members'
 import { Route as TeamsTeamIdPlayRouteImport } from './routes/teams/$teamId/play'
 import { Route as TeamsTeamIdTermsRouteImport } from './routes/teams/$teamId/terms'
+import { Route as TeamsTeamIdSessionsSessionIdRouteImport } from './routes/teams/$teamId/sessions/$sessionId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -71,6 +73,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SessionsJoinTokenRoute = SessionsJoinTokenRouteImport.update({
+  id: '/sessions/join/$token',
+  path: '/sessions/join/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TeamsTeamIdIndexRoute = TeamsTeamIdIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -106,6 +113,12 @@ const TeamsTeamIdTermsRoute = TeamsTeamIdTermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => TeamsTeamIdRouteRoute,
 } as any)
+const TeamsTeamIdSessionsSessionIdRoute =
+  TeamsTeamIdSessionsSessionIdRouteImport.update({
+    id: '/sessions/$sessionId',
+    path: '/sessions/$sessionId',
+    getParentRoute: () => TeamsTeamIdRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -117,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/invite/$token': typeof InviteTokenRoute
   '/teams/': typeof TeamsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/sessions/join/$token': typeof SessionsJoinTokenRoute
   '/teams/$teamId/bingo-rules': typeof TeamsTeamIdBingoRulesRoute
   '/teams/$teamId/invitations': typeof TeamsTeamIdInvitationsRoute
   '/teams/$teamId/leaderboard': typeof TeamsTeamIdLeaderboardRoute
@@ -124,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/teams/$teamId/play': typeof TeamsTeamIdPlayRoute
   '/teams/$teamId/terms': typeof TeamsTeamIdTermsRoute
   '/teams/$teamId/': typeof TeamsTeamIdIndexRoute
+  '/teams/$teamId/sessions/$sessionId': typeof TeamsTeamIdSessionsSessionIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -133,6 +148,7 @@ export interface FileRoutesByTo {
   '/invite/$token': typeof InviteTokenRoute
   '/teams': typeof TeamsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/sessions/join/$token': typeof SessionsJoinTokenRoute
   '/teams/$teamId/bingo-rules': typeof TeamsTeamIdBingoRulesRoute
   '/teams/$teamId/invitations': typeof TeamsTeamIdInvitationsRoute
   '/teams/$teamId/leaderboard': typeof TeamsTeamIdLeaderboardRoute
@@ -140,6 +156,7 @@ export interface FileRoutesByTo {
   '/teams/$teamId/play': typeof TeamsTeamIdPlayRoute
   '/teams/$teamId/terms': typeof TeamsTeamIdTermsRoute
   '/teams/$teamId': typeof TeamsTeamIdIndexRoute
+  '/teams/$teamId/sessions/$sessionId': typeof TeamsTeamIdSessionsSessionIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -152,6 +169,7 @@ export interface FileRoutesById {
   '/invite/$token': typeof InviteTokenRoute
   '/teams/': typeof TeamsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/sessions/join/$token': typeof SessionsJoinTokenRoute
   '/teams/$teamId/bingo-rules': typeof TeamsTeamIdBingoRulesRoute
   '/teams/$teamId/invitations': typeof TeamsTeamIdInvitationsRoute
   '/teams/$teamId/leaderboard': typeof TeamsTeamIdLeaderboardRoute
@@ -159,6 +177,7 @@ export interface FileRoutesById {
   '/teams/$teamId/play': typeof TeamsTeamIdPlayRoute
   '/teams/$teamId/terms': typeof TeamsTeamIdTermsRoute
   '/teams/$teamId/': typeof TeamsTeamIdIndexRoute
+  '/teams/$teamId/sessions/$sessionId': typeof TeamsTeamIdSessionsSessionIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -172,6 +191,7 @@ export interface FileRouteTypes {
     | '/invite/$token'
     | '/teams/'
     | '/api/auth/$'
+    | '/sessions/join/$token'
     | '/teams/$teamId/bingo-rules'
     | '/teams/$teamId/invitations'
     | '/teams/$teamId/leaderboard'
@@ -179,6 +199,7 @@ export interface FileRouteTypes {
     | '/teams/$teamId/play'
     | '/teams/$teamId/terms'
     | '/teams/$teamId/'
+    | '/teams/$teamId/sessions/$sessionId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -188,6 +209,7 @@ export interface FileRouteTypes {
     | '/invite/$token'
     | '/teams'
     | '/api/auth/$'
+    | '/sessions/join/$token'
     | '/teams/$teamId/bingo-rules'
     | '/teams/$teamId/invitations'
     | '/teams/$teamId/leaderboard'
@@ -195,6 +217,7 @@ export interface FileRouteTypes {
     | '/teams/$teamId/play'
     | '/teams/$teamId/terms'
     | '/teams/$teamId'
+    | '/teams/$teamId/sessions/$sessionId'
   id:
     | '__root__'
     | '/'
@@ -206,6 +229,7 @@ export interface FileRouteTypes {
     | '/invite/$token'
     | '/teams/'
     | '/api/auth/$'
+    | '/sessions/join/$token'
     | '/teams/$teamId/bingo-rules'
     | '/teams/$teamId/invitations'
     | '/teams/$teamId/leaderboard'
@@ -213,6 +237,7 @@ export interface FileRouteTypes {
     | '/teams/$teamId/play'
     | '/teams/$teamId/terms'
     | '/teams/$teamId/'
+    | '/teams/$teamId/sessions/$sessionId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -223,6 +248,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   InviteTokenRoute: typeof InviteTokenRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  SessionsJoinTokenRoute: typeof SessionsJoinTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -290,6 +316,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sessions/join/$token': {
+      id: '/sessions/join/$token'
+      path: '/sessions/join/$token'
+      fullPath: '/sessions/join/$token'
+      preLoaderRoute: typeof SessionsJoinTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/teams/$teamId/': {
       id: '/teams/$teamId/'
       path: '/'
@@ -339,6 +372,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TeamsTeamIdTermsRouteImport
       parentRoute: typeof TeamsTeamIdRouteRoute
     }
+    '/teams/$teamId/sessions/$sessionId': {
+      id: '/teams/$teamId/sessions/$sessionId'
+      path: '/sessions/$sessionId'
+      fullPath: '/teams/$teamId/sessions/$sessionId'
+      preLoaderRoute: typeof TeamsTeamIdSessionsSessionIdRouteImport
+      parentRoute: typeof TeamsTeamIdRouteRoute
+    }
   }
 }
 
@@ -350,6 +390,7 @@ interface TeamsTeamIdRouteRouteChildren {
   TeamsTeamIdPlayRoute: typeof TeamsTeamIdPlayRoute
   TeamsTeamIdTermsRoute: typeof TeamsTeamIdTermsRoute
   TeamsTeamIdIndexRoute: typeof TeamsTeamIdIndexRoute
+  TeamsTeamIdSessionsSessionIdRoute: typeof TeamsTeamIdSessionsSessionIdRoute
 }
 
 const TeamsTeamIdRouteRouteChildren: TeamsTeamIdRouteRouteChildren = {
@@ -360,6 +401,7 @@ const TeamsTeamIdRouteRouteChildren: TeamsTeamIdRouteRouteChildren = {
   TeamsTeamIdPlayRoute: TeamsTeamIdPlayRoute,
   TeamsTeamIdTermsRoute: TeamsTeamIdTermsRoute,
   TeamsTeamIdIndexRoute: TeamsTeamIdIndexRoute,
+  TeamsTeamIdSessionsSessionIdRoute: TeamsTeamIdSessionsSessionIdRoute,
 }
 
 const TeamsTeamIdRouteRouteWithChildren =
@@ -387,6 +429,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   InviteTokenRoute: InviteTokenRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  SessionsJoinTokenRoute: SessionsJoinTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

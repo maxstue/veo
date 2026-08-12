@@ -22,6 +22,20 @@
       "when": 1786084721100,
       "tag": "0002_bizarre_starhawk",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1786476006545,
+      "tag": "0003_soft_baron_strucker",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1786513344954,
+      "tag": "0004_harsh_morgan_stark",
+      "breakpoints": true
     }
   ]
 }

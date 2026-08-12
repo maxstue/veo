@@ -3,7 +3,7 @@ import { createServerFn } from '@tanstack/react-start';
 import { getBingoCellCount, supportedBingoBoardSizes } from './bingo-game';
 
 export const getBingoGame = createServerFn({ method: 'GET' })
-  .validator((input: unknown) => ({ teamId: readId(input, 'teamId') }))
+  .validator((input: unknown) => ({ sessionId: readOptionalId(input, 'sessionId'), teamId: readId(input, 'teamId') }))
   .handler(async ({ data }) => {
     const implementation = await import('./bingo-game.server');
     return implementation.getBingoGame(data);
@@ -12,6 +12,7 @@ export const getBingoGame = createServerFn({ method: 'GET' })
 export const createBingoCard = createServerFn({ method: 'POST' })
   .validator((input: unknown) => ({
     teamId: readId(input, 'teamId'),
+    sessionId: readOptionalId(input, 'sessionId'),
     presetId: readOptionalId(input, 'presetId'),
   }))
   .handler(async ({ data }) => {
@@ -22,6 +23,7 @@ export const createBingoCard = createServerFn({ method: 'POST' })
 export const toggleBingoCell = createServerFn({ method: 'POST' })
   .validator((input: unknown) => ({
     teamId: readId(input, 'teamId'),
+    sessionId: readOptionalId(input, 'sessionId'),
     cardId: readId(input, 'cardId'),
     position: readPosition(input),
   }))
@@ -33,6 +35,7 @@ export const toggleBingoCell = createServerFn({ method: 'POST' })
 export const resetBingoCard = createServerFn({ method: 'POST' })
   .validator((input: unknown) => ({
     teamId: readId(input, 'teamId'),
+    sessionId: readOptionalId(input, 'sessionId'),
     cardId: readId(input, 'cardId'),
   }))
   .handler(async ({ data }) => {

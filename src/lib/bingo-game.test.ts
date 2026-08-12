@@ -1,6 +1,13 @@
 import { describe, expect, test } from 'vite-plus/test';
 
-import { bingoCellCount, getBingoCompletionTime, hasBingo, selectBingoTerms, type BingoRules } from './bingo-game';
+import {
+  bingoCellCount,
+  getBingoCompletionTime,
+  getLongestMarkedLineLength,
+  hasBingo,
+  selectBingoTerms,
+  type BingoRules,
+} from './bingo-game';
 
 describe('bingo detection', () => {
   test.each([
@@ -28,6 +35,19 @@ describe('bingo detection', () => {
 
     expect(hasBingo([0, 8, 16, 24, 32, 40, 48, 56], horizontalOnly)).toBe(false);
     expect(hasBingo([56, 57, 58, 59, 60, 61, 62, 63], horizontalOnly)).toBe(true);
+  });
+
+  test("counts the most marked cells in a line allowed by the card's rules", () => {
+    const horizontalOnly: BingoRules = {
+      boardSize: 5,
+      horizontal: true,
+      vertical: false,
+      diagonal: false,
+    };
+
+    expect(getLongestMarkedLineLength([], horizontalOnly)).toBe(0);
+    expect(getLongestMarkedLineLength([0, 1, 3, 5, 10, 15], horizontalOnly)).toBe(3);
+    expect(getLongestMarkedLineLength([0, 1, 3, 5, 10, 15])).toBe(4);
   });
 
   test('keeps an achieved bingo in the score after the card changes', () => {

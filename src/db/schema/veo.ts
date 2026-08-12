@@ -3,6 +3,8 @@ import { check, index, integer, primaryKey, sqliteTable, text, uniqueIndex } fro
 
 import { user } from './auth';
 
+export type GameSessionStatus = 'created' | 'active' | 'ended';
+
 const timestamp = (name: string) => integer(name, { mode: 'timestamp_ms' });
 const createdAt = () =>
   timestamp('created_at')
@@ -116,6 +118,45 @@ export const bingoTerm = sqliteTable(
   ],
 );
 
+export const gameSession = sqliteTable(
+  'game_session',
+  {
+    id: text('id').primaryKey(),
+    teamId: text('team_id')
+      .notNull()
+      .references(() => team.id, { onDelete: 'cascade' }),
+    createdByUserId: text('created_by_user_id').references(() => user.id, { onDelete: 'set null' }),
+    inviteTokenHash: text('invite_token_hash').notNull(),
+    status: text('status').$type<GameSessionStatus>().notNull(),
+    createdAt: createdAt(),
+    startedAt: timestamp('started_at'),
+    endedAt: timestamp('ended_at'),
+  },
+  (table) => [
+    uniqueIndex('game_session_invite_token_hash_unique').on(table.inviteTokenHash),
+    index('game_session_team_status_idx').on(table.teamId, table.status),
+    index('game_session_created_by_user_id_idx').on(table.createdByUserId),
+    check('game_session_status_check', sql`${table.status} in ('created', 'active', 'ended')`),
+  ],
+);
+
+export const gameSessionResult = sqliteTable(
+  'game_session_result',
+  {
+    sessionId: text('session_id')
+      .notNull()
+      .references(() => gameSession.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    completedAt: timestamp('completed_at'),
+  },
+  (table) => [
+    primaryKey({ columns: [table.sessionId, table.userId] }),
+    index('game_session_result_user_id_idx').on(table.userId),
+  ],
+);
+
 export const bingoCard = sqliteTable(
   'bingo_card',
   {
@@ -165,6 +206,7 @@ export const teamRelations = relations(team, ({ one, many }) => ({
   invitations: many(teamInvitation),
   bingoRulesPresets: many(teamBingoRulesPreset),
   terms: many(bingoTerm),
+  gameSessions: many(gameSession),
   cards: many(bingoCard),
 }));
 
@@ -181,6 +223,17 @@ export const bingoCardRelations = relations(bingoCard, ({ one, many }) => ({
   team: one(team, { fields: [bingoCard.teamId], references: [team.id] }),
   user: one(user, { fields: [bingoCard.userId], references: [user.id] }),
   cells: many(bingoCardCell),
+}));
+
+export const gameSessionRelations = relations(gameSession, ({ many, one }) => ({
+  team: one(team, { fields: [gameSession.teamId], references: [team.id] }),
+  createdBy: one(user, { fields: [gameSession.createdByUserId], references: [user.id] }),
+  results: many(gameSessionResult),
+}));
+
+export const gameSessionResultRelations = relations(gameSessionResult, ({ one }) => ({
+  session: one(gameSession, { fields: [gameSessionResult.sessionId], references: [gameSession.id] }),
+  user: one(user, { fields: [gameSessionResult.userId], references: [user.id] }),
 }));
 
 export const bingoCardCellRelations = relations(bingoCardCell, ({ one }) => ({

@@ -4,8 +4,22 @@ import { collectIstanbulCoverage, enableIstanbulCoverage, expect, test } from '.
 
 const password = 'playwright-password-123';
 
-test('registration, team, terms, invitation, and bingo work end to end', async ({ browser, page: ownerPage }) => {
+test('registration, session invitation, live bingo, and chat work end to end', async ({ browser, page: ownerPage }) => {
   test.setTimeout(180_000);
+  const websocketErrors: string[] = [];
+  ownerPage.on('console', (message) => {
+    if (message.type() === 'error' && message.text().includes('WebSocket')) {
+      websocketErrors.push(message.text());
+    }
+  });
+  await ownerPage.addInitScript(() => {
+    const originalPlay = Reflect.get(HTMLMediaElement.prototype, 'play') as () => Promise<void>;
+    (window as unknown as { veoAudioPlayCount: number }).veoAudioPlayCount = 0;
+    HTMLMediaElement.prototype.play = function play() {
+      (window as unknown as { veoAudioPlayCount: number }).veoAudioPlayCount += 1;
+      return Reflect.apply(originalPlay, this, []);
+    };
+  });
   const runId = `${Date.now()}-${test.info().project.name}`;
   const teamName = `Playwright Team ${runId}`;
   const guestContext = await browser.newContext();
@@ -32,18 +46,23 @@ test('registration, team, terms, invitation, and bingo work end to end', async (
     await expect(ownerPage.getByText('25 / 25')).toBeVisible();
 
     await ownerPage.getByRole('link', { name: 'Back to team' }).click();
-    await ownerPage.getByRole('link', { name: 'Manage invitations' }).click();
-    await ownerPage.getByRole('button', { name: 'Create invitation link' }).click();
+    await ownerPage.getByRole('button', { name: 'New session' }).click();
+    await expect(ownerPage.getByRole('heading', { level: 1, name: 'Bingo session ready' })).toBeVisible();
+    await ownerPage.getByRole('button', { name: 'Invitation link' }).click();
     const invitationLink = await ownerPage
       .locator('p')
-      .filter({ hasText: 'http://localhost:5173/invite/' })
+      .filter({ hasText: 'http://localhost:5173/sessions/join/' })
       .textContent();
     expect(invitationLink).toBeTruthy();
-    await ownerPage.getByRole('link', { name: 'Back to team' }).click();
 
     const guestPage = await guestContext.newPage();
+    guestPage.on('console', (message) => {
+      if (message.type() === 'error' && message.text().includes('WebSocket')) {
+        websocketErrors.push(message.text());
+      }
+    });
     await guestPage.goto(invitationLink!);
-    await expect(guestPage.getByText(`Invitation to ${teamName}`, { exact: true })).toBeVisible();
+    await expect(guestPage.getByText(`Join bingo with ${teamName}`, { exact: true })).toBeVisible();
     await guestPage.getByRole('link', { name: 'Sign in and join' }).click();
     await selectRegistrationMode(guestPage);
     await fillRegistration(guestPage, {
@@ -51,28 +70,49 @@ test('registration, team, terms, invitation, and bingo work end to end', async (
       name: 'Guest Playwright',
     });
 
-    await expect(guestPage.getByText(`Invitation to ${teamName}`, { exact: true })).toBeVisible();
+    await expect(guestPage.getByText(`Join bingo with ${teamName}`, { exact: true })).toBeVisible();
     await guestPage.getByRole('button', { name: 'Join as Guest Playwright' }).click();
-    await expect(guestPage.getByRole('heading', { level: 1, name: teamName })).toBeVisible();
-    await expect(guestPage.getByText('2 members')).toBeVisible();
+    await expect(guestPage.getByRole('heading', { level: 1, name: 'Bingo session ready' })).toBeVisible();
+    await expect(ownerPage.getByText('2 online')).toBeVisible();
+    await expect(ownerPage.getByText('Guest Playwright, Owner Playwright')).toBeVisible();
 
-    await ownerPage.reload();
-    await expect(ownerPage.getByText('2 members')).toBeVisible();
-    await ownerPage.getByRole('link', { name: 'Start bingo' }).click();
+    await ownerPage.getByRole('button', { name: 'Start session' }).click();
+    await expect(ownerPage.getByRole('heading', { level: 1, name: 'Live bingo' })).toBeVisible();
+    await expect(guestPage.getByRole('heading', { level: 1, name: 'Live bingo' })).toBeVisible();
+    await expect(guestPage.getByText('2 online')).toBeVisible();
+
+    await guestPage.reload();
+    await expect(guestPage.getByRole('heading', { level: 1, name: 'Live bingo' })).toBeVisible();
+    await expect(guestPage.getByText('2 online')).toBeVisible();
+
     const card = ownerPage.getByRole('group', { name: 'Bingo card' });
-    const createCardButton = ownerPage.getByRole('button', { name: 'Shuffle card' });
-    await expect(async () => {
-      await createCardButton.click();
-      expect((await createCardButton.isDisabled()) || (await card.isVisible())).toBe(true);
-    }).toPass({ timeout: 10_000 });
-    await expect(card).toBeVisible();
+    await expect(card).toBeVisible({ timeout: 10_000 });
+    await expect(guestPage.getByRole('group', { name: 'Bingo card' })).toBeVisible({ timeout: 10_000 });
 
     for (let position = 0; position < 5; position += 1) {
       const cell = card.getByRole('button').nth(position);
       await cell.click();
       await expect(cell).toHaveAttribute('aria-pressed', 'true');
+      await expect(guestPage.getByText(`${position + 1} / 5`, { exact: true })).toBeVisible();
     }
-    await expect(ownerPage.getByRole('heading', { level: 1, name: 'Bingo!' })).toBeVisible();
+    await expect(ownerPage.getByText('Bingo!', { exact: true })).toBeVisible();
+    await expect(ownerPage.getByTestId('bingo-confetti')).toBeVisible();
+    await expect
+      .poll(() => ownerPage.evaluate(() => (window as unknown as { veoAudioPlayCount: number }).veoAudioPlayCount))
+      .toBe(1);
+    await expect(guestPage.getByText('1. Owner Playwright', { exact: true })).toBeVisible();
+
+    const chat = guestPage.getByLabel('Message');
+    await expect(chat).toBeEnabled();
+    await chat.fill('Good bingo');
+    await guestPage.getByRole('button', { name: 'Send' }).click();
+    await expect(ownerPage.getByText('Guest Playwright: Good bingo')).toBeVisible();
+
+    ownerPage.once('dialog', (dialog) => dialog.accept());
+    await ownerPage.getByRole('button', { name: 'End session' }).click();
+    await expect(ownerPage.getByRole('heading', { level: 1, name: 'Bingo session ended' })).toBeVisible();
+    await expect(guestPage.getByRole('heading', { level: 1, name: 'Bingo session ended' })).toBeVisible();
+    expect(websocketErrors).toEqual([]);
   } finally {
     await collectIstanbulCoverage(guestContext);
     await guestContext.close().catch(() => undefined);

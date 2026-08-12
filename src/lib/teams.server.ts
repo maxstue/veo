@@ -2,7 +2,17 @@ import { env } from 'cloudflare:workers';
 import { and, asc, count, desc, eq, isNull, sql } from 'drizzle-orm';
 
 import { createDatabase } from '#/db/client';
-import { bingoCard, bingoTerm, team, teamBingoRulesPreset, teamInvitation, teamMember, user } from '#/db/schema';
+import {
+  bingoCard,
+  bingoTerm,
+  gameSession,
+  gameSessionResult,
+  team,
+  teamBingoRulesPreset,
+  teamInvitation,
+  teamMember,
+  user,
+} from '#/db/schema';
 
 import { requireTeamMembership, requireUser } from './auth-guards.server';
 import { getAuth } from './auth.server';
@@ -62,7 +72,7 @@ export async function getTeam(data: { teamId: string }) {
   const database = createDatabase(env.DB);
   const now = new Date();
 
-  const [teams, members, invitations, terms, activities, bingoRulesPresets] = await Promise.all([
+  const [teams, members, invitations, terms, cardActivities, sessionActivities, bingoRulesPresets] = await Promise.all([
     database
       .select({
         id: team.id,
@@ -110,6 +120,16 @@ export async function getTeam(data: { teamId: string }) {
       .groupBy(bingoCard.userId),
     database
       .select({
+        userId: gameSessionResult.userId,
+        cardsStarted: count(),
+        completedCards: sql<number>`count(case when ${gameSessionResult.completedAt} is not null then 1 end)`,
+      })
+      .from(gameSessionResult)
+      .innerJoin(gameSession, eq(gameSession.id, gameSessionResult.sessionId))
+      .where(eq(gameSession.teamId, data.teamId))
+      .groupBy(gameSessionResult.userId),
+    database
+      .select({
         id: teamBingoRulesPreset.id,
         name: teamBingoRulesPreset.name,
         boardSize: teamBingoRulesPreset.boardSize,
@@ -140,14 +160,7 @@ export async function getTeam(data: { teamId: string }) {
       defaultBingoRulesPresetId: teams[0].defaultBingoRulesPresetId,
     },
     members,
-    leaderboard: buildTeamLeaderboard(
-      members,
-      activities.map((activity) => ({
-        memberId: activity.userId,
-        cardsStarted: activity.cardsStarted,
-        completedCards: activity.completedCards,
-      })),
-    ),
+    leaderboard: buildTeamLeaderboard(members, mergeBingoActivities(cardActivities, sessionActivities)),
     terms,
     bingoRulesPresets,
     invitations: invitations.map((invitation) => ({
@@ -155,6 +168,22 @@ export async function getTeam(data: { teamId: string }) {
       status: getInvitationStatus(invitation, now),
     })),
   };
+}
+
+function mergeBingoActivities(
+  ...activitySets: Array<Array<{ cardsStarted: number; completedCards: number; userId: string }>>
+) {
+  const totals = new Map<string, { cardsStarted: number; completedCards: number }>();
+  for (const activities of activitySets) {
+    for (const activity of activities) {
+      const current = totals.get(activity.userId) ?? { cardsStarted: 0, completedCards: 0 };
+      totals.set(activity.userId, {
+        cardsStarted: current.cardsStarted + activity.cardsStarted,
+        completedCards: current.completedCards + activity.completedCards,
+      });
+    }
+  }
+  return [...totals].map(([memberId, activity]) => ({ memberId, ...activity }));
 }
 
 export async function saveTeamBingoRulesPreset(data: {

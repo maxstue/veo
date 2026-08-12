@@ -32,7 +32,7 @@ export default defineConfig({
       BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET ?? 'playwright-development-only-value-000000',
       VITE_COVERAGE: 'true',
     },
-    reuseExistingServer: false,
+    reuseExistingServer: process.env.PLAYWRIGHT_REUSE_EXISTING_SERVER === 'true',
     timeout: 120_000,
     url: 'http://localhost:5173',
   },
