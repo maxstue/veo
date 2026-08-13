@@ -26,6 +26,14 @@ Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.de
 - Keep explicit return types only when inference cannot preserve the intended contract, such as
   for overload or type signatures and type predicates.
 
+# UI components
+
+- Prefer existing shadcn components and primitives over custom implementations.
+- Before adding or composing UI, check the official shadcn registry and documentation at
+  https://ui.shadcn.com/docs and https://ui.shadcn.com/docs/components to find the appropriate component.
+- Add custom UI only when no suitable shadcn component or primitive exists, or when the product requires
+  behavior that the available components cannot support.
+
 # Documentation location
 
 Project documentation belongs in the Veo Linear project, not in the repository. This includes
@@ -43,20 +51,9 @@ plans, meeting notes, and ticket completion summaries.
 - Before changing documentation, check Linear first and update the existing source of truth
   instead of duplicating it in the repository.
 
-<!-- sonar:begin:codex-secrets-on-read -->
+# Secrets scanning
 
-# SonarQube secrets scanning for files protocol
-
-Before reading any file in this workspace, scan it for secrets with the deterministic scanner:
-
-```bash
-sonar analyze secrets <path/to/file>
-```
-
-If the command reports that the file contains a secret, **do not read the file**. Instead:
-
-1. Inform the user that the file appears to contain a secret or credential and that reading it would expose the value in chat history, logs, and any downstream telemetry.
-2. Advise them to rotate the leaked credential at its source of truth and remove it from the file.
-3. Do not proceed with the original request until the secret has been removed.
-
-<!-- sonar:end:codex-secrets-on-read -->
+- Do not run a SonarQube secrets scan before reading individual files.
+- The repository Git hook performs the secrets scan for staged changes before commit.
+- Always run `sonar analyze secrets` once as a final verification for the changed files, regardless of
+  whether a Git hook is present.
