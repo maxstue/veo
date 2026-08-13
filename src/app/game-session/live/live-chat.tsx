@@ -121,8 +121,8 @@ function ChatMessage({ message, own }: { message: GameSessionChatMessage; own: b
               {formatChatTime(message.createdAt)}
             </time>
           </MessageHeader>
-          <Bubble align={own ? 'end' : 'start'} variant={own ? 'default' : 'muted'}>
-            <BubbleContent className={`whitespace-pre-wrap ${own ? 'rounded-br-sm' : 'rounded-bl-sm'}`}>
+          <Bubble align={own ? 'end' : 'start'} className='w-[88%] max-w-[22rem]' variant={own ? 'default' : 'muted'}>
+            <BubbleContent className={`w-full whitespace-pre-wrap ${own ? 'rounded-br-sm' : 'rounded-bl-sm'}`}>
               {message.content}
             </BubbleContent>
           </Bubble>
