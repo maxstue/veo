@@ -82,7 +82,7 @@ function ChatTranscript({
     <div className='h-72'>
       <MessageScrollerProvider autoScroll defaultScrollPosition='end'>
         <MessageScroller>
-          <MessageScrollerViewport aria-label='Session messages'>
+          <MessageScrollerViewport aria-label='Chat transcript'>
             <MessageScrollerContent className='gap-4 px-4 py-5'>
               {messages.length ? (
                 messages.map((message) => (
@@ -203,7 +203,7 @@ function ChatComposer({
         rows={1}
         value={content}
       />
-      <Button aria-label='Send message' disabled={!connected || !content.trim()} size='icon-lg' type='submit'>
+      <Button aria-label='Send chat' disabled={!connected || !content.trim()} size='icon-lg' type='submit'>
         {connected ? <Send aria-hidden='true' /> : <LoaderCircle className='animate-spin' aria-hidden='true' />}
       </Button>
     </form>

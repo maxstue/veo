@@ -106,10 +106,10 @@ test('registration, session invitation, live bingo, and chat work end to end', a
     await expect(chat).toBeEnabled();
     await chat.fill('Good bingo');
     await guestPage.getByRole('button', { name: 'Send' }).click();
-    await expect(ownerPage.getByText('Guest Playwright: Good bingo')).toBeVisible();
+    await expect(ownerPage.getByText('Good bingo', { exact: true })).toBeVisible();
 
-    ownerPage.once('dialog', (dialog) => dialog.accept());
     await ownerPage.getByRole('button', { name: 'End session' }).click();
+    await ownerPage.getByRole('dialog').getByRole('button', { name: 'End session' }).click();
     await expect(ownerPage.getByRole('heading', { level: 1, name: 'Bingo session ended' })).toBeVisible();
     await expect(guestPage.getByRole('heading', { level: 1, name: 'Bingo session ended' })).toBeVisible();
     expect(websocketErrors).toEqual([]);
