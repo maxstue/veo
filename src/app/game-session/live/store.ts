@@ -423,16 +423,7 @@ const useGameSessionStore = createStoreFactory<GameSessionStore>('game-session',
   },
   async toggleCardCell(cardId, position) {
     const { activeSessionId: sessionId, card, game, pendingCell, runtime, teamId } = get();
-    if (
-      !runtime ||
-      !sessionId ||
-      !teamId ||
-      !game ||
-      !card ||
-      card.id !== cardId ||
-      pendingCell !== undefined ||
-      card.bingo
-    ) {
+    if (!runtime || !sessionId || !teamId || !game || card?.id !== cardId || pendingCell !== undefined || card.bingo) {
       return;
     }
     set((state) => {

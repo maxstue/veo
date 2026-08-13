@@ -8,6 +8,9 @@ import { BingoCard, BingoConfetti } from '../bingo/bingo-card';
 import { LiveChat } from './live-chat';
 import { LiveScoreboard } from './live-scoreboard';
 import { useGameSessionStore } from './store';
+
+type SessionStatus = 'active' | 'created' | 'ended';
+
 function GameSessionLayout({ children }: { children: React.ReactNode }) {
   return <main className='mx-auto min-h-screen max-w-6xl px-5 py-5 sm:px-8 lg:px-10'>{children}</main>;
 }
@@ -53,7 +56,7 @@ function SessionHeading({
   );
 }
 
-function SessionActions({ sessionStatus }: { sessionStatus: 'active' | 'created' | 'ended' }) {
+function SessionActions({ sessionStatus }: { sessionStatus: SessionStatus }) {
   const canDelete = useGameSessionStore((state) => state.canDelete);
   const createShareLink = useGameSessionStore((state) => state.createShareLink);
   const deleteSession = useGameSessionStore((state) => state.deleteSession);
@@ -282,7 +285,7 @@ function SessionError() {
   );
 }
 
-function getSessionDescription(status: 'active' | 'created' | 'ended', connected: boolean) {
+function getSessionDescription(status: SessionStatus, connected: boolean) {
   if (status === 'created') {
     return 'This session has not started yet.';
   }
@@ -292,7 +295,7 @@ function getSessionDescription(status: 'active' | 'created' | 'ended', connected
   return connected ? 'Live game state is synchronised with your team.' : 'Restoring the live connection…';
 }
 
-function getSessionTitle(status: 'active' | 'created' | 'ended') {
+function getSessionTitle(status: SessionStatus) {
   if (status === 'created') {
     return 'Bingo session ready';
   }

@@ -1,5 +1,5 @@
 import { LoaderCircle, MessageCircle, Send, WifiOff } from 'lucide-react';
-import { type FormEventHandler, useState } from 'react';
+import { type SubmitEvent, useState } from 'react';
 
 import { Bubble, BubbleContent } from '#/shared/ui/bubble';
 import { Button } from '#/shared/ui/button';
@@ -29,7 +29,7 @@ function LiveChat({
 }) {
   const [content, setContent] = useState('');
 
-  function submit(event: Parameters<FormEventHandler<HTMLFormElement>>[0]) {
+  function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     if (onSend(content)) {
       setContent('');
@@ -59,13 +59,12 @@ function LiveChat({
 
 function ConnectionStatus({ connected }: { connected: boolean }) {
   return (
-    <span
+    <output
       className={`flex items-center gap-1.5 text-xs font-normal ${connected ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'}`}
-      role='status'
     >
       <span className={`size-2 rounded-full ${connected ? 'bg-emerald-500' : 'bg-muted-foreground animate-pulse'}`} />
       {connected ? 'Live' : 'Reconnecting'}
-    </span>
+    </output>
   );
 }
 
@@ -78,22 +77,25 @@ function ChatTranscript({
   messages: GameSessionChatMessage[];
   viewerUserId: string;
 }) {
+  let transcriptContent = <LoadingTranscript />;
+  if (messages.length) {
+    transcriptContent = (
+      <>
+        {messages.map((message) => (
+          <ChatMessage key={message.id} message={message} own={message.userId === viewerUserId} />
+        ))}
+      </>
+    );
+  } else if (connected) {
+    transcriptContent = <EmptyTranscript />;
+  }
+
   return (
     <div className='h-72'>
       <MessageScrollerProvider autoScroll defaultScrollPosition='end'>
         <MessageScroller>
           <MessageScrollerViewport aria-label='Chat transcript'>
-            <MessageScrollerContent className='gap-4 px-4 py-5'>
-              {messages.length ? (
-                messages.map((message) => (
-                  <ChatMessage key={message.id} message={message} own={message.userId === viewerUserId} />
-                ))
-              ) : connected ? (
-                <EmptyTranscript />
-              ) : (
-                <LoadingTranscript />
-              )}
-            </MessageScrollerContent>
+            <MessageScrollerContent className='gap-4 px-4 py-5'>{transcriptContent}</MessageScrollerContent>
           </MessageScrollerViewport>
           <MessageScrollerButton className='shadow-md' />
         </MessageScroller>
@@ -137,9 +139,7 @@ function LoadingTranscript() {
     <MessageScrollerItem className='space-y-3 py-3' messageId='loading'>
       <div className='bg-muted h-16 w-3/4 animate-pulse rounded-2xl rounded-bl-md' />
       <div className='bg-primary/15 ml-auto h-12 w-2/3 animate-pulse rounded-2xl rounded-br-md' />
-      <span className='sr-only' role='status'>
-        Loading messages…
-      </span>
+      <output className='sr-only'>Loading messages…</output>
     </MessageScrollerItem>
   );
 }
@@ -161,13 +161,10 @@ function EmptyTranscript() {
 
 function ReconnectStatus() {
   return (
-    <p
-      className='bg-muted text-muted-foreground flex items-center justify-center gap-2 border-t px-3 py-2 text-xs'
-      role='status'
-    >
+    <output className='bg-muted text-muted-foreground flex items-center justify-center gap-2 border-t px-3 py-2 text-xs'>
       <WifiOff className='size-3.5' aria-hidden='true' />
       <span className='shimmer'>Connection lost. Trying again…</span>
-    </p>
+    </output>
   );
 }
 
@@ -180,7 +177,7 @@ function ChatComposer({
   connected: boolean;
   content: string;
   onChange: (content: string) => void;
-  onSubmit: FormEventHandler<HTMLFormElement>;
+  onSubmit: (event: SubmitEvent<HTMLFormElement>) => void;
 }) {
   return (
     <form className='bg-card flex items-end gap-2 border-t p-3' onSubmit={onSubmit}>

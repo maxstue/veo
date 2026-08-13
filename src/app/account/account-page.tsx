@@ -146,7 +146,7 @@ function AccountDeletion() {
           </p>
           <form className='mt-6 grid gap-4' onSubmit={submit}>
             <label className='grid gap-2 text-sm font-medium'>
-              Type DELETE to confirm
+              Type DELETE to confirm{' '}
               <input
                 className='bg-background h-10 rounded-lg border px-3'
                 disabled={deleting}
