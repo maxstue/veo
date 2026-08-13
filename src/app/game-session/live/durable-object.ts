@@ -52,7 +52,7 @@ type CleanupRow = {
 export class GameSession extends DurableObject<Env> {
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
-    this.migrate();
+    migrateStorage(ctx);
   }
 
   async fetch(request: Request) {
@@ -497,9 +497,10 @@ export class GameSession extends DurableObject<Env> {
     await this.ctx.storage.deleteAlarm();
     await this.ctx.storage.deleteAll();
   }
+}
 
-  private migrate() {
-    this.ctx.storage.sql.exec(`
+function migrateStorage(ctx: DurableObjectState) {
+  ctx.storage.sql.exec(`
       CREATE TABLE IF NOT EXISTS _sql_schema_migrations (
         version INTEGER PRIMARY KEY,
         applied_at INTEGER NOT NULL
@@ -543,8 +544,7 @@ export class GameSession extends DurableObject<Env> {
       );
       CREATE INDEX IF NOT EXISTS chat_message_created_at_idx ON chat_message (created_at);
       INSERT OR IGNORE INTO _sql_schema_migrations (version, applied_at) VALUES (1, unixepoch() * 1000);
-    `);
-  }
+  `);
 }
 
 function readRules(card: CardRow): BingoRules {
