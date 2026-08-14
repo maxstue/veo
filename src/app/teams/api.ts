@@ -47,7 +47,10 @@ export const setTeamDefaultBingoRulesPreset = createServerFn({ method: 'POST' })
   });
 
 export const createInvitation = createServerFn({ method: 'POST' })
-  .validator((input: unknown) => ({ teamId: readId(input, 'teamId') }))
+  .validator((input: unknown) => ({
+    teamId: readId(input, 'teamId'),
+    email: readEmail(input, 'email'),
+  }))
   .handler(async ({ data }) => {
     const implementation = await import('./teams.server');
     return implementation.createInvitation(data);
@@ -61,6 +64,27 @@ export const revokeInvitation = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const implementation = await import('./teams.server');
     return implementation.revokeInvitation(data);
+  });
+
+export const updateTeamMemberRole = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => ({
+    teamId: readId(input, 'teamId'),
+    membershipId: readId(input, 'membershipId'),
+    role: readRole(input, 'role'),
+  }))
+  .handler(async ({ data }) => {
+    const implementation = await import('./teams.server');
+    return implementation.updateTeamMemberRole(data);
+  });
+
+export const removeTeamMember = createServerFn({ method: 'POST' })
+  .validator((input: unknown) => ({
+    teamId: readId(input, 'teamId'),
+    membershipId: readId(input, 'membershipId'),
+  }))
+  .handler(async ({ data }) => {
+    const implementation = await import('./teams.server');
+    return implementation.removeTeamMember(data);
   });
 
 export const getInvitation = createServerFn({ method: 'GET' })
@@ -78,11 +102,27 @@ export const redeemInvitation = createServerFn({ method: 'POST' })
   });
 
 function readToken(input: unknown) {
-  const token = readString(input, 'token', 40, 100, false);
+  const token = readString(input, 'token', 1, 100, false);
   if (!/^[A-Za-z0-9_-]+$/.test(token)) {
     throw new Error('Invalid invitation token');
   }
   return token;
+}
+
+function readEmail(input: unknown, field: string) {
+  const email = readString(input, field, 3, 254).toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw new Error(`Invalid ${field}`);
+  }
+  return email;
+}
+
+function readRole(input: unknown, field: string) {
+  const role = readString(input, field, 1, 20);
+  if (role !== 'owner' && role !== 'member') {
+    throw new Error(`Invalid ${field}`);
+  }
+  return role as 'owner' | 'member';
 }
 
 function readId(input: unknown, field: string) {

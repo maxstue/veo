@@ -252,11 +252,11 @@ export async function redeemGameSessionInvitation(data: { token: string }) {
          WHERE invite_token_hash = ? AND status IN ('created', 'active')`,
     ).bind(tokenHash),
     env.DB.prepare(
-      `INSERT OR IGNORE INTO team_member (team_id, user_id, joined_at)
-         SELECT team_id, ?, ?
+      `INSERT OR IGNORE INTO member (id, organization_id, user_id, role, created_at)
+         SELECT ?, team_id, ?, 'member', ?
          FROM game_session
          WHERE invite_token_hash = ? AND status IN ('created', 'active')`,
-    ).bind(session.user.id, now, tokenHash),
+    ).bind(crypto.randomUUID(), session.user.id, now, tokenHash),
   ]);
 
   if (!results[0]?.meta.changes) {

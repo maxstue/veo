@@ -2,11 +2,13 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vite-plus/tes
 
 const mocks = vi.hoisted(() => ({
   batch: vi.fn(),
+  createInvitation: vi.fn(),
   createDatabase: vi.fn(),
   getRequestHeaders: vi.fn(),
   getSession: vi.fn(),
   prepare: vi.fn(),
   requireTeamMembership: vi.fn(),
+  requireTeamOwner: vi.fn(),
   requireUser: vi.fn(),
 }));
 
@@ -18,14 +20,15 @@ vi.mock('@tanstack/react-start/server', () => ({
 }));
 vi.mock('#/shared/lib/db/client', () => ({ createDatabase: mocks.createDatabase }));
 vi.mock('#/app/auth/server', () => ({
-  getAuth: () => ({ api: { getSession: mocks.getSession } }),
+  getAuth: () => ({ api: { createInvitation: mocks.createInvitation, getSession: mocks.getSession } }),
 }));
 vi.mock('#/app/auth/guards.server', () => ({
   requireTeamMembership: mocks.requireTeamMembership,
+  requireTeamOwner: mocks.requireTeamOwner,
   requireUser: mocks.requireUser,
 }));
 
-import { getInvitation, getTeam, getViewer, redeemInvitation } from './teams.server';
+import { createInvitation, getInvitation, getTeam, getViewer, redeemInvitation } from './teams.server';
 
 const session = {
   session: { id: 'session-1' },
@@ -145,6 +148,39 @@ describe('invitation state', () => {
   });
 });
 
+describe('invitation creation', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.getRequestHeaders.mockReturnValue(new Headers());
+    mocks.requireTeamOwner.mockResolvedValue(undefined);
+  });
+
+  test('reports an existing member without asking Better Auth to send another invitation', async () => {
+    mocks.createDatabase.mockReturnValue(selectDatabase([{ id: 'membership-1' }]));
+
+    await expect(createInvitation({ teamId: 'team-1', email: 'member@example.com' })).resolves.toEqual({
+      status: 'already-member',
+    });
+    expect(mocks.createInvitation).not.toHaveBeenCalled();
+  });
+
+  test('resends an invitation when the address is not already a member', async () => {
+    const expiresAt = new Date('2026-08-21T12:00:00.000Z');
+    mocks.createDatabase.mockReturnValue(selectDatabase([]));
+    mocks.createInvitation.mockResolvedValue({ id: 'invitation-1', expiresAt });
+
+    await expect(createInvitation({ teamId: 'team-1', email: 'guest@example.com' })).resolves.toEqual({
+      status: 'sent',
+      invitationId: 'invitation-1',
+      expiresAt,
+    });
+    expect(mocks.createInvitation).toHaveBeenCalledWith({
+      body: { email: 'guest@example.com', organizationId: 'team-1', resend: true, role: 'member' },
+      headers: expect.any(Headers),
+    });
+  });
+});
+
 describe('invitation redemption', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -197,6 +233,7 @@ describe('invitation redemption', () => {
     expect(statements).toHaveLength(2);
     expect(statements[0]?.bind).toHaveBeenCalledWith(now, 'user-1', expect.stringMatching(/^[a-f0-9]{64}$/), now);
     expect(statements[1]?.bind).toHaveBeenCalledWith(
+      expect.stringMatching(/^[0-9a-f-]{36}$/),
       'user-1',
       now,
       expect.stringMatching(/^[a-f0-9]{64}$/),

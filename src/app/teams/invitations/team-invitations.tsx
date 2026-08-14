@@ -1,5 +1,5 @@
 import { useRouter } from '@tanstack/react-router';
-import { ChevronRight, Copy, Link2, LoaderCircle, X } from 'lucide-react';
+import { ChevronRight, Link2, LoaderCircle, Mail, X } from 'lucide-react';
 import { useState } from 'react';
 
 import { formatAppDate } from '#/shared/lib/locale';
@@ -14,6 +14,8 @@ type InvitationStatus = 'active' | 'redeemed' | 'revoked' | 'expired';
 
 export type TeamInvitation = {
   createdAt: Date;
+  email: string;
+  expiresAt: Date;
   id: string;
   status: InvitationStatus;
 };
@@ -30,14 +32,14 @@ export function TeamInvitationsPreview({ invitations, teamId }: { invitations: T
           Invitations
         </CardTitle>
         <CardDescription>
-          {activeInvitations} {activeInvitations === 1 ? 'active link' : 'active links'}.
+          {activeInvitations} {activeInvitations === 1 ? 'pending invitation' : 'pending invitations'}.
         </CardDescription>
       </CardHeader>
       <CardContent className='flex flex-1 flex-col gap-4'>
         {invitations.length ? (
           <div className='bg-muted/45 rounded-lg p-3'>
             <p className='font-medium'>
-              {activeInvitations} {activeInvitations === 1 ? 'active link' : 'active links'}
+              {activeInvitations} {activeInvitations === 1 ? 'pending invitation' : 'pending invitations'}
             </p>
             <p className='text-muted-foreground mt-1 text-sm'>
               {pastInvitations} {pastInvitations === 1 ? 'past invitation' : 'past invitations'}
@@ -57,19 +59,29 @@ export function TeamInvitationsPreview({ invitations, teamId }: { invitations: T
 
 export function TeamInvitations({ invitations, teamId }: { invitations: TeamInvitation[]; teamId: string }) {
   const router = useRouter();
-  const [newLink, setNewLink] = useState<string>();
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string>();
 
-  async function invite() {
+  async function invite(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
+    const email = form.get('email');
+    if (typeof email !== 'string') {
+      return;
+    }
     setError(undefined);
     setIsCreating(true);
     try {
-      const invitation = await createInvitation({ data: { teamId } });
-      setNewLink(`${window.location.origin}/invite/${invitation.token}`);
+      const result = await createInvitation({ data: { teamId, email } });
+      if (result.status === 'already-member') {
+        setError('This email address is already a member of this team.');
+        return;
+      }
+      formElement.reset();
       await router.invalidate();
     } catch {
-      setError('The invitation link could not be created. Please try again.');
+      setError('The invitation email could not be sent. Check the address and try again.');
     } finally {
       setIsCreating(false);
     }
@@ -78,26 +90,27 @@ export function TeamInvitations({ invitations, teamId }: { invitations: TeamInvi
   return (
     <Card>
       <CardHeader>
-        <CardDescription>Links are valid for seven days and can be used once.</CardDescription>
+        <CardDescription>Invite a member by email. Invitations are valid for seven days.</CardDescription>
       </CardHeader>
       <CardContent className='grid gap-4'>
-        <Button disabled={isCreating} onClick={invite} variant='outline'>
-          {isCreating ? <LoaderCircle className='animate-spin' aria-hidden='true' /> : <Link2 aria-hidden='true' />}
-          Create invitation link
-        </Button>
-
-        {newLink && (
-          <div className='border-primary/25 bg-primary/5 flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center'>
-            <div className='min-w-0 flex-1'>
-              <p className='text-sm font-medium'>This link is shown only once</p>
-              <p className='text-muted-foreground truncate text-sm'>{newLink}</p>
-            </div>
-            <Button onClick={() => navigator.clipboard.writeText(newLink)} size='sm' variant='outline'>
-              <Copy aria-hidden='true' />
-              Copy
-            </Button>
-          </div>
-        )}
+        <form className='flex flex-col gap-3 sm:flex-row' onSubmit={invite}>
+          <label className='grid flex-1 gap-2 text-sm font-medium'>
+            <span>Email address</span>
+            <input
+              autoComplete='email'
+              className='bg-background focus-visible:border-ring focus-visible:ring-ring/30 h-10 rounded-lg border px-3 outline-none focus-visible:ring-3'
+              maxLength={254}
+              name='email'
+              placeholder='teammate@example.com'
+              required
+              type='email'
+            />
+          </label>
+          <Button className='self-end' disabled={isCreating} type='submit' variant='outline'>
+            {isCreating ? <LoaderCircle className='animate-spin' aria-hidden='true' /> : <Mail aria-hidden='true' />}
+            Send invitation
+          </Button>
+        </form>
 
         {error && (
           <p className='bg-destructive/10 text-destructive rounded-lg px-3 py-2 text-sm' role='alert'>
@@ -113,7 +126,10 @@ export function TeamInvitations({ invitations, teamId }: { invitations: TeamInvi
                   <Badge variant={invitation.status === 'active' ? 'default' : 'secondary'}>
                     {statusLabel[invitation.status]}
                   </Badge>
-                  <p className='text-muted-foreground mt-1 text-xs'>Created {formatAppDate(invitation.createdAt)}</p>
+                  <p className='text-muted-foreground mt-1 text-xs'>
+                    Created {formatAppDate(invitation.createdAt)} · Expires {formatAppDate(invitation.expiresAt)}
+                  </p>
+                  <p className='text-muted-foreground mt-1 text-sm'>{invitation.email}</p>
                 </div>
                 {invitation.status === 'active' && (
                   <Button

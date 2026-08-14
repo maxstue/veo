@@ -35,7 +35,7 @@ function TeamMembersPage() {
             Members
           </h1>
         </div>
-        <TeamMembers members={members} />
+        <TeamMembers members={members} teamId={teamId} viewerRole={team.viewerRole} />
       </section>
     </main>
   );

@@ -12,7 +12,13 @@ export const Route = createFileRoute('/teams/$teamId/invitations')({
       throw redirect({ to: '/auth', search: { returnTo: `/teams/${params.teamId}/invitations` } });
     }
   },
-  loader: ({ params }) => getTeam({ data: { teamId: params.teamId } }),
+  loader: async ({ params }) => {
+    const data = await getTeam({ data: { teamId: params.teamId } });
+    if (data.team.viewerRole !== 'owner') {
+      throw redirect({ to: '/teams/$teamId', params: { teamId: params.teamId } });
+    }
+    return data;
+  },
   component: TeamInvitationsPage,
 });
 

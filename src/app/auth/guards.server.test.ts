@@ -22,7 +22,7 @@ const session = {
   user: { id: 'user-1', name: 'Ada' },
 };
 
-function membershipDatabase(rows: Array<{ teamId: string }>) {
+function membershipDatabase(rows: Array<{ organizationId: string; role: string }>) {
   const query = {
     from: vi.fn(),
     limit: vi.fn().mockResolvedValue(rows),
@@ -63,12 +63,13 @@ describe('authentication guards', () => {
 
   test('returns the authenticated membership for the requested team', async () => {
     mocks.getSession.mockResolvedValue(session);
-    const database = membershipDatabase([{ teamId: 'team-1' }]);
+    const database = membershipDatabase([{ organizationId: 'team-1', role: 'owner' }]);
     mocks.createDatabase.mockReturnValue(database);
 
     await expect(requireTeamMembership('team-1')).resolves.toEqual({
       session,
       teamId: 'team-1',
+      role: 'owner',
     });
     expect(database.select).toHaveBeenCalledOnce();
   });

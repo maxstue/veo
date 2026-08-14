@@ -1,7 +1,7 @@
 import { env } from 'cloudflare:workers';
-import { and, asc, count, desc, eq, isNull, sql } from 'drizzle-orm';
+import { and, asc, count, desc, eq, sql } from 'drizzle-orm';
 
-import { requireTeamMembership, requireUser } from '#/app/auth/guards.server';
+import { requireTeamMembership, requireTeamOwner, requireUser } from '#/app/auth/guards.server';
 import { getAuth } from '#/app/auth/server';
 import { createDatabase } from '#/shared/lib/db/client';
 import {
@@ -9,18 +9,18 @@ import {
   bingoTerm,
   gameSession,
   gameSessionResult,
+  invitation as organizationInvitation,
+  member,
+  organization,
   team,
   teamBingoRulesPreset,
   teamInvitation,
-  teamMember,
   user,
 } from '#/shared/lib/db/schema';
 import { Metrics } from '#/shared/lib/observability/metrics';
 
-import { createToken, hashToken } from './invitations/tokens';
+import { hashToken } from './invitations/tokens';
 import { buildTeamLeaderboard } from './leaderboard/utils';
-
-const invitationLifetimeMs = 7 * 24 * 60 * 60 * 1000;
 
 export async function getViewer() {
   const { getRequestHeaders } = await import('@tanstack/react-start/server');
@@ -34,10 +34,10 @@ export async function listTeams() {
   const database = createDatabase(env.DB);
 
   return database
-    .select({ id: team.id, name: team.name, joinedAt: teamMember.joinedAt })
-    .from(teamMember)
-    .innerJoin(team, eq(team.id, teamMember.teamId))
-    .where(eq(teamMember.userId, session.user.id))
+    .select({ id: team.id, name: team.name, joinedAt: member.createdAt })
+    .from(member)
+    .innerJoin(team, eq(team.id, member.organizationId))
+    .where(eq(member.userId, session.user.id))
     .orderBy(asc(team.name));
 }
 
@@ -45,9 +45,12 @@ export async function createTeam(data: { name: string }) {
   const session = await requireUser();
   const database = createDatabase(env.DB);
   const teamId = crypto.randomUUID();
+  const membershipId = crypto.randomUUID();
   const now = new Date();
+  const slug = `${slugify(data.name)}-${teamId.slice(0, 8)}`;
 
   await database.batch([
+    database.insert(organization).values({ id: teamId, name: data.name, slug, createdAt: now }),
     database.insert(team).values({
       id: teamId,
       name: data.name,
@@ -55,10 +58,12 @@ export async function createTeam(data: { name: string }) {
       createdAt: now,
       updatedAt: now,
     }),
-    database.insert(teamMember).values({
-      teamId,
+    database.insert(member).values({
+      id: membershipId,
+      organizationId: teamId,
       userId: session.user.id,
-      joinedAt: now,
+      role: 'owner',
+      createdAt: now,
     }),
   ]);
 
@@ -68,7 +73,7 @@ export async function createTeam(data: { name: string }) {
 }
 
 export async function getTeam(data: { teamId: string }) {
-  await requireTeamMembership(data.teamId);
+  const access = await requireTeamMembership(data.teamId);
   const database = createDatabase(env.DB);
   const now = new Date();
 
@@ -88,22 +93,31 @@ export async function getTeam(data: { teamId: string }) {
       .where(eq(team.id, data.teamId))
       .limit(1),
     database
-      .select({ id: user.id, name: user.name, email: user.email, joinedAt: teamMember.joinedAt })
-      .from(teamMember)
-      .innerJoin(user, eq(user.id, teamMember.userId))
-      .where(eq(teamMember.teamId, data.teamId))
-      .orderBy(asc(user.name)),
-    database
       .select({
-        id: teamInvitation.id,
-        expiresAt: teamInvitation.expiresAt,
-        redeemedAt: teamInvitation.redeemedAt,
-        revokedAt: teamInvitation.revokedAt,
-        createdAt: teamInvitation.createdAt,
+        id: user.id,
+        membershipId: member.id,
+        name: user.name,
+        email: user.email,
+        joinedAt: member.createdAt,
+        role: member.role,
       })
-      .from(teamInvitation)
-      .where(eq(teamInvitation.teamId, data.teamId))
-      .orderBy(desc(teamInvitation.createdAt)),
+      .from(member)
+      .innerJoin(user, eq(user.id, member.userId))
+      .where(eq(member.organizationId, data.teamId))
+      .orderBy(asc(user.name)),
+    access.role === 'owner'
+      ? database
+          .select({
+            id: organizationInvitation.id,
+            email: organizationInvitation.email,
+            expiresAt: organizationInvitation.expiresAt,
+            status: organizationInvitation.status,
+            createdAt: organizationInvitation.createdAt,
+          })
+          .from(organizationInvitation)
+          .where(eq(organizationInvitation.organizationId, data.teamId))
+          .orderBy(desc(organizationInvitation.createdAt))
+      : Promise.resolve([]),
     database
       .select({ id: bingoTerm.id, label: bingoTerm.label, updatedAt: bingoTerm.updatedAt })
       .from(bingoTerm)
@@ -158,14 +172,15 @@ export async function getTeam(data: { teamId: string }) {
         diagonal: teams[0].bingoWinDiagonal,
       },
       defaultBingoRulesPresetId: teams[0].defaultBingoRulesPresetId,
+      viewerRole: access.role,
     },
     members,
     leaderboard: buildTeamLeaderboard(members, mergeBingoActivities(cardActivities, sessionActivities)),
     terms,
     bingoRulesPresets,
-    invitations: invitations.map((invitation) => ({
-      ...invitation,
-      status: getInvitationStatus(invitation, now),
+    invitations: invitations.map((teamInvite) => ({
+      ...teamInvite,
+      status: getOrganizationInvitationStatus(teamInvite, now),
     })),
   };
 }
@@ -240,64 +255,98 @@ export async function setTeamDefaultBingoRulesPreset(data: { teamId: string; pre
   return { status: 'updated' as const };
 }
 
-function getInvitationStatus(
-  invitation: { expiresAt: Date; redeemedAt: Date | null; revokedAt: Date | null },
-  now: Date,
-) {
-  if (invitation.revokedAt) {
-    return 'revoked' as const;
-  }
-  if (invitation.redeemedAt) {
+function getOrganizationInvitationStatus(teamInvite: { expiresAt: Date; status: string }, now: Date) {
+  if (teamInvite.status === 'accepted') {
     return 'redeemed' as const;
   }
-  if (invitation.expiresAt <= now) {
+  if (teamInvite.status === 'canceled' || teamInvite.status === 'rejected') {
+    return 'revoked' as const;
+  }
+  if (teamInvite.expiresAt <= now) {
     return 'expired' as const;
   }
   return 'active' as const;
 }
 
-export async function createInvitation(data: { teamId: string }) {
-  const { session } = await requireTeamMembership(data.teamId);
-  const database = createDatabase(env.DB);
-  const token = createToken();
-  const now = new Date();
-  const expiresAt = new Date(now.getTime() + invitationLifetimeMs);
+export async function createInvitation(data: { teamId: string; email: string }) {
+  await requireTeamOwner(data.teamId);
+  const existingMembers = await createDatabase(env.DB)
+    .select({ id: member.id })
+    .from(member)
+    .innerJoin(user, eq(user.id, member.userId))
+    .where(and(eq(member.organizationId, data.teamId), sql`lower(${user.email}) = ${data.email.toLowerCase()}`))
+    .limit(1);
+  if (existingMembers[0]) {
+    return { status: 'already-member' as const };
+  }
 
-  await database.insert(teamInvitation).values({
-    id: crypto.randomUUID(),
-    teamId: data.teamId,
-    tokenHash: await hashToken(token),
-    invitedByUserId: session.user.id,
-    expiresAt,
-    createdAt: now,
+  const { getRequestHeaders } = await import('@tanstack/react-start/server');
+  const created = await getAuth().api.createInvitation({
+    body: { email: data.email, organizationId: data.teamId, resend: true, role: 'member' },
+    headers: getRequestHeaders(),
   });
-
-  return { token, expiresAt };
+  return { status: 'sent' as const, invitationId: created.id, expiresAt: created.expiresAt };
 }
 
 export async function revokeInvitation(data: { teamId: string; invitationId: string }) {
-  await requireTeamMembership(data.teamId);
-  const result = await createDatabase(env.DB)
-    .update(teamInvitation)
-    .set({ revokedAt: new Date() })
+  await requireTeamOwner(data.teamId);
+  const database = createDatabase(env.DB);
+  const pending = await database
+    .select({ id: organizationInvitation.id })
+    .from(organizationInvitation)
     .where(
-      and(
-        eq(teamInvitation.id, data.invitationId),
-        eq(teamInvitation.teamId, data.teamId),
-        isNull(teamInvitation.redeemedAt),
-        isNull(teamInvitation.revokedAt),
-      ),
-    );
-
-  if (!result.meta.changes) {
-    throw new Response('Invitation is no longer active', { status: 409 });
+      and(eq(organizationInvitation.id, data.invitationId), eq(organizationInvitation.organizationId, data.teamId)),
+    )
+    .limit(1);
+  if (!pending[0]) {
+    throw new Response('Invitation not found', { status: 404 });
   }
+  const { getRequestHeaders } = await import('@tanstack/react-start/server');
+  await getAuth().api.cancelInvitation({ body: { invitationId: data.invitationId }, headers: getRequestHeaders() });
+  return { success: true };
+}
 
+export async function updateTeamMemberRole(data: { teamId: string; membershipId: string; role: 'owner' | 'member' }) {
+  await requireTeamOwner(data.teamId);
+  const { getRequestHeaders } = await import('@tanstack/react-start/server');
+  await getAuth().api.updateMemberRole({
+    body: { memberId: data.membershipId, organizationId: data.teamId, role: data.role },
+    headers: getRequestHeaders(),
+  });
+  return { success: true };
+}
+
+export async function removeTeamMember(data: { teamId: string; membershipId: string }) {
+  await requireTeamOwner(data.teamId);
+  const { getRequestHeaders } = await import('@tanstack/react-start/server');
+  await getAuth().api.removeMember({
+    body: { memberIdOrEmail: data.membershipId, organizationId: data.teamId },
+    headers: getRequestHeaders(),
+  });
   return { success: true };
 }
 
 export async function getInvitation(data: { token: string }) {
   const database = createDatabase(env.DB);
+  if (!isLegacyInvitationToken(data.token)) {
+    const organizationInvitations = await database
+      .select({
+        teamName: organization.name,
+        expiresAt: organizationInvitation.expiresAt,
+        status: organizationInvitation.status,
+      })
+      .from(organizationInvitation)
+      .innerJoin(organization, eq(organization.id, organizationInvitation.organizationId))
+      .where(eq(organizationInvitation.id, data.token))
+      .limit(1);
+    const orgInvite = organizationInvitations[0];
+    if (orgInvite) {
+      const status = getOrganizationInvitationStatus(orgInvite, new Date());
+      return status === 'active'
+        ? { status: 'valid' as const, teamName: orgInvite.teamName, expiresAt: orgInvite.expiresAt }
+        : { status, teamName: orgInvite.teamName };
+    }
+  }
   const invitations = await database
     .select({
       teamName: team.name,
@@ -333,6 +382,18 @@ export async function getInvitation(data: { token: string }) {
 
 export async function redeemInvitation(data: { token: string }) {
   const session = await requireUser();
+  if (!isLegacyInvitationToken(data.token)) {
+    const organizationInvitations = await createDatabase(env.DB)
+      .select({ organizationId: organizationInvitation.organizationId })
+      .from(organizationInvitation)
+      .where(eq(organizationInvitation.id, data.token))
+      .limit(1);
+    if (organizationInvitations[0]) {
+      const { getRequestHeaders } = await import('@tanstack/react-start/server');
+      await getAuth().api.acceptInvitation({ body: { invitationId: data.token }, headers: getRequestHeaders() });
+      return { teamId: organizationInvitations[0].organizationId };
+    }
+  }
   const tokenHash = await hashToken(data.token);
   const now = Date.now();
 
@@ -346,13 +407,13 @@ export async function redeemInvitation(data: { token: string }) {
            AND expires_at > ?`,
     ).bind(now, session.user.id, tokenHash, now),
     env.DB.prepare(
-      `INSERT OR IGNORE INTO team_member (team_id, user_id, joined_at)
-         SELECT team_id, ?, ?
+      `INSERT OR IGNORE INTO member (id, organization_id, user_id, role, created_at)
+         SELECT ?, team_id, ?, 'member', ?
          FROM team_invitation
          WHERE token_hash = ?
            AND redeemed_at = ?
            AND redeemed_by_user_id = ?`,
-    ).bind(session.user.id, now, tokenHash, now, session.user.id),
+    ).bind(crypto.randomUUID(), session.user.id, now, tokenHash, now, session.user.id),
   ]);
 
   if (!results[0]?.meta.changes) {
@@ -366,4 +427,18 @@ export async function redeemInvitation(data: { token: string }) {
     .limit(1);
 
   return { teamId: invitation[0]!.teamId };
+}
+
+function isLegacyInvitationToken(token: string) {
+  return token.length === 43;
+}
+
+function slugify(value: string) {
+  const slug = value
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+  return slug || 'team';
 }

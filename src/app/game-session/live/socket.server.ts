@@ -3,7 +3,7 @@ import { and, eq, or } from 'drizzle-orm';
 
 import { getAuth } from '#/app/auth/server';
 import { createDatabase } from '#/shared/lib/db/client';
-import { gameSession, teamMember } from '#/shared/lib/db/schema';
+import { gameSession, member } from '#/shared/lib/db/schema';
 
 const socketPath = /^\/api\/sessions\/([^/]+)\/socket$/;
 
@@ -25,12 +25,12 @@ export async function proxyGameSessionSocket(request: Request) {
   const sessions = await createDatabase(env.DB)
     .select({ id: gameSession.id })
     .from(gameSession)
-    .innerJoin(teamMember, eq(teamMember.teamId, gameSession.teamId))
+    .innerJoin(member, eq(member.organizationId, gameSession.teamId))
     .where(
       and(
         eq(gameSession.id, sessionId),
         or(eq(gameSession.status, 'created'), eq(gameSession.status, 'active')),
-        eq(teamMember.userId, session.user.id),
+        eq(member.userId, session.user.id),
       ),
     )
     .limit(1);

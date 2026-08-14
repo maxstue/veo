@@ -7,7 +7,7 @@ const metrics = vi.hoisted(() => ({
 
 vi.mock('#/shared/lib/observability/metrics', () => ({ Metrics: metrics }));
 
-import { sendPasswordResetEmail } from './email.server';
+import { sendOrganizationInvitationEmail, sendPasswordResetEmail } from './email.server';
 
 describe('sendPasswordResetEmail', () => {
   beforeEach(() => {
@@ -56,5 +56,36 @@ describe('sendPasswordResetEmail', () => {
     ).rejects.toThrow('Resend rejected the password reset email with status 403.');
     expect(metrics.recordPasswordResetEmailFailed).toHaveBeenCalledOnce();
     expect(metrics.recordPasswordResetEmailSent).not.toHaveBeenCalled();
+  });
+});
+
+describe('sendOrganizationInvitationEmail', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('sends an addressed invitation with escaped organization data', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ id: 'message-1' }), { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await sendOrganizationInvitationEmail(['test', 'api', 'key'].join('-'), {
+      invitationUrl: 'https://veo.example/invite/invitation-id?next=a&mode="unsafe"',
+      inviterName: 'Ada <Owner>',
+      organizationName: 'Frontend & Friends',
+      to: 'member@example.test',
+    });
+
+    const request = fetchMock.mock.calls[0]![1] as RequestInit;
+    const body = JSON.parse(request.body as string) as { html: string; subject: string; text: string; to: string[] };
+    expect(body).toEqual(
+      expect.objectContaining({
+        subject: 'Join Frontend & Friends on Veo',
+        text: expect.stringContaining('https://veo.example/invite/invitation-id?next=a&mode="unsafe"'),
+        to: ['member@example.test'],
+      }),
+    );
+    expect(body.html).toContain('Ada &lt;Owner&gt;');
+    expect(body.html).toContain('Frontend &amp; Friends');
+    expect(body.html).toContain('next=a&amp;mode=&quot;unsafe&quot;');
   });
 });

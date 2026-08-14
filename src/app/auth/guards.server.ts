@@ -3,7 +3,7 @@ import { env } from 'cloudflare:workers';
 import { and, eq } from 'drizzle-orm';
 
 import { createDatabase } from '#/shared/lib/db/client';
-import { teamMember } from '#/shared/lib/db/schema';
+import { member } from '#/shared/lib/db/schema';
 
 import { getAuth } from './server';
 
@@ -21,14 +21,22 @@ export async function requireTeamMembership(teamId: string) {
   const session = await requireUser();
   const database = createDatabase(env.DB);
   const membership = await database
-    .select({ teamId: teamMember.teamId })
-    .from(teamMember)
-    .where(and(eq(teamMember.teamId, teamId), eq(teamMember.userId, session.user.id)))
+    .select({ organizationId: member.organizationId, role: member.role })
+    .from(member)
+    .where(and(eq(member.organizationId, teamId), eq(member.userId, session.user.id)))
     .limit(1);
 
   if (!membership[0]) {
     throw new Response('Team membership required', { status: 403 });
   }
 
-  return { session, teamId: membership[0].teamId };
+  return { session, teamId: membership[0].organizationId, role: membership[0].role };
+}
+
+export async function requireTeamOwner(teamId: string) {
+  const access = await requireTeamMembership(teamId);
+  if (access.role !== 'owner') {
+    throw new Response('Team owner access required', { status: 403 });
+  }
+  return access;
 }

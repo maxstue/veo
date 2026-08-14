@@ -37,7 +37,7 @@ function TeamRoute() {
         <TeamTermsPreview teamId={teamId} terms={data.terms} />
         <TeamBingoRulesPreview presets={data.bingoRulesPresets} rules={data.team.bingoRules} teamId={teamId} />
         <TeamLeaderboardPreview leaderboard={data.leaderboard} teamId={teamId} />
-        <TeamInvitationsPreview invitations={data.invitations} teamId={teamId} />
+        {data.team.viewerRole === 'owner' && <TeamInvitationsPreview invitations={data.invitations} teamId={teamId} />}
       </TeamOverviewGrid>
     </TeamOverviewLayout>
   );

@@ -50,6 +50,39 @@ export async function sendPasswordResetEmail(apiKey: string, message: PasswordRe
   }
 }
 
+type OrganizationInvitationEmail = {
+  invitationUrl: string;
+  inviterName: string;
+  organizationName: string;
+  to: string;
+};
+
+export async function sendOrganizationInvitationEmail(apiKey: string, message: OrganizationInvitationEmail) {
+  const organizationName = escapeHtml(message.organizationName);
+  const inviterName = escapeHtml(message.inviterName);
+  const invitationUrl = escapeHtml(message.invitationUrl);
+
+  const response = await fetch('https://api.resend.com/emails', {
+    body: JSON.stringify({
+      from: 'Veo <support@veo.justmax.xyz>',
+      html: `<p>${inviterName} invited you to join ${organizationName} on Veo.</p><p><a href="${invitationUrl}">Accept invitation</a></p><p>This invitation expires in seven days.</p>`,
+      subject: `Join ${message.organizationName} on Veo`,
+      text: `${message.inviterName} invited you to join ${message.organizationName} on Veo.\n\nAccept the invitation: ${message.invitationUrl}\n\nThis invitation expires in seven days.`,
+      to: [message.to],
+    }),
+    headers: {
+      Authorization: `Bearer ${apiKey.trim()}`,
+      'Content-Type': 'application/json',
+      'User-Agent': 'veo/1.0',
+    },
+    method: 'POST',
+  });
+
+  if (!response.ok) {
+    throw new Error(`Resend rejected the organization invitation email with status ${response.status}.`);
+  }
+}
+
 function escapeHtml(value: string) {
   return value
     .replaceAll('&', '&amp;')

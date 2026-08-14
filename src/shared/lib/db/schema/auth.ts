@@ -36,11 +36,67 @@ export const session = sqliteTable(
     updatedAt: updatedAt(),
     ipAddress: text('ip_address'),
     userAgent: text('user_agent'),
+    activeOrganizationId: text('active_organization_id'),
     userId: text('user_id')
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
   },
   (table) => [uniqueIndex('session_token_unique').on(table.token), index('session_user_id_idx').on(table.userId)],
+);
+
+export const organization = sqliteTable(
+  'organization',
+  {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    slug: text('slug').notNull(),
+    logo: text('logo'),
+    metadata: text('metadata'),
+    createdAt: createdAt(),
+  },
+  (table) => [uniqueIndex('organization_slug_unique').on(table.slug)],
+);
+
+export const member = sqliteTable(
+  'member',
+  {
+    id: text('id').primaryKey(),
+    organizationId: text('organization_id')
+      .notNull()
+      .references(() => organization.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    role: text('role').notNull().default('member'),
+    createdAt: createdAt(),
+  },
+  (table) => [
+    uniqueIndex('member_organization_user_unique').on(table.organizationId, table.userId),
+    index('member_organization_id_idx').on(table.organizationId),
+    index('member_user_id_idx').on(table.userId),
+  ],
+);
+
+export const invitation = sqliteTable(
+  'invitation',
+  {
+    id: text('id').primaryKey(),
+    organizationId: text('organization_id')
+      .notNull()
+      .references(() => organization.id, { onDelete: 'cascade' }),
+    email: text('email').notNull(),
+    role: text('role').notNull().default('member'),
+    status: text('status').notNull().default('pending'),
+    expiresAt: timestamp('expires_at').notNull(),
+    createdAt: createdAt(),
+    inviterId: text('inviter_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+  },
+  (table) => [
+    index('invitation_organization_id_idx').on(table.organizationId),
+    index('invitation_email_idx').on(table.email),
+  ],
 );
 
 export const account = sqliteTable(
@@ -84,6 +140,17 @@ export const verification = sqliteTable(
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
+  memberships: many(member),
+}));
+
+export const organizationRelations = relations(organization, ({ many }) => ({
+  members: many(member),
+  invitations: many(invitation),
+}));
+
+export const memberRelations = relations(member, ({ one }) => ({
+  organization: one(organization, { fields: [member.organizationId], references: [organization.id] }),
+  user: one(user, { fields: [member.userId], references: [user.id] }),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
