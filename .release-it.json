@@ -1,0 +1,27 @@
+{
+  "git": {
+    "requireBranch": "main",
+    "requireCleanWorkingDir": true,
+    "changelog": "vp exec auto-changelog --stdout --commit-limit false --unreleased --template compact",
+    "commitMessage": "chore: release ${version} [skip ci]",
+    "tagName": "v${version}",
+    "tagAnnotation": "Release ${version}"
+  },
+  "hooks": {
+    "after:bump": "vp exec auto-changelog -p --commit-limit false"
+  },
+  "github": {
+    "release": true,
+    "releaseName": "${version}"
+  },
+  "plugins": {
+    "@csmith/release-it-calver-plugin": {
+      "cycle": "month",
+      "increment": "calendar"
+    }
+  },
+  "npm": {
+    "publish": false,
+    "versionArgs": ["--force"]
+  }
+}

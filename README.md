@@ -126,29 +126,30 @@ vp run db:check
 
 ## Common commands
 
-| Command                     | Purpose                                                |
-| --------------------------- | ------------------------------------------------------ |
-| `vp install`                | Install dependencies with the pinned pnpm version      |
-| `vp run dev`                | Start development with Infisical `dev` secrets         |
-| `vp dev`                    | Start Vite+ directly without secret injection          |
-| `vp run fmt`                | Format supported files in place                        |
-| `vp run fmt:check`          | Check formatting without changing files                |
-| `vp run lint`               | Run the configured type-aware linter                   |
-| `vp check`                  | Check formatting, linting, and TypeScript together     |
-| `vp check --fix`            | Fix supported formatting and linting issues            |
-| `vp test`                   | Run Vitest                                             |
-| `vp run test:coverage`      | Generate Vitest LCOV coverage for SonarQube Cloud      |
-| `vp run test:e2e`           | Run the Playwright MVP workflow on desktop and mobile  |
-| `vp run test:e2e:infisical` | Run Playwright with Infisical `dev` secrets            |
-| `vp build`                  | Create the production build for Cloudflare             |
-| `vp preview`                | Preview the production build locally                   |
-| `vp run cf:typegen`         | Generate Worker binding types from `wrangler.jsonc`    |
-| `vp run db:check`           | Check the consistency of Drizzle migrations            |
-| `vp run db:generate`        | Generate a migration after a schema change             |
-| `vp run db:migrate:local`   | Apply pending migrations to the local D1 database      |
-| `vp run db:migrate:remote`  | Apply pending migrations to the production D1 database |
-| `vp run generate-routes`    | Explicitly regenerate TanStack routes                  |
-| `vp run deploy`             | Build and deploy with Wrangler                         |
+| Command                         | Purpose                                                |
+| ------------------------------- | ------------------------------------------------------ |
+| `vp install`                    | Install dependencies with the pinned pnpm version      |
+| `vp run dev`                    | Start development with Infisical `dev` secrets         |
+| `vp dev`                        | Start Vite+ directly without secret injection          |
+| `vp run fmt`                    | Format supported files in place                        |
+| `vp run fmt:check`              | Check formatting without changing files                |
+| `vp run lint`                   | Run the configured type-aware linter                   |
+| `vp check`                      | Check formatting, linting, and TypeScript together     |
+| `vp check --fix`                | Fix supported formatting and linting issues            |
+| `vp test`                       | Run Vitest                                             |
+| `vp run test:coverage`          | Generate Vitest LCOV coverage for SonarQube Cloud      |
+| `vp run test:e2e`               | Run the Playwright MVP workflow on desktop and mobile  |
+| `vp run test:e2e:infisical`     | Run Playwright with Infisical `dev` secrets            |
+| `vp build`                      | Create the production build for Cloudflare             |
+| `vp preview`                    | Preview the production build locally                   |
+| `vp run cf:typegen`             | Generate Worker binding types from `wrangler.jsonc`    |
+| `vp run db:check`               | Check the consistency of Drizzle migrations            |
+| `vp run db:generate`            | Generate a migration after a schema change             |
+| `vp run db:migrate:local`       | Apply pending migrations to the local D1 database      |
+| `vp run db:migrate:remote`      | Apply pending migrations to the production D1 database |
+| `vp run generate-routes`        | Explicitly regenerate TanStack routes                  |
+| `vp run deploy`                 | Build and deploy with Wrangler                         |
+| `vp run release --ci --dry-run` | Preview the next version, tag, and release notes       |
 
 `vp <command>` runs a built-in Vite+ command. Project-specific scripts from `package.json` run
 with `vp run <command>`.
@@ -297,13 +298,40 @@ repository Actions secret named
 `SONAR_TOKEN` to publish the analysis. Pull requests from forks still run tests but skip publishing
 because GitHub does not expose repository secrets to them.
 
-## Deployment
+## Pull request checks
 
-The `.github/workflows/quality-and-deployment.yml` workflow runs `vp check`, `vp test`, and
-`vp build` for pull requests and changes to `main`. Only a successful run on `main` can use the
-protected `production` GitHub environment. The production job applies all remote D1 migrations
-before deploying the Worker. A concurrency group prevents two production releases from running
-migrations at the same time.
+The `.github/workflows/pull-request.yml` workflow is the required quality gate for pull requests
+against `main`. It runs formatting, linting, type checks, unit tests with coverage, the production
+build, end-to-end tests with coverage, and SonarQube Cloud analysis. Pull requests from forks run
+the same checks but skip SonarQube publishing because GitHub does not expose repository secrets to
+them. Configure the `Quality` job as a required status check in the `main` branch ruleset and
+disallow direct pushes so unverified code cannot enter the release path.
+
+## Deployment and releases
+
+The `.github/workflows/release.yml` workflow runs only after a push to `main`. It first classifies
+the changed files:
+
+- deployable application, runtime, build, or dependency changes trigger a production deployment;
+- changes below `migrations/` apply pending D1 migrations before deployment;
+- documentation, test-only, and GitHub workflow changes trigger neither deployment nor release.
+
+If a required migration fails, deployment stops. After a successful Cloudflare deployment,
+`release-it` creates the release in the same workflow. Veo uses calendar versions in
+`YYYY.MM.N` format. The package version, annotated `v<version>` Git tag, generated changelog, and
+GitHub Release notes are produced together and therefore stay aligned. A Git note under
+`refs/notes/cloudflare-releases` records the deployed source commit and prevents a workflow rerun
+from publishing it twice. The generated release commit contains `[skip ci]` so it does not start a
+second release workflow.
+
+Preview the next version and release notes locally without committing, tagging, pushing, or
+publishing anything:
+
+```bash
+vp run release --ci --dry-run --no-git.requireCleanWorkingDir
+```
+
+The production workflow is serialized so two deployments cannot migrate or publish concurrently.
 
 Only these secrets are synchronized from Infisical into the `production` GitHub environment:
 
@@ -312,7 +340,9 @@ Only these secrets are synchronized from Infisical into the `production` GitHub 
   `D1: Edit` permissions.
 
 Configure the desired deployment protection rules on the GitHub environment before the first
-release.
+release. The workflow's default permission is read-only; only the final release job receives
+`contents: write` and uses GitHub's short-lived `GITHUB_TOKEN`. No separate release credential is
+required.
 
 The runtime values `BETTER_AUTH_SECRET`, `RESEND_API_KEY`, and `SENTRY_DSN` are managed only in
 Infisical and synchronized directly to Cloudflare Worker Secrets. Rotate values in Infisical,

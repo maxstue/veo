@@ -1,5 +1,6 @@
 {
   "name": "veo",
+  "version": "0.0.0",
   "private": true,
   "type": "module",
   "imports": {
@@ -13,6 +14,7 @@
     "db:migrate:remote": "vp exec wrangler d1 migrations apply veo --remote",
     "dev": "infisical run --env=dev --path=/ --watch -- vp dev",
     "generate-routes": "tsr generate",
+    "release": "release-it",
     "test:e2e": "playwright test",
     "test:e2e:infisical": "infisical run --env=dev --path=/ -- vp run test:e2e",
     "test:e2e:coverage": "vp run test:e2e && vp run test:e2e:coverage-report",
@@ -50,6 +52,7 @@
     "zustand": "catalog:"
   },
   "devDependencies": {
+    "@csmith/release-it-calver-plugin": "catalog:",
     "@babel/core": "catalog:",
     "@cloudflare/vite-plugin": "catalog:",
     "@cloudflare/workers-types": "catalog:",
@@ -69,6 +72,8 @@
     "drizzle-kit": "catalog:",
     "eslint-plugin-react-hooks": "catalog:",
     "nyc": "catalog:",
+    "auto-changelog": "catalog:",
+    "release-it": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-istanbul": "catalog:",

@@ -1,0 +1,190 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-release
+  cancel-in-progress: false
+
+jobs:
+  detect-changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      app: ${{ steps.app-changes.outputs.any_changed }}
+      migrations: ${{ steps.migration-changes.outputs.any_changed }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Detect application changes
+        id: app-changes
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47
+        with:
+          files: |
+            migrations/**
+            public/**
+            src/**
+            components.json
+            drizzle.config.ts
+            oxfmt.config.ts
+            oxlint.config.ts
+            package.json
+            playwright.config.ts
+            pnpm-lock.yaml
+            pnpm-workspace.yaml
+            tsconfig.json
+            tsr.config.json
+            vite.config.ts
+            worker-configuration.d.ts
+            wrangler.jsonc
+
+      - name: Detect database migration changes
+        id: migration-changes
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47
+        with:
+          files: migrations/**
+
+  migrate:
+    name: Migrate production database
+    needs: detect-changes
+    if: needs.detect-changes.outputs.migrations == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: production
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Vite+
+        uses: voidzero-dev/setup-vp@250f29ce396baf5e8f24498e17c0dfdebabc26eb # v1
+        with:
+          node-version: 24
+          cache: true
+          run-install: false
+
+      - name: Install dependencies
+        run: vp install
+
+      - name: Apply production database migrations
+        run: vp run db:migrate:remote
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+  deploy:
+    name: Deploy production
+    needs: [detect-changes, migrate]
+    if: >
+      always() &&
+      needs.detect-changes.outputs.app == 'true' &&
+      (
+        needs.detect-changes.outputs.migrations != 'true' ||
+        needs.migrate.result == 'success'
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: production
+      url: https://veo.justmax.xyz
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Vite+
+        uses: voidzero-dev/setup-vp@250f29ce396baf5e8f24498e17c0dfdebabc26eb # v1
+        with:
+          node-version: 24
+          cache: true
+          run-install: false
+
+      - name: Install dependencies
+        run: vp install
+
+      - name: Deploy Worker
+        run: vp run deploy
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
+  publish-release:
+    name: Publish release
+    needs: deploy
+    if: needs.deploy.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Check out main with full history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Check release marker
+        id: release-marker
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          git fetch origin refs/notes/cloudflare-releases:refs/notes/cloudflare-releases || true
+
+          if git notes --ref=cloudflare-releases show "$SOURCE_SHA" >/dev/null 2>&1; then
+            echo "Release marker already exists for ${SOURCE_SHA}; skipping release."
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "release=true" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Vite+
+        if: steps.release-marker.outputs.release == 'true'
+        uses: voidzero-dev/setup-vp@250f29ce396baf5e8f24498e17c0dfdebabc26eb # v1
+        with:
+          node-version: 24
+          cache: true
+          run-install: false
+
+      - name: Install dependencies
+        if: steps.release-marker.outputs.release == 'true'
+        run: vp install
+
+      - name: Configure release identity
+        if: steps.release-marker.outputs.release == 'true'
+        run: |
+          git config user.name "Veo Release Workflow"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Publish release
+        if: steps.release-marker.outputs.release == 'true'
+        run: vp run release --ci
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Mark source commit as released
+        if: steps.release-marker.outputs.release == 'true'
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          git fetch origin refs/notes/cloudflare-releases:refs/notes/cloudflare-releases || true
+          git notes --ref=cloudflare-releases add -m "released by ${GITHUB_RUN_ID}" "$SOURCE_SHA"
+          git push origin refs/notes/cloudflare-releases
