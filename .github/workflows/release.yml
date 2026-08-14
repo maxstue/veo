@@ -124,8 +124,11 @@ jobs:
 
   publish-release:
     name: Publish release
-    needs: deploy
-    if: needs.deploy.result == 'success'
+    needs: [deploy, detect-changes]
+    if: >
+      always() &&
+      needs.detect-changes.outputs.app == 'true' &&
+      needs.deploy.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
