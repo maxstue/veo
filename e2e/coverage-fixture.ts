@@ -1,4 +1,4 @@
-import { randomBytes } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -17,7 +17,7 @@ function persistIstanbulCoverage(coverage?: string) {
   }
 
   mkdirSync(istanbulOutputDirectory, { recursive: true });
-  const identifier = randomBytes(16).toString('hex');
+  const identifier = randomUUID();
   writeFileSync(join(istanbulOutputDirectory, `playwright_coverage_${identifier}.json`), coverage);
 }
 
