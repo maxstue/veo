@@ -203,7 +203,16 @@ function HomeFooter() {
     <footer className='border-border/60 border-t'>
       <HomeContainer className='flex flex-col items-center justify-between gap-5 py-8 sm:flex-row'>
         <VeoLogo markClassName='size-8' />
-        <p className='text-muted-foreground text-center text-sm'>Bingo für bessere Meetings.</p>
+        <p className='text-muted-foreground max-w-lg text-center text-sm leading-6'>
+          ✨ Veo is a free side project, built with love. If anything goes wrong or you have feedback, just{' '}
+          <a
+            className='text-foreground hover:text-primary font-medium underline underline-offset-4'
+            href='mailto:support@veo.justmax.xyz'
+          >
+            email us
+          </a>{' '}
+          💌
+        </p>
       </HomeContainer>
     </footer>
   );
