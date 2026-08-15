@@ -1,5 +1,6 @@
 import { ArrowLeft, Copy, Dices, LoaderCircle, Play, Radio, Square, Trash2, Trophy } from 'lucide-react';
 
+import { PageShell } from '#/app/shell/page-container';
 import { Button } from '#/shared/ui/button';
 import { ButtonLink } from '#/shared/ui/button-link';
 import { Card, CardContent } from '#/shared/ui/card';
@@ -12,7 +13,7 @@ import { useGameSessionStore } from './store';
 type SessionStatus = 'active' | 'created' | 'ended';
 
 function GameSessionLayout({ children }: { children: React.ReactNode }) {
-  return <main className='mx-auto min-h-screen max-w-6xl px-5 py-5 sm:px-8 lg:px-10'>{children}</main>;
+  return <PageShell className='min-h-screen py-5'>{children}</PageShell>;
 }
 
 function SessionBackLink({ teamId }: { teamId: string }) {

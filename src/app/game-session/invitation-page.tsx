@@ -2,6 +2,7 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { Eye, LoaderCircle, TicketCheck, TriangleAlert } from 'lucide-react';
 import { useState } from 'react';
 
+import { PageShell } from '#/app/shell/page-container';
 import { getViewer } from '#/app/teams/api';
 import { Button } from '#/shared/ui/button';
 import { ButtonLink } from '#/shared/ui/button-link';
@@ -10,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/sha
 import { getGameSessionInvitation, redeemGameSessionInvitation } from './api';
 
 function GameSessionInvitationLayout({ children }: { children: React.ReactNode }) {
-  return <main className='grid min-h-screen place-items-center px-5 py-10'>{children}</main>;
+  return <PageShell className='grid min-h-screen place-items-center py-10'>{children}</PageShell>;
 }
 
 function GameSessionInvitationCard({

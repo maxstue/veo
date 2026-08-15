@@ -4,10 +4,11 @@ import { ButtonLink } from '#/shared/ui/button-link';
 import { Card, CardContent } from '#/shared/ui/card';
 
 import { AppHeader } from './app-header';
+import { PageShell } from './page-container';
 
 export function NotFoundPage() {
   return (
-    <main className='mx-auto min-h-screen max-w-6xl px-5 py-5 sm:px-8 lg:px-10'>
+    <PageShell className='min-h-screen py-5'>
       <AppHeader />
       <section className='grid place-items-center py-20 sm:py-28'>
         <Card className='w-full max-w-lg border-dashed text-center'>
@@ -24,6 +25,6 @@ export function NotFoundPage() {
           </CardContent>
         </Card>
       </section>
-    </main>
+    </PageShell>
   );
 }

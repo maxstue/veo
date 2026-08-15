@@ -2,16 +2,13 @@ import { KeyRound, LoaderCircle } from 'lucide-react';
 import { type SubmitEvent, useState } from 'react';
 
 import { authClient } from '#/app/auth/client';
+import { PageShell } from '#/app/shell/page-container';
 import { Button } from '#/shared/ui/button';
 import { ButtonLink } from '#/shared/ui/button-link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/shared/ui/card';
 
 function ResetPasswordLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <main className='mx-auto grid min-h-screen max-w-6xl place-items-center px-5 py-12 sm:px-8 lg:px-10'>
-      {children}
-    </main>
-  );
+  return <PageShell className='grid min-h-screen place-items-center py-12'>{children}</PageShell>;
 }
 
 function ResetPasswordCard({ linkError, token }: { linkError: string | undefined; token: string | undefined }) {

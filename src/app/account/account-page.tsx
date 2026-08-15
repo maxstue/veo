@@ -5,6 +5,7 @@ import { type ReactNode, type SubmitEvent, useRef, useState } from 'react';
 import { AccountSecurity } from '#/app/account/account-security';
 import { authClient } from '#/app/auth/client';
 import { AppHeader } from '#/app/shell/app-header';
+import { PageShell } from '#/app/shell/page-container';
 import { formatAppDate } from '#/shared/lib/locale';
 import { Badge } from '#/shared/ui/badge';
 import { Button } from '#/shared/ui/button';
@@ -16,10 +17,10 @@ type Account = Awaited<ReturnType<typeof getAccount>>;
 
 function AccountLayout({ children }: { children: ReactNode }) {
   return (
-    <main className='mx-auto min-h-screen max-w-6xl px-5 py-5 sm:px-8 lg:px-10'>
+    <PageShell className='min-h-screen py-5'>
       <AppHeader />
       <section className='py-10 sm:py-14'>{children}</section>
-    </main>
+    </PageShell>
   );
 }
 

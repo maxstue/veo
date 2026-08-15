@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from '@tanstack/react-router';
 import { ArrowLeft, Settings2 } from 'lucide-react';
 
 import { AppHeader } from '#/app/shell/app-header';
+import { PageShell } from '#/app/shell/page-container';
 import { getTeam, getViewer } from '#/app/teams/api';
 import { BingoRulesLibrary } from '#/app/teams/team-bingo-rules';
 import { ButtonLink } from '#/shared/ui/button-link';
@@ -21,7 +22,7 @@ function TeamBingoRulesPage() {
   const { teamId } = Route.useParams();
 
   return (
-    <main className='mx-auto min-h-screen max-w-4xl px-5 py-5 sm:px-8 lg:px-10'>
+    <PageShell className='min-h-screen py-5'>
       <AppHeader />
       <section className='py-10 sm:py-14'>
         <ButtonLink className='mb-5' params={{ teamId }} size='sm' to='/teams/$teamId' variant='ghost'>
@@ -42,6 +43,6 @@ function TeamBingoRulesPage() {
           teamId={teamId}
         />
       </section>
-    </main>
+    </PageShell>
   );
 }

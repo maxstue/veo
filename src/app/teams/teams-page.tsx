@@ -3,6 +3,7 @@ import { ArrowRight, LoaderCircle, Plus, Users } from 'lucide-react';
 import { type ReactNode, type SubmitEvent, useState } from 'react';
 
 import { AppHeader } from '#/app/shell/app-header';
+import { PageShell } from '#/app/shell/page-container';
 import { formatAppDate } from '#/shared/lib/locale';
 import { Button } from '#/shared/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/shared/ui/card';
@@ -11,10 +12,10 @@ import { createTeam, listTeams } from './api';
 
 function TeamsLayout({ children }: { children: ReactNode }) {
   return (
-    <main className='mx-auto min-h-screen max-w-6xl px-5 py-5 sm:px-8 lg:px-10'>
+    <PageShell className='min-h-screen py-5'>
       <AppHeader />
       <section className='py-10 sm:py-14'>{children}</section>
-    </main>
+    </PageShell>
   );
 }
 

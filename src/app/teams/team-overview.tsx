@@ -4,6 +4,7 @@ import { type ReactNode, useState } from 'react';
 
 import { createGameSession, deleteGameSession, listGameSessions } from '#/app/game-session/api';
 import { AppHeader } from '#/app/shell/app-header';
+import { PageShell } from '#/app/shell/page-container';
 import { Button } from '#/shared/ui/button';
 import { ButtonLink } from '#/shared/ui/button-link';
 import { Card, CardContent } from '#/shared/ui/card';
@@ -16,10 +17,10 @@ type TeamOverviewData = Awaited<ReturnType<typeof getTeam>> & {
 
 export function TeamOverviewLayout({ children }: { children: ReactNode }) {
   return (
-    <main className='mx-auto min-h-screen max-w-6xl px-5 py-5 sm:px-8 lg:px-10'>
+    <PageShell className='min-h-screen py-5'>
       <AppHeader />
       <section className='py-10 sm:py-14'>{children}</section>
-    </main>
+    </PageShell>
   );
 }
 

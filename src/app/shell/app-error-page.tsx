@@ -7,13 +7,15 @@ import { Button } from '#/shared/ui/button';
 import { ButtonLink } from '#/shared/ui/button-link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/shared/ui/card';
 
+import { PageShell } from './page-container';
+
 export function AppErrorPage({ error, reset }: ErrorComponentProps) {
   useEffect(() => {
     Errors.captureRouteError(error);
   }, [error]);
 
   return (
-    <main className='grid min-h-screen place-items-center px-5 py-10'>
+    <PageShell className='grid min-h-screen place-items-center py-10'>
       <Card className='shadow-primary/10 w-full max-w-lg border-0 text-center shadow-2xl'>
         <CardHeader>
           <Link className='mx-auto mb-4 flex items-center gap-2 no-underline' to='/'>
@@ -38,6 +40,6 @@ export function AppErrorPage({ error, reset }: ErrorComponentProps) {
           </ButtonLink>
         </CardContent>
       </Card>
-    </main>
+    </PageShell>
   );
 }

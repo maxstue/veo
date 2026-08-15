@@ -7,6 +7,8 @@ import { Button } from '#/shared/ui/button';
 import { ButtonLink } from '#/shared/ui/button-link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/shared/ui/card';
 
+import { HomeContainer } from './home-container';
+
 const bingoFields = [
   "You're on mute",
   'Can you see my screen?',
@@ -42,54 +44,56 @@ const steps = [
 
 function HomeHeader() {
   return (
-    <div className='mx-auto max-w-7xl px-5 pt-5 sm:px-8 lg:px-10'>
+    <HomeContainer className='pt-5'>
       <AppHeader />
-    </div>
+    </HomeContainer>
   );
 }
 
 function HomeHero() {
   return (
-    <section className='relative mx-auto grid min-h-[calc(100svh-6rem)] max-w-7xl items-center gap-14 px-5 py-16 sm:px-8 lg:grid-cols-[1.02fr_0.98fr] lg:px-10 lg:py-24'>
-      <div className='relative z-10 max-w-2xl'>
-        <Badge
-          className='border-primary/25 bg-primary/7 text-primary mb-6 rounded-full px-3 py-1 dark:text-violet-300'
-          variant='outline'
-        >
-          <Sparkles className='size-3.5' aria-hidden='true' /> Bingo für bessere Meetings
-        </Badge>
-        <h1 className='text-[clamp(3.25rem,7vw,5.6rem)] leading-[0.92] font-semibold tracking-[-0.055em] text-balance'>
-          Gemeinsam spielen. <span className='text-primary'>Mehr erleben.</span>
-        </h1>
-        <p className='text-muted-foreground mt-7 max-w-xl text-lg leading-8 sm:text-xl'>
-          Veo verwandelt eure Meetings in ein gemeinsames Bingo-Erlebnis – schnell erstellt, einfach geteilt und
-          garantiert nicht langweilig.
-        </p>
-        <div className='mt-9 flex flex-wrap items-center gap-3'>
-          <ButtonLink className='shadow-primary/20 h-12 rounded-xl px-6 text-base shadow-lg' to='/teams'>
-            Kostenlos loslegen <ArrowRight data-icon='inline-end' aria-hidden='true' />
-          </ButtonLink>
-          <Button
-            className='h-12 rounded-xl px-5 text-base'
-            nativeButton={false}
-            render={<a aria-label='how it works' href='#how-it-works' />}
-            variant='ghost'
+    <section>
+      <HomeContainer className='relative grid min-h-[calc(100svh-6rem)] items-center gap-14 py-16 lg:grid-cols-[1.02fr_0.98fr] lg:py-24'>
+        <div className='relative z-10 max-w-2xl'>
+          <Badge
+            className='border-primary/25 bg-primary/7 text-primary mb-6 rounded-full px-3 py-1 dark:text-violet-300'
+            variant='outline'
           >
-            So funktioniert&apos;s
-          </Button>
+            <Sparkles className='size-3.5' aria-hidden='true' /> Bingo für bessere Meetings
+          </Badge>
+          <h1 className='text-[clamp(3.25rem,7vw,5.6rem)] leading-[0.92] font-semibold tracking-[-0.055em] text-balance'>
+            Gemeinsam spielen. <span className='text-primary'>Mehr erleben.</span>
+          </h1>
+          <p className='text-muted-foreground mt-7 max-w-xl text-lg leading-8 sm:text-xl'>
+            Veo verwandelt eure Meetings in ein gemeinsames Bingo-Erlebnis – schnell erstellt, einfach geteilt und
+            garantiert nicht langweilig.
+          </p>
+          <div className='mt-9 flex flex-wrap items-center gap-3'>
+            <ButtonLink className='shadow-primary/20 h-12 rounded-xl px-6 text-base shadow-lg' to='/teams'>
+              Kostenlos loslegen <ArrowRight data-icon='inline-end' aria-hidden='true' />
+            </ButtonLink>
+            <Button
+              className='h-12 rounded-xl px-5 text-base'
+              nativeButton={false}
+              render={<a aria-label='how it works' href='#how-it-works' />}
+              variant='ghost'
+            >
+              So funktioniert&apos;s
+            </Button>
+          </div>
+          <ul className='mt-8 flex flex-wrap gap-x-6 gap-y-3' aria-label='Vorteile von Veo'>
+            {benefits.map((benefit) => (
+              <li className='text-muted-foreground flex items-center gap-2 text-sm font-medium' key={benefit}>
+                <span className='bg-primary/10 text-primary flex size-5 items-center justify-center rounded-full'>
+                  <Check className='size-3' strokeWidth={3} aria-hidden='true' />
+                </span>
+                {benefit}
+              </li>
+            ))}
+          </ul>
         </div>
-        <ul className='mt-8 flex flex-wrap gap-x-6 gap-y-3' aria-label='Vorteile von Veo'>
-          {benefits.map((benefit) => (
-            <li className='text-muted-foreground flex items-center gap-2 text-sm font-medium' key={benefit}>
-              <span className='bg-primary/10 text-primary flex size-5 items-center justify-center rounded-full'>
-                <Check className='size-3' strokeWidth={3} aria-hidden='true' />
-              </span>
-              {benefit}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <HomeBingoPreview />
+        <HomeBingoPreview />
+      </HomeContainer>
     </section>
   );
 }
@@ -139,7 +143,7 @@ function HomeBingoPreview() {
 function HomeHowItWorks() {
   return (
     <section id='how-it-works' className='scroll-mt-8'>
-      <div className='mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-28'>
+      <HomeContainer className='py-20 lg:py-28'>
         <div className='mx-auto max-w-2xl text-center'>
           <p className='text-primary text-sm font-semibold tracking-[0.16em] uppercase'>So einfach geht&apos;s</p>
           <h2 className='mt-4 text-4xl leading-tight font-semibold tracking-[-0.04em] text-balance sm:text-5xl'>
@@ -166,28 +170,30 @@ function HomeHowItWorks() {
             </li>
           ))}
         </ol>
-      </div>
+      </HomeContainer>
     </section>
   );
 }
 
 function HomeCallToAction() {
   return (
-    <section className='mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-24'>
-      <div className='border-border/70 bg-card/65 relative overflow-hidden rounded-3xl border px-6 py-14 text-center shadow-sm sm:px-12 sm:py-16'>
-        <div className='bg-primary/10 absolute top-0 left-1/2 h-40 w-80 -translate-x-1/2 -translate-y-2/3 rounded-full blur-3xl' />
-        <div className='relative mx-auto max-w-2xl'>
-          <h2 className='text-3xl leading-tight font-semibold tracking-[-0.035em] text-balance sm:text-4xl'>
-            Bereit für aufmerksamere Meetings?
-          </h2>
-          <p className='text-muted-foreground mt-4 text-base leading-7 sm:text-lg'>
-            Erstellt euer erstes Team-Bingo und macht aus bekannten Momenten ein gemeinsames Spiel.
-          </p>
-          <ButtonLink className='shadow-primary/10 mt-8 h-12 rounded-xl px-6 text-base shadow-md' to='/teams'>
-            Erstes Bingo erstellen <ArrowRight data-icon='inline-end' aria-hidden='true' />
-          </ButtonLink>
+    <section>
+      <HomeContainer className='py-16 lg:py-24'>
+        <div className='border-border/70 bg-card/65 relative overflow-hidden rounded-3xl border px-6 py-14 text-center shadow-sm sm:px-12 sm:py-16'>
+          <div className='bg-primary/10 absolute top-0 left-1/2 h-40 w-80 -translate-x-1/2 -translate-y-2/3 rounded-full blur-3xl' />
+          <div className='relative mx-auto max-w-2xl'>
+            <h2 className='text-3xl leading-tight font-semibold tracking-[-0.035em] text-balance sm:text-4xl'>
+              Bereit für aufmerksamere Meetings?
+            </h2>
+            <p className='text-muted-foreground mt-4 text-base leading-7 sm:text-lg'>
+              Erstellt euer erstes Team-Bingo und macht aus bekannten Momenten ein gemeinsames Spiel.
+            </p>
+            <ButtonLink className='shadow-primary/10 mt-8 h-12 rounded-xl px-6 text-base shadow-md' to='/teams'>
+              Erstes Bingo erstellen <ArrowRight data-icon='inline-end' aria-hidden='true' />
+            </ButtonLink>
+          </div>
         </div>
-      </div>
+      </HomeContainer>
     </section>
   );
 }
@@ -195,10 +201,10 @@ function HomeCallToAction() {
 function HomeFooter() {
   return (
     <footer className='border-border/60 border-t'>
-      <div className='mx-auto flex max-w-7xl flex-col items-center justify-between gap-5 px-5 py-8 sm:flex-row sm:px-8 lg:px-10'>
+      <HomeContainer className='flex flex-col items-center justify-between gap-5 py-8 sm:flex-row'>
         <VeoLogo markClassName='size-8' />
         <p className='text-muted-foreground text-center text-sm'>Bingo für bessere Meetings.</p>
-      </div>
+      </HomeContainer>
     </footer>
   );
 }

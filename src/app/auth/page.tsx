@@ -2,6 +2,7 @@ import { Link, useNavigate, useRouter } from '@tanstack/react-router';
 import { ArrowLeft, Eye, LoaderCircle, LockKeyhole } from 'lucide-react';
 import { type InputHTMLAttributes, type ReactNode, type SubmitEvent, useState } from 'react';
 
+import { PageShell } from '#/app/shell/page-container';
 import { Button } from '#/shared/ui/button';
 import { ButtonLink } from '#/shared/ui/button-link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/shared/ui/card';
@@ -11,7 +12,7 @@ import { authClient } from './client';
 type AuthMode = 'forgot-password' | 'sign-in' | 'sign-up';
 
 function AuthLayout({ children }: { children: ReactNode }) {
-  return <main className='mx-auto flex min-h-screen max-w-6xl flex-col px-5 py-5 sm:px-8 lg:px-10'>{children}</main>;
+  return <PageShell className='flex min-h-screen flex-col py-5'>{children}</PageShell>;
 }
 
 function AuthHeader() {
