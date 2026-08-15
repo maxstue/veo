@@ -2,7 +2,7 @@
   "git": {
     "requireBranch": "main",
     "requireCleanWorkingDir": true,
-    "changelog": "vp exec auto-changelog --stdout --commit-limit false --unreleased --template compact",
+    "changelog": "vp exec auto-changelog --stdout --commit-limit false --template compact",
     "commitMessage": "chore: release ${version} [skip ci]",
     "tagName": "v${version}",
     "tagAnnotation": "Release ${version}"
