@@ -2,12 +2,11 @@ import { createFileRoute } from '@tanstack/react-router';
 
 import { getGameSessionInvitation } from '#/app/game-session/api';
 import { GameSessionInvitationCard, GameSessionInvitationLayout } from '#/app/game-session/invitation-page';
-import { getViewer } from '#/app/teams/api';
 
 export const Route = createFileRoute('/sessions/join/$token')({
-  loader: async ({ params }) => ({
+  loader: async ({ context, params }) => ({
     invitation: await getGameSessionInvitation({ data: { token: params.token } }),
-    viewer: await getViewer(),
+    viewer: context.session ? { id: context.session.user.id, name: context.session.user.name } : null,
   }),
   component: GameSessionInvitationRoute,
 });

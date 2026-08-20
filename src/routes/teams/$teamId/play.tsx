@@ -2,7 +2,7 @@ import { createFileRoute, redirect } from '@tanstack/react-router';
 
 import { BingoConfetti } from '#/app/game-session/bingo/bingo-card';
 import { getBingoGame } from '#/app/game-session/bingo/bingo-cards';
-import { getTeam, getViewer } from '#/app/teams/api';
+import { getTeam } from '#/app/teams/api';
 import {
   BingoGameBackLink,
   BingoGameBoard,
@@ -14,8 +14,8 @@ import {
 import { useBingoGame } from '#/app/teams/bingo/use-bingo-game';
 
 export const Route = createFileRoute('/teams/$teamId/play')({
-  beforeLoad: async ({ params }) => {
-    if (!(await getViewer())) {
+  beforeLoad: ({ context, params }) => {
+    if (!context.session) {
       throw redirect({ to: '/auth', search: { returnTo: `/teams/${params.teamId}/play` } });
     }
   },

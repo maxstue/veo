@@ -2,6 +2,7 @@ import { TanStackDevtools } from '@tanstack/react-devtools';
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 
+import { getSession } from '#/app/auth/api';
 import { AppErrorPage } from '#/app/shell/app-error-page';
 import { NotFoundPage } from '#/app/shell/not-found-page';
 import { ThemeProvider } from '#/shared/components/theme-provider';
@@ -9,6 +10,7 @@ import { ThemeProvider } from '#/shared/components/theme-provider';
 import appCss from '../app/styles.css?url';
 
 export const Route = createRootRoute({
+  beforeLoad: async () => ({ session: await getSession() }),
   head: () => ({
     meta: [
       {

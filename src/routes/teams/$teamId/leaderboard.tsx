@@ -3,13 +3,13 @@ import { ArrowLeft, Trophy } from 'lucide-react';
 
 import { AppHeader } from '#/app/shell/app-header';
 import { PageShell } from '#/app/shell/page-container';
-import { getTeam, getViewer } from '#/app/teams/api';
+import { getTeam } from '#/app/teams/api';
 import { TeamLeaderboard } from '#/app/teams/leaderboard/team-leaderboard';
 import { ButtonLink } from '#/shared/ui/button-link';
 
 export const Route = createFileRoute('/teams/$teamId/leaderboard')({
-  beforeLoad: async ({ params }) => {
-    if (!(await getViewer())) {
+  beforeLoad: ({ context, params }) => {
+    if (!context.session) {
       throw redirect({
         to: '/auth',
         search: { returnTo: `/teams/${params.teamId}/leaderboard` },

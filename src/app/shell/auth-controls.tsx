@@ -4,45 +4,41 @@ import { authClient } from '#/app/auth/client';
 import { Button } from '#/shared/ui/button';
 import { ButtonLink } from '#/shared/ui/button-link';
 
-export function AuthControls() {
-  const { data: session, isPending, refetch } = authClient.useSession();
+type AuthSession = typeof authClient.$Infer.Session;
 
-  if (isPending) {
-    return (
-      <div className='flex items-center gap-2' aria-label='Loading account controls' aria-busy='true'>
-        <Button
-          className='bg-muted w-9 animate-pulse border-transparent sm:w-20'
-          disabled
-          size='sm'
-          tabIndex={-1}
-          variant='ghost'
-        />
-        <Button
-          className='bg-muted w-9 animate-pulse border-transparent sm:w-18'
-          disabled
-          size='sm'
-          tabIndex={-1}
-          variant='ghost'
-        />
-        <Button
-          className='bg-muted animate-pulse border-transparent'
-          disabled
-          size='icon-sm'
-          tabIndex={-1}
-          variant='outline'
-        />
-      </div>
-    );
+export function AuthControls({ initialSession }: { initialSession: AuthSession | null }) {
+  if (!initialSession) {
+    return <SignInControl />;
   }
+
+  return <SessionControls initialSession={initialSession} />;
+}
+
+function SignInControl() {
+  return (
+    <ButtonLink search={{ returnTo: undefined }} size='sm' to='/auth'>
+      Sign in
+    </ButtonLink>
+  );
+}
+
+function SessionControls({ initialSession }: { initialSession: AuthSession }) {
+  if (import.meta.env.SSR) {
+    return <AuthenticatedControls session={initialSession} />;
+  }
+
+  authClient.hydrateSession(initialSession);
+  const { data, isPending, isRefetching, refetch } = authClient.useSession();
+  const session = isPending && !isRefetching ? initialSession : data;
 
   if (!session) {
-    return (
-      <ButtonLink search={{ returnTo: undefined }} size='sm' to='/auth'>
-        Sign in
-      </ButtonLink>
-    );
+    return <SignInControl />;
   }
 
+  return <AuthenticatedControls onSignOut={async () => refetch()} session={session} />;
+}
+
+function AuthenticatedControls({ onSignOut, session }: { onSignOut?: () => Promise<void>; session: AuthSession }) {
   return (
     <div className='flex items-center gap-2'>
       <ButtonLink aria-label='Account' className='w-9 sm:w-20' size='sm' to='/account' variant='ghost'>
@@ -57,7 +53,7 @@ export function AuthControls() {
         aria-label='Sign out'
         onClick={async () => {
           await authClient.signOut();
-          await refetch();
+          await onSignOut?.();
         }}
         size='icon-sm'
         variant='outline'
