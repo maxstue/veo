@@ -8,11 +8,10 @@ import {
   AccountSummary,
 } from '#/app/account/account-page';
 import { getAccount } from '#/app/account/api';
-import { getViewer } from '#/app/teams/api';
 
 export const Route = createFileRoute('/account')({
-  beforeLoad: async () => {
-    if (!(await getViewer())) {
+  beforeLoad: ({ context }) => {
+    if (!context.session) {
       throw redirect({ to: '/auth', search: { returnTo: '/account' } });
     }
   },

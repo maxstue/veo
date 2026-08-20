@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
 
 import { listGameSessions } from '#/app/game-session/api';
-import { getTeam, getViewer } from '#/app/teams/api';
+import { getTeam } from '#/app/teams/api';
 import { TeamInvitationsPreview } from '#/app/teams/invitations/team-invitations';
 import { TeamLeaderboardPreview } from '#/app/teams/leaderboard/team-leaderboard';
 import { TeamBingoRulesPreview } from '#/app/teams/team-bingo-rules';
@@ -10,8 +10,8 @@ import { TeamOverviewGrid, TeamOverviewHeading, TeamOverviewLayout, TeamSessions
 import { TeamTermsPreview } from '#/app/teams/terms/team-terms';
 
 export const Route = createFileRoute('/teams/$teamId/')({
-  beforeLoad: async ({ params }) => {
-    if (!(await getViewer())) {
+  beforeLoad: ({ context, params }) => {
+    if (!context.session) {
       throw redirect({ to: '/auth', search: { returnTo: `/teams/${params.teamId}` } });
     }
   },

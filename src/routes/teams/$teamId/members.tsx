@@ -3,13 +3,13 @@ import { ArrowLeft, Users } from 'lucide-react';
 
 import { AppHeader } from '#/app/shell/app-header';
 import { PageShell } from '#/app/shell/page-container';
-import { getTeam, getViewer } from '#/app/teams/api';
+import { getTeam } from '#/app/teams/api';
 import { TeamMembers } from '#/app/teams/team-members';
 import { ButtonLink } from '#/shared/ui/button-link';
 
 export const Route = createFileRoute('/teams/$teamId/members')({
-  beforeLoad: async ({ params }) => {
-    if (!(await getViewer())) {
+  beforeLoad: ({ context, params }) => {
+    if (!context.session) {
       throw redirect({ to: '/auth', search: { returnTo: `/teams/${params.teamId}/members` } });
     }
   },

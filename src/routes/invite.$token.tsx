@@ -1,12 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router';
 
 import { InvitationCard, InvitationLayout } from '#/app/invitations/invitation-page';
-import { getInvitation, getViewer } from '#/app/teams/api';
+import { getInvitation } from '#/app/teams/api';
 
 export const Route = createFileRoute('/invite/$token')({
-  loader: async ({ params }) => ({
+  loader: async ({ context, params }) => ({
     invitation: await getInvitation({ data: { token: params.token } }),
-    viewer: await getViewer(),
+    viewer: context.session ? { id: context.session.user.id, name: context.session.user.name } : null,
   }),
   component: InvitationRoute,
 });

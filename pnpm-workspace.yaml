@@ -13,7 +13,7 @@ catalog:
   '@csmith/release-it-calver-plugin': 2026.7.0
   '@babel/core': 8.0.1
   '@base-ui/react': 1.7.0
-  '@better-auth/drizzle-adapter': 1.6.27
+  '@better-auth/drizzle-adapter': 1.7.1
   '@cloudflare/vite-plugin': 1.51.3
   '@cloudflare/workers-types': 5.20260812.1
   '@fontsource-variable/inter': 5.3.0
@@ -37,7 +37,7 @@ catalog:
   '@types/react-dom': 19.2.4
   '@vitejs/plugin-react': 6.0.5
   '@vitest/coverage-v8': ^4.1.10
-  better-auth: 1.6.27
+  better-auth: 1.7.1
   babel-plugin-react-compiler: 1.0.0
   auto-changelog: 2.6.0
   class-variance-authority: 0.7.1

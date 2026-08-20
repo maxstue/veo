@@ -26,6 +26,13 @@ function createAuth(runtime: Cloudflare.Env) {
       provider: 'sqlite',
       schema,
     }),
+    session: {
+      cookieCache: {
+        enabled: true,
+        // Keep the revocation window short while avoiding repeated D1 reads during normal navigation.
+        maxAge: 60,
+      },
+    },
     databaseHooks: {
       user: {
         create: {

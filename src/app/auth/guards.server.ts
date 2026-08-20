@@ -7,8 +7,12 @@ import { member } from '#/shared/lib/db/schema';
 
 import { getAuth } from './server';
 
+export async function getSession() {
+  return getAuth().api.getSession({ headers: getRequestHeaders() });
+}
+
 export async function requireUser() {
-  const session = await getAuth().api.getSession({ headers: getRequestHeaders() });
+  const session = await getSession();
 
   if (!session) {
     throw new Response('Authentication required', { status: 401 });

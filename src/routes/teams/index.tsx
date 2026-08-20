@@ -1,11 +1,11 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
 
-import { getViewer, listTeams } from '#/app/teams/api';
+import { listTeams } from '#/app/teams/api';
 import { CreateTeam, TeamList, TeamsGrid, TeamsHeading, TeamsLayout } from '#/app/teams/teams-page';
 
 export const Route = createFileRoute('/teams/')({
-  beforeLoad: async () => {
-    if (!(await getViewer())) {
+  beforeLoad: ({ context }) => {
+    if (!context.session) {
       throw redirect({ to: '/auth', search: { returnTo: '/teams' } });
     }
   },

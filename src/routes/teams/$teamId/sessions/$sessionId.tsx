@@ -15,12 +15,11 @@ import {
   SessionShareLink,
 } from '#/app/game-session/live/session-sections';
 import { useGameSession } from '#/app/game-session/live/use-game-session';
-import { getViewer } from '#/app/teams/api';
 
 export const Route = createFileRoute('/teams/$teamId/sessions/$sessionId')({
   ssr: 'data-only',
-  beforeLoad: async ({ params }) => {
-    if (!(await getViewer())) {
+  beforeLoad: ({ context, params }) => {
+    if (!context.session) {
       throw redirect({ to: '/auth', search: { returnTo: `/teams/${params.teamId}/sessions/${params.sessionId}` } });
     }
   },

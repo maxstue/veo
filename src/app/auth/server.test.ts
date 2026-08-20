@@ -39,6 +39,7 @@ import { getAuth } from './server';
 type AuthOptions = {
   databaseHooks: { user: { create: { after: () => Promise<void> } } };
   emailAndPassword: { sendResetPassword: (data: { url: string; user: { email: string } }) => Promise<void> };
+  session: { cookieCache: { enabled: boolean; maxAge: number } };
   user: { deleteUser: { afterDelete: () => Promise<void> } };
 };
 
@@ -47,6 +48,10 @@ const authOptions = (getAuth() as unknown as { options: AuthOptions }).options;
 describe('auth user lifecycle metrics', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it('caches session data briefly to avoid repeated D1 reads without extending the revocation window', () => {
+    expect(authOptions.session.cookieCache).toEqual({ enabled: true, maxAge: 60 });
   });
 
   it('records successful user creation and deletion through Better Auth hooks', async () => {
