@@ -2,7 +2,6 @@ import { createFileRoute, redirect } from '@tanstack/react-router';
 
 import { BingoConfetti } from '#/app/game-session/bingo/bingo-card';
 import { getBingoGame } from '#/app/game-session/bingo/bingo-cards';
-import { getTeam } from '#/app/teams/api';
 import {
   BingoGameBackLink,
   BingoGameBoard,
@@ -10,8 +9,9 @@ import {
   BingoGameError,
   BingoGameLayout,
   BingoGameToolbar,
-} from '#/app/teams/bingo/sections';
-import { useBingoGame } from '#/app/teams/bingo/use-bingo-game';
+} from '#/app/game-session/bingo/sections';
+import { useBingoGame } from '#/app/game-session/bingo/use-bingo-game';
+import { getTeam } from '#/app/teams/api';
 
 export const Route = createFileRoute('/teams/$teamId/play')({
   beforeLoad: ({ context, params }) => {

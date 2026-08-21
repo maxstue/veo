@@ -1,11 +1,12 @@
 import { KeyRound, LoaderCircle } from 'lucide-react';
 import { type SubmitEvent, useState } from 'react';
 
-import { authClient } from '#/app/auth/client';
 import { PageShell } from '#/app/shell/page-container';
 import { Button } from '#/shared/ui/button';
 import { ButtonLink } from '#/shared/ui/button-link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/shared/ui/card';
+
+import { authClient } from './client';
 
 function ResetPasswordLayout({ children }: { children: React.ReactNode }) {
   return <PageShell className='grid min-h-screen place-items-center py-12'>{children}</PageShell>;

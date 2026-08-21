@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 
-import { InvitationCard, InvitationLayout } from '#/app/invitations/invitation-page';
 import { getInvitation } from '#/app/teams/api';
+import { InvitationCard, InvitationLayout } from '#/app/teams/invitations/invitation-page';
 
 export const Route = createFileRoute('/invite/$token')({
   loader: async ({ context, params }) => ({

@@ -5,7 +5,6 @@ const mocks = vi.hoisted(() => ({
   createInvitation: vi.fn(),
   createDatabase: vi.fn(),
   getRequestHeaders: vi.fn(),
-  getSession: vi.fn(),
   prepare: vi.fn(),
   requireTeamMembership: vi.fn(),
   requireTeamOwner: vi.fn(),
@@ -20,7 +19,7 @@ vi.mock('@tanstack/react-start/server', () => ({
 }));
 vi.mock('#/shared/lib/db/client', () => ({ createDatabase: mocks.createDatabase }));
 vi.mock('#/app/auth/server', () => ({
-  getAuth: () => ({ api: { createInvitation: mocks.createInvitation, getSession: mocks.getSession } }),
+  getAuth: () => ({ api: { createInvitation: mocks.createInvitation } }),
 }));
 vi.mock('#/app/auth/guards.server', () => ({
   requireTeamMembership: mocks.requireTeamMembership,
@@ -28,7 +27,7 @@ vi.mock('#/app/auth/guards.server', () => ({
   requireUser: mocks.requireUser,
 }));
 
-import { createInvitation, getInvitation, getTeam, getViewer, redeemInvitation } from './teams.server';
+import { createInvitation, getInvitation, getTeam, redeemInvitation } from './teams.server';
 
 const session = {
   session: { id: 'session-1' },
@@ -60,16 +59,6 @@ async function expectHttpResponse(promise: Promise<unknown>, status: number, mes
 describe('team service session boundaries', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.getRequestHeaders.mockReturnValue(new Headers());
-  });
-
-  test.each([
-    [session, { id: 'user-1', name: 'Ada' }],
-    [null, null],
-  ])('maps session %j to viewer %j', async (authSession, expected) => {
-    mocks.getSession.mockResolvedValue(authSession);
-
-    await expect(getViewer()).resolves.toEqual(expected);
   });
 
   test('does not read protected team data when membership is denied', async () => {

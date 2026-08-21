@@ -3,7 +3,7 @@ import { Eye, LoaderCircle, TicketCheck, TriangleAlert } from 'lucide-react';
 import { useState } from 'react';
 
 import { PageShell } from '#/app/shell/page-container';
-import { getInvitation, getViewer, redeemInvitation } from '#/app/teams/api';
+import { getInvitation, redeemInvitation } from '#/app/teams/api';
 import { Button } from '#/shared/ui/button';
 import { ButtonLink } from '#/shared/ui/button-link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/shared/ui/card';
@@ -19,7 +19,7 @@ function InvitationCard({
 }: {
   invitation: Awaited<ReturnType<typeof getInvitation>>;
   token: string;
-  viewer: Awaited<ReturnType<typeof getViewer>>;
+  viewer: { id: string; name: string } | null;
 }) {
   const navigate = useNavigate();
   const [isRedeeming, setIsRedeeming] = useState(false);

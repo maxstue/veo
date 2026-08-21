@@ -1,11 +1,6 @@
 import { createServerFn } from '@tanstack/react-start';
 
-import { supportedBingoBoardSizes } from '#/app/game-session/bingo/bingo-game';
-
-export const getViewer = createServerFn({ method: 'GET' }).handler(async () => {
-  const implementation = await import('./teams.server');
-  return implementation.getViewer();
-});
+import { supportedBingoBoardSizes } from '#/shared/lib/bingo-rules';
 
 export const listTeams = createServerFn({ method: 'GET' }).handler(async () => {
   const implementation = await import('./teams.server');

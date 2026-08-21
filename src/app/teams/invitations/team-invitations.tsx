@@ -1,12 +1,11 @@
 import { useRouter } from '@tanstack/react-router';
-import { ChevronRight, Link2, LoaderCircle, Mail, X } from 'lucide-react';
+import { LoaderCircle, Mail, X } from 'lucide-react';
 import { useState } from 'react';
 
 import { formatAppDate } from '#/shared/lib/locale';
 import { Badge } from '#/shared/ui/badge';
 import { Button } from '#/shared/ui/button';
-import { ButtonLink } from '#/shared/ui/button-link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/shared/ui/card';
+import { Card, CardContent, CardDescription, CardHeader } from '#/shared/ui/card';
 
 import { createInvitation, revokeInvitation } from '../api';
 
@@ -19,43 +18,6 @@ export type TeamInvitation = {
   id: string;
   status: InvitationStatus;
 };
-
-export function TeamInvitationsPreview({ invitations, teamId }: { invitations: TeamInvitation[]; teamId: string }) {
-  const activeInvitations = invitations.filter((invitation) => invitation.status === 'active').length;
-  const pastInvitations = invitations.length - activeInvitations;
-
-  return (
-    <Card className='flex h-full flex-col'>
-      <CardHeader>
-        <CardTitle className='flex items-center gap-2'>
-          <Link2 className='text-primary size-5 dark:text-violet-300' aria-hidden='true' />
-          Invitations
-        </CardTitle>
-        <CardDescription>
-          {activeInvitations} {activeInvitations === 1 ? 'pending invitation' : 'pending invitations'}.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className='flex flex-1 flex-col gap-4'>
-        {invitations.length ? (
-          <div className='bg-muted/45 rounded-lg p-3'>
-            <p className='font-medium'>
-              {activeInvitations} {activeInvitations === 1 ? 'pending invitation' : 'pending invitations'}
-            </p>
-            <p className='text-muted-foreground mt-1 text-sm'>
-              {pastInvitations} {pastInvitations === 1 ? 'past invitation' : 'past invitations'}
-            </p>
-          </div>
-        ) : (
-          <p className='bg-muted/45 text-muted-foreground rounded-lg p-3 text-sm'>No invitations yet.</p>
-        )}
-        <ButtonLink className='mt-auto w-full' params={{ teamId }} to='/teams/$teamId/invitations' variant='outline'>
-          Manage invitations
-          <ChevronRight aria-hidden='true' />
-        </ButtonLink>
-      </CardContent>
-    </Card>
-  );
-}
 
 export function TeamInvitations({ invitations, teamId }: { invitations: TeamInvitation[]; teamId: string }) {
   const router = useRouter();

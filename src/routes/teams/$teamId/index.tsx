@@ -1,13 +1,14 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
 
 import { listGameSessions } from '#/app/game-session/api';
+import { TeamSessionsPreview } from '#/app/game-session/team-sessions-preview';
 import { getTeam } from '#/app/teams/api';
-import { TeamInvitationsPreview } from '#/app/teams/invitations/team-invitations';
-import { TeamLeaderboardPreview } from '#/app/teams/leaderboard/team-leaderboard';
-import { TeamBingoRulesPreview } from '#/app/teams/team-bingo-rules';
-import { TeamMembersPreview } from '#/app/teams/team-members';
-import { TeamOverviewGrid, TeamOverviewHeading, TeamOverviewLayout, TeamSessions } from '#/app/teams/team-overview';
-import { TeamTermsPreview } from '#/app/teams/terms/team-terms';
+import { TeamBingoRulesPreview } from '#/app/teams/previews/team-bingo-rules-preview';
+import { TeamInvitationsPreview } from '#/app/teams/previews/team-invitations-preview';
+import { TeamLeaderboardPreview } from '#/app/teams/previews/team-leaderboard-preview';
+import { TeamMembersPreview } from '#/app/teams/previews/team-members-preview';
+import { TeamTermsPreview } from '#/app/teams/previews/team-terms-preview';
+import { TeamOverviewGrid, TeamOverviewHeading, TeamOverviewLayout } from '#/app/teams/team-overview';
 
 export const Route = createFileRoute('/teams/$teamId/')({
   beforeLoad: ({ context, params }) => {
@@ -32,7 +33,7 @@ function TeamRoute() {
     <TeamOverviewLayout>
       <TeamOverviewHeading name={data.team.name} />
       <TeamOverviewGrid>
-        <TeamSessions sessions={data.sessions} teamId={teamId} />
+        <TeamSessionsPreview sessions={data.sessions} teamId={teamId} />
         <TeamMembersPreview members={data.members} teamId={teamId} />
         <TeamTermsPreview teamId={teamId} terms={data.terms} />
         <TeamBingoRulesPreview presets={data.bingoRulesPresets} rules={data.team.bingoRules} teamId={teamId} />

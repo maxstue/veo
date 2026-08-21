@@ -1,11 +1,21 @@
 import { useRouter } from '@tanstack/react-router';
 import { useOptimistic, useState, useTransition } from 'react';
 
-import { createBingoCard, getBingoGame, resetBingoCard, toggleBingoCell } from '#/app/game-session/bingo/bingo-cards';
-import { hasBingo } from '#/app/game-session/bingo/bingo-game';
-import { playBingoWinSound } from '#/app/game-session/bingo/bingo-win-sound';
+import { type BingoRules } from '#/shared/lib/bingo-rules';
 
-import { getTeam } from '../api';
+import { createBingoCard, getBingoGame, resetBingoCard, toggleBingoCell } from './bingo-cards';
+import { hasBingo } from './bingo-game';
+import { playBingoWinSound } from './bingo-win-sound';
+
+type TeamBingoGameData = {
+  bingoRulesPresets: Array<{ boardSize: number; id: string; name: string }>;
+  team: {
+    bingoRules: Omit<BingoRules, 'boardSize'> & { boardSize: number };
+    defaultBingoRulesPresetId: string | null;
+    name: string;
+  };
+  terms: unknown[];
+};
 
 type BingoGameState = {
   boardSize: number;
@@ -15,8 +25,8 @@ type BingoGameState = {
   isTogglingCell: boolean;
   pending: string | undefined;
   presetId: string;
-  presets: Awaited<ReturnType<typeof getTeam>>['bingoRulesPresets'];
-  team: Awaited<ReturnType<typeof getTeam>>['team'];
+  presets: TeamBingoGameData['bingoRulesPresets'];
+  team: TeamBingoGameData['team'];
   termCount: number;
   createCard: () => void;
   resetCard: (cardId: string) => void;
@@ -30,7 +40,7 @@ function useBingoGame({
   teamId,
 }: {
   game: Awaited<ReturnType<typeof getBingoGame>>;
-  teamData: Awaited<ReturnType<typeof getTeam>>;
+  teamData: TeamBingoGameData;
   teamId: string;
 }) {
   const { bingoRulesPresets: presets, team, terms } = teamData;
@@ -142,4 +152,4 @@ function useBingoGame({
 }
 
 export { useBingoGame };
-export type { BingoGameState };
+export type { BingoGameState, TeamBingoGameData };

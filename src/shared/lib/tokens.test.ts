@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vite-plus/test';
 
-import { createToken, hashToken } from './invitations/tokens';
+import { createToken, hashToken } from '#/shared/lib/tokens';
 
-describe('team invitation tokens', () => {
+describe('URL-safe tokens', () => {
   test('creates URL-safe tokens with enough entropy', () => {
     const first = createToken();
     const second = createToken();

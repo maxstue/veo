@@ -2,10 +2,10 @@ import { env } from 'cloudflare:workers';
 import { and, desc, eq, or } from 'drizzle-orm';
 
 import { requireTeamMembership, requireUser } from '#/app/auth/guards.server';
-import { createToken, hashToken } from '#/app/teams/invitations/tokens';
 import { createDatabase } from '#/shared/lib/db/client';
 import { gameSession, team, type GameSessionStatus } from '#/shared/lib/db/schema';
 import { Metrics } from '#/shared/lib/observability/metrics';
+import { createToken, hashToken } from '#/shared/lib/tokens';
 
 const SESSION_LIFETIME_MS = 24 * 60 * 60 * 1_000;
 

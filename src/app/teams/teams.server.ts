@@ -18,16 +18,9 @@ import {
   user,
 } from '#/shared/lib/db/schema';
 import { Metrics } from '#/shared/lib/observability/metrics';
+import { hashToken } from '#/shared/lib/tokens';
 
-import { hashToken } from './invitations/tokens';
 import { buildTeamLeaderboard } from './leaderboard/utils';
-
-export async function getViewer() {
-  const { getRequestHeaders } = await import('@tanstack/react-start/server');
-  const session = await getAuth().api.getSession({ headers: getRequestHeaders() });
-
-  return session ? { id: session.user.id, name: session.user.name } : null;
-}
 
 export async function listTeams() {
   const session = await requireUser();

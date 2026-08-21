@@ -1,14 +1,13 @@
 import { ArrowLeft, Dices, LoaderCircle, RotateCcw, Trophy } from 'lucide-react';
 
-import { getBingoGame } from '#/app/game-session/bingo/bingo-cards';
 import { Button } from '#/shared/ui/button';
 import { ButtonLink } from '#/shared/ui/button-link';
 
-import { getTeam } from '../api';
+import { getBingoGame } from './bingo-cards';
+import { type BingoGameState } from './use-bingo-game';
 
 type Game = Awaited<ReturnType<typeof getBingoGame>>;
 type Card = Game['card'];
-type TeamData = Awaited<ReturnType<typeof getTeam>>;
 
 function BingoGameLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -46,8 +45,8 @@ function BingoGameToolbar({
   disabled: boolean;
   pending: string | undefined;
   presetId: string;
-  presets: TeamData['bingoRulesPresets'];
-  team: TeamData['team'];
+  presets: BingoGameState['presets'];
+  team: BingoGameState['team'];
   termCount: number;
   onCreate: () => void;
   onPresetChange: (presetId: string) => void;
