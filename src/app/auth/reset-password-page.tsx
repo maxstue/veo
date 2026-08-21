@@ -8,11 +8,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/sha
 
 import { authClient } from './client';
 
-function ResetPasswordLayout({ children }: { children: React.ReactNode }) {
+export function ResetPasswordLayout({ children }: { children: React.ReactNode }) {
   return <PageShell className='grid min-h-screen place-items-center py-12'>{children}</PageShell>;
 }
 
-function ResetPasswordCard({ linkError, token }: { linkError: string | undefined; token: string | undefined }) {
+export function ResetPasswordCard({ linkError, token }: { linkError: string | undefined; token: string | undefined }) {
   const [error, setError] = useState<string>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccessful, setIsSuccessful] = useState(false);
@@ -79,8 +79,6 @@ function ResetPasswordCard({ linkError, token }: { linkError: string | undefined
     </Card>
   );
 }
-
-export { ResetPasswordCard, ResetPasswordLayout };
 
 function RecoveryMessage({ message }: { message: string }) {
   return (

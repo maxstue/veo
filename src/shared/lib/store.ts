@@ -13,11 +13,9 @@ type ImmerSetter<T extends object> = (
   actionType?: string | { type: string },
 ) => void;
 
-function createStoreFactory<T extends object>(
+export function createStoreFactory<T extends object>(
   storeName: string,
   store: (set: ImmerSetter<T>, get: StoreApi<T>['getState']) => T,
 ) {
   return create<T>()(devtools(immer(store), { enabled: import.meta.env.DEV, name: 'veo', store: `veo/${storeName}` }));
 }
-
-export { createStoreFactory };

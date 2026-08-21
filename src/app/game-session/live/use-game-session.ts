@@ -7,7 +7,7 @@ import { getGameSession } from '../api';
 import { getBingoGame } from '../bingo/bingo-cards';
 import { useGameSessionStore } from './store';
 
-function useGameSession({
+export function useGameSession({
   game,
   sessionData,
   sessionId,
@@ -82,5 +82,3 @@ function useGameSession({
     [sessionId],
   );
 }
-
-export { useGameSession };

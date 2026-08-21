@@ -1,13 +1,8 @@
 import { describe, expect, test } from 'vite-plus/test';
 
-import {
-  bingoCellCount,
-  getBingoCompletionTime,
-  getLongestMarkedLineLength,
-  hasBingo,
-  selectBingoTerms,
-  type BingoRules,
-} from './bingo-game';
+import { bingoCellCount, type BingoRules } from '#/shared/lib/bingo-rules';
+
+import { getBingoCompletionTime, getLongestMarkedLineLength, hasBingo, selectBingoTerms } from './bingo-game';
 
 describe('bingo detection', () => {
   test.each([

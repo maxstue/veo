@@ -12,11 +12,11 @@ import { useGameSessionStore } from './store';
 
 type SessionStatus = 'active' | 'created' | 'ended';
 
-function GameSessionLayout({ children }: { children: React.ReactNode }) {
+export function GameSessionLayout({ children }: { children: React.ReactNode }) {
   return <PageShell className='min-h-screen py-5'>{children}</PageShell>;
 }
 
-function SessionBackLink({ teamId }: { teamId: string }) {
+export function SessionBackLink({ teamId }: { teamId: string }) {
   return (
     <ButtonLink className='mb-8' params={{ teamId }} size='sm' to='/teams/$teamId' variant='ghost'>
       <ArrowLeft aria-hidden='true' />
@@ -25,7 +25,7 @@ function SessionBackLink({ teamId }: { teamId: string }) {
   );
 }
 
-function SessionHeader() {
+export function SessionHeader() {
   const session = useGameSessionStore((state) => state.session);
   if (!session) {
     return null;
@@ -116,7 +116,7 @@ function SessionActions({ sessionStatus }: { sessionStatus: SessionStatus }) {
   );
 }
 
-function SessionShareLink() {
+export function SessionShareLink() {
   const shareLink = useGameSessionStore((state) => state.shareLink);
   if (!shareLink) {
     return null;
@@ -138,12 +138,12 @@ function SessionShareLink() {
   );
 }
 
-function SessionCelebration() {
+export function SessionCelebration() {
   const celebration = useGameSessionStore((state) => state.celebration);
   return celebration > 0 ? <BingoConfetti key={celebration} /> : null;
 }
 
-function ActiveSession() {
+export function ActiveSession() {
   return (
     <div className='grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]'>
       <SessionBoard />
@@ -196,7 +196,7 @@ function SessionChat() {
   return <LiveChat connected={connected} messages={messages} onSend={sendChat} viewerUserId={viewerUserId} />;
 }
 
-function SessionLobby() {
+export function SessionLobby() {
   const participants = useGameSessionStore((state) => state.participants);
   return (
     <div className='grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]'>
@@ -216,7 +216,7 @@ function SessionLobby() {
   );
 }
 
-function SessionEnded() {
+export function SessionEnded() {
   const endedBy = useGameSessionStore((state) => state.endedBy);
   return (
     <Card className='border-dashed'>
@@ -232,7 +232,7 @@ function SessionEnded() {
   );
 }
 
-function EndSessionDialog() {
+export function EndSessionDialog() {
   const closeEndDialog = useGameSessionStore((state) => state.closeEndDialog);
   const endDialogOpen = useGameSessionStore((state) => state.endDialogOpen);
   const endSession = useGameSessionStore((state) => state.endSession);
@@ -274,7 +274,7 @@ function EndSessionDialog() {
   );
 }
 
-function SessionError() {
+export function SessionError() {
   const error = useGameSessionStore((state) => state.error);
   if (!error) {
     return null;
@@ -305,16 +305,3 @@ function getSessionTitle(status: SessionStatus) {
   }
   return 'Live bingo';
 }
-
-export {
-  ActiveSession,
-  EndSessionDialog,
-  GameSessionLayout,
-  SessionBackLink,
-  SessionCelebration,
-  SessionEnded,
-  SessionError,
-  SessionHeader,
-  SessionLobby,
-  SessionShareLink,
-};

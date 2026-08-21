@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm';
 import { requireUser } from '#/app/auth/guards.server';
 import { getAuthMethods } from '#/app/auth/methods';
 import { createDatabase } from '#/shared/lib/db/client';
-import { account } from '#/shared/lib/db/schema';
+import { account } from '#/shared/lib/db/schema/auth';
 
 export async function getAccount() {
   const session = await requireUser();

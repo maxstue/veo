@@ -15,7 +15,7 @@ import { getAccount } from './api';
 
 type Account = Awaited<ReturnType<typeof getAccount>>;
 
-function AccountLayout({ children }: { children: ReactNode }) {
+export function AccountLayout({ children }: { children: ReactNode }) {
   return (
     <PageShell className='min-h-screen py-5'>
       <AppHeader />
@@ -24,7 +24,7 @@ function AccountLayout({ children }: { children: ReactNode }) {
   );
 }
 
-function AccountHeading() {
+export function AccountHeading() {
   return (
     <div className='mb-8'>
       <p className='text-primary text-sm font-medium'>Your Veo</p>
@@ -34,7 +34,7 @@ function AccountHeading() {
   );
 }
 
-function AccountSummary({ account: { authMethods, user } }: { account: Account }) {
+export function AccountSummary({ account: { authMethods, user } }: { account: Account }) {
   return (
     <div className='grid gap-5 lg:grid-cols-[1fr_22rem]'>
       <Card>
@@ -84,11 +84,11 @@ function AccountSummary({ account: { authMethods, user } }: { account: Account }
   );
 }
 
-function AccountSecuritySection({ email }: { email: string }) {
+export function AccountSecuritySection({ email }: { email: string }) {
   return <AccountSecurity email={email} />;
 }
 
-function AccountDeletion() {
+export function AccountDeletion() {
   const [confirmation, setConfirmation] = useState('');
   const [error, setError] = useState<string>();
   const [deleting, setDeleting] = useState(false);
@@ -174,5 +174,3 @@ function AccountDeletion() {
     </>
   );
 }
-
-export { AccountDeletion, AccountHeading, AccountLayout, AccountSecuritySection, AccountSummary };

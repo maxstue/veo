@@ -19,7 +19,7 @@ type GameSessionSocketHandlers = {
   onSessionDeleted: () => void;
 };
 
-function useGameSessionSocket(sessionId: string | undefined, handlers: GameSessionSocketHandlers) {
+export function useGameSessionSocket(sessionId: string | undefined, handlers: GameSessionSocketHandlers) {
   const socket = useRef<WebSocket | null>(null);
   const handlersRef = useRef(handlers);
   const [connected, setConnected] = useState(false);
@@ -138,5 +138,3 @@ function handleGameSessionSocketMessage(value: unknown, handlers: GameSessionSoc
   handlers.onSessionDeleted();
   return true;
 }
-
-export { useGameSessionSocket };

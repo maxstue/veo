@@ -13,7 +13,7 @@ type Score = {
   userName: string;
 };
 
-function LiveScoreboard({ participants, scores }: { participants: GameSessionParticipant[]; scores: Score[] }) {
+export function LiveScoreboard({ participants, scores }: { participants: GameSessionParticipant[]; scores: Score[] }) {
   const sortedScores = [...scores].sort((left, right) => {
     if (left.completedAt && right.completedAt) {
       return left.completedAt.getTime() - right.completedAt.getTime();
@@ -63,5 +63,3 @@ function LiveScoreboard({ participants, scores }: { participants: GameSessionPar
     </Card>
   );
 }
-
-export { LiveScoreboard };

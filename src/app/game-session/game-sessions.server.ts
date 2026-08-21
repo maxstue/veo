@@ -3,7 +3,7 @@ import { and, desc, eq, or } from 'drizzle-orm';
 
 import { requireTeamMembership, requireUser } from '#/app/auth/guards.server';
 import { createDatabase } from '#/shared/lib/db/client';
-import { gameSession, team, type GameSessionStatus } from '#/shared/lib/db/schema';
+import { gameSession, team, type GameSessionStatus } from '#/shared/lib/db/schema/veo';
 import { Metrics } from '#/shared/lib/observability/metrics';
 import { createToken, hashToken } from '#/shared/lib/tokens';
 

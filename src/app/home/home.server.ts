@@ -2,7 +2,7 @@ import { env } from 'cloudflare:workers';
 import { count, eq } from 'drizzle-orm';
 
 import { createDatabase } from '#/shared/lib/db/client';
-import { gameSession } from '#/shared/lib/db/schema';
+import { gameSession } from '#/shared/lib/db/schema/veo';
 
 export async function getActiveGameCount() {
   const result = await createDatabase(env.DB)

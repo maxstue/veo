@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/sha
 
 import { createTeam, listTeams } from './api';
 
-function TeamsLayout({ children }: { children: ReactNode }) {
+export function TeamsLayout({ children }: { children: ReactNode }) {
   return (
     <PageShell className='min-h-screen py-5'>
       <AppHeader />
@@ -19,7 +19,7 @@ function TeamsLayout({ children }: { children: ReactNode }) {
   );
 }
 
-function TeamsHeading() {
+export function TeamsHeading() {
   return (
     <div className='mb-8'>
       <p className='text-primary text-sm font-medium'>Your Veo</p>
@@ -29,11 +29,11 @@ function TeamsHeading() {
   );
 }
 
-function TeamsGrid({ children }: { children: ReactNode }) {
+export function TeamsGrid({ children }: { children: ReactNode }) {
   return <div className='grid gap-5 lg:grid-cols-[1fr_22rem]'>{children}</div>;
 }
 
-function TeamList({ teams }: { teams: Awaited<ReturnType<typeof listTeams>> }) {
+export function TeamList({ teams }: { teams: Awaited<ReturnType<typeof listTeams>> }) {
   return (
     <div className='grid content-start gap-3'>
       {teams.length ? (
@@ -66,7 +66,7 @@ function TeamList({ teams }: { teams: Awaited<ReturnType<typeof listTeams>> }) {
   );
 }
 
-function CreateTeam() {
+export function CreateTeam() {
   const navigate = useNavigate();
   const router = useRouter();
   const [error, setError] = useState<string>();
@@ -122,5 +122,3 @@ function CreateTeam() {
     </Card>
   );
 }
-
-export { CreateTeam, TeamList, TeamsGrid, TeamsHeading, TeamsLayout };

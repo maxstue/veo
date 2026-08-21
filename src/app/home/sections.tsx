@@ -44,7 +44,7 @@ const steps = [
   },
 ];
 
-function HomeHeader() {
+export function HomeHeader() {
   return (
     <HomeContainer className='pt-5'>
       <AppHeader />
@@ -52,7 +52,7 @@ function HomeHeader() {
   );
 }
 
-function HomeHero() {
+export function HomeHero() {
   return (
     <section>
       <HomeContainer className='relative grid min-h-[calc(100svh-6rem)] items-center gap-14 py-16 lg:grid-cols-[1.02fr_0.98fr] lg:py-24'>
@@ -135,7 +135,7 @@ function HomeBingoPreview() {
   );
 }
 
-function HomeLiveGames({ initialActiveGameCount }: { initialActiveGameCount: number }) {
+export function HomeLiveGames({ initialActiveGameCount }: { initialActiveGameCount: number }) {
   const [activeGameCount, setActiveGameCount] = useState(initialActiveGameCount);
   const hasActiveGames = activeGameCount > 0;
 
@@ -197,7 +197,7 @@ function HomeLiveGames({ initialActiveGameCount }: { initialActiveGameCount: num
   );
 }
 
-function HomeHowItWorks() {
+export function HomeHowItWorks() {
   return (
     <section id='how-it-works' className='scroll-mt-8'>
       <HomeContainer className='py-20 lg:py-28'>
@@ -232,7 +232,7 @@ function HomeHowItWorks() {
   );
 }
 
-function HomeCallToAction() {
+export function HomeCallToAction() {
   return (
     <section>
       <HomeContainer className='py-16 lg:py-24'>
@@ -256,7 +256,7 @@ function HomeCallToAction() {
   );
 }
 
-function HomeFooter() {
+export function HomeFooter() {
   return (
     <footer className='border-border/60 border-t'>
       <HomeContainer className='flex flex-col items-center justify-between gap-5 py-8 sm:flex-row'>
@@ -277,5 +277,3 @@ function HomeFooter() {
     </footer>
   );
 }
-
-export { HomeCallToAction, HomeFooter, HomeHeader, HomeHero, HomeHowItWorks, HomeLiveGames };

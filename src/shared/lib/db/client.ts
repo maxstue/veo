@@ -1,6 +1,9 @@
 import { drizzle, type DrizzleD1Database } from 'drizzle-orm/d1';
 
-import * as schema from './schema';
+import * as authSchema from './schema/auth';
+import * as veoSchema from './schema/veo';
+
+const schema = { ...authSchema, ...veoSchema };
 
 export type Database = DrizzleD1Database<typeof schema>;
 

@@ -4,19 +4,16 @@ import { and, asc, count, desc, eq, sql } from 'drizzle-orm';
 import { requireTeamMembership, requireTeamOwner, requireUser } from '#/app/auth/guards.server';
 import { getAuth } from '#/app/auth/server';
 import { createDatabase } from '#/shared/lib/db/client';
+import { invitation as organizationInvitation, member, organization, user } from '#/shared/lib/db/schema/auth';
 import {
   bingoCard,
   bingoTerm,
   gameSession,
   gameSessionResult,
-  invitation as organizationInvitation,
-  member,
-  organization,
   team,
   teamBingoRulesPreset,
   teamInvitation,
-  user,
-} from '#/shared/lib/db/schema';
+} from '#/shared/lib/db/schema/veo';
 import { Metrics } from '#/shared/lib/observability/metrics';
 import { hashToken } from '#/shared/lib/tokens';
 

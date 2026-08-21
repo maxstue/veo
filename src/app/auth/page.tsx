@@ -11,11 +11,11 @@ import { authClient } from './client';
 
 type AuthMode = 'forgot-password' | 'sign-in' | 'sign-up';
 
-function AuthLayout({ children }: { children: ReactNode }) {
+export function AuthLayout({ children }: { children: ReactNode }) {
   return <PageShell className='flex min-h-screen flex-col py-5'>{children}</PageShell>;
 }
 
-function AuthHeader() {
+export function AuthHeader() {
   return (
     <header className='flex items-center justify-between'>
       <Link className='flex items-center gap-2 no-underline' to='/' aria-label='Veo home'>
@@ -31,7 +31,7 @@ function AuthHeader() {
   );
 }
 
-function AuthPanel({ returnTo }: { returnTo: string | undefined }) {
+export function AuthPanel({ returnTo }: { returnTo: string | undefined }) {
   const [mode, setMode] = useState<AuthMode>('sign-in');
   const [error, setError] = useState<string>();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -232,5 +232,3 @@ function Field({
     </label>
   );
 }
-
-export { AuthHeader, AuthLayout, AuthPanel };

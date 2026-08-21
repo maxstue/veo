@@ -9,7 +9,7 @@ import { type BingoGameState } from './use-bingo-game';
 type Game = Awaited<ReturnType<typeof getBingoGame>>;
 type Card = Game['card'];
 
-function BingoGameLayout({ children }: { children: React.ReactNode }) {
+export function BingoGameLayout({ children }: { children: React.ReactNode }) {
   return (
     <main className='mx-auto grid h-dvh max-w-5xl grid-rows-[auto_minmax(0,1fr)] gap-3 px-3 py-3 sm:gap-4 sm:px-6 sm:py-5'>
       {children}
@@ -17,7 +17,7 @@ function BingoGameLayout({ children }: { children: React.ReactNode }) {
   );
 }
 
-function BingoGameBackLink({ teamId }: { teamId: string }) {
+export function BingoGameBackLink({ teamId }: { teamId: string }) {
   return (
     <header>
       <ButtonLink params={{ teamId }} size='sm' to='/teams/$teamId' variant='ghost'>
@@ -27,7 +27,7 @@ function BingoGameBackLink({ teamId }: { teamId: string }) {
   );
 }
 
-function BingoGameToolbar({
+export function BingoGameToolbar({
   boardSize,
   card,
   disabled,
@@ -114,7 +114,7 @@ function BingoGameToolbar({
   );
 }
 
-function BingoGameBoard({
+export function BingoGameBoard({
   card,
   disabled,
   onToggle,
@@ -146,7 +146,7 @@ function BingoGameBoard({
   );
 }
 
-function BingoGameEmptyState() {
+export function BingoGameEmptyState() {
   return (
     <div className='bg-card/70 flex h-full max-h-96 w-full max-w-4xl flex-col items-center justify-center rounded-xl border border-dashed p-6 text-center'>
       <span className='bg-primary/10 text-primary mb-3 flex size-14 items-center justify-center rounded-lg'>
@@ -160,7 +160,7 @@ function BingoGameEmptyState() {
   );
 }
 
-function BingoGameError({ message }: { message: string }) {
+export function BingoGameError({ message }: { message: string }) {
   return (
     <div className='pointer-events-none fixed inset-x-0 bottom-4 z-40 flex justify-center px-3 sm:bottom-6'>
       <p
@@ -184,5 +184,3 @@ function getGameInstructions(hasCard: boolean, termCount: number, boardSize: num
   const missingTerms = requiredTerms - termCount;
   return `${missingTerms} more ${missingTerms === 1 ? 'term is' : 'terms are'} needed before you can play ${boardSize}×${boardSize}.`;
 }
-
-export { BingoGameBackLink, BingoGameBoard, BingoGameEmptyState, BingoGameError, BingoGameLayout, BingoGameToolbar };

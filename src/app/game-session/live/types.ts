@@ -1,4 +1,4 @@
-import type { BingoBoardSize } from '../bingo/bingo-game';
+import type { BingoBoardSize } from '#/shared/lib/bingo-rules';
 
 export type GameSessionParticipant = {
   userId: string;

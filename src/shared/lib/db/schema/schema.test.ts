@@ -1,6 +1,7 @@
 import { getTableConfig } from 'drizzle-orm/sqlite-core';
 import { describe, expect, test } from 'vite-plus/test';
 
+import { user } from './auth';
 import {
   bingoCard,
   bingoCardCell,
@@ -10,8 +11,7 @@ import {
   team,
   teamBingoRulesPreset,
   teamMember,
-  user,
-} from './index';
+} from './veo';
 
 describe('database schema', () => {
   test('keeps user emails unique for Better Auth', () => {

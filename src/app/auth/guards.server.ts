@@ -3,7 +3,7 @@ import { env } from 'cloudflare:workers';
 import { and, eq } from 'drizzle-orm';
 
 import { createDatabase } from '#/shared/lib/db/client';
-import { member } from '#/shared/lib/db/schema';
+import { member } from '#/shared/lib/db/schema/auth';
 
 import { getAuth } from './server';
 

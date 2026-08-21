@@ -9,11 +9,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/sha
 
 import { getGameSessionInvitation, redeemGameSessionInvitation } from './api';
 
-function GameSessionInvitationLayout({ children }: { children: React.ReactNode }) {
+export function GameSessionInvitationLayout({ children }: { children: React.ReactNode }) {
   return <PageShell className='grid min-h-screen place-items-center py-10'>{children}</PageShell>;
 }
 
-function GameSessionInvitationCard({
+export function GameSessionInvitationCard({
   invitation,
   token,
   viewer,
@@ -97,5 +97,3 @@ function getInvitationDescription(status: 'active' | 'created') {
     ? 'Join the team and wait with everyone for the session to start.'
     : 'Join the team and play in this live bingo session.';
 }
-
-export { GameSessionInvitationCard, GameSessionInvitationLayout };

@@ -3,7 +3,8 @@ import { and, eq, or } from 'drizzle-orm';
 
 import { getAuth } from '#/app/auth/server';
 import { createDatabase } from '#/shared/lib/db/client';
-import { gameSession, member } from '#/shared/lib/db/schema';
+import { member } from '#/shared/lib/db/schema/auth';
+import { gameSession } from '#/shared/lib/db/schema/veo';
 
 const socketPath = /^\/api\/sessions\/([^/]+)\/socket$/;
 

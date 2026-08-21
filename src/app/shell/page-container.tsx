@@ -4,8 +4,6 @@ import { cn } from '#/shared/lib/utils';
 
 const pageContainerClassName = 'mx-auto w-full max-w-6xl px-5 sm:px-8 lg:px-10';
 
-function PageShell({ className, ...props }: ComponentProps<'main'>) {
+export function PageShell({ className, ...props }: ComponentProps<'main'>) {
   return <main className={cn(pageContainerClassName, className)} {...props} />;
 }
-
-export { PageShell };

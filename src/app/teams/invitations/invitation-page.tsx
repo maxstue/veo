@@ -8,11 +8,11 @@ import { Button } from '#/shared/ui/button';
 import { ButtonLink } from '#/shared/ui/button-link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/shared/ui/card';
 
-function InvitationLayout({ children }: { children: React.ReactNode }) {
+export function InvitationLayout({ children }: { children: React.ReactNode }) {
   return <PageShell className='grid min-h-screen place-items-center py-10'>{children}</PageShell>;
 }
 
-function InvitationCard({
+export function InvitationCard({
   invitation,
   token,
   viewer,
@@ -91,5 +91,3 @@ const unavailableText = {
   revoked: 'This link has been revoked.',
   redeemed: 'This link has already been redeemed.',
 } as const;
-
-export { InvitationCard, InvitationLayout };

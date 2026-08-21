@@ -7,7 +7,7 @@ import { createBingoCard, getBingoGame, resetBingoCard, toggleBingoCell } from '
 import { hasBingo } from './bingo-game';
 import { playBingoWinSound } from './bingo-win-sound';
 
-type TeamBingoGameData = {
+export type TeamBingoGameData = {
   bingoRulesPresets: Array<{ boardSize: number; id: string; name: string }>;
   team: {
     bingoRules: Omit<BingoRules, 'boardSize'> & { boardSize: number };
@@ -17,7 +17,7 @@ type TeamBingoGameData = {
   terms: unknown[];
 };
 
-type BingoGameState = {
+export type BingoGameState = {
   boardSize: number;
   card: Awaited<ReturnType<typeof getBingoGame>>['card'];
   celebration: number;
@@ -34,7 +34,7 @@ type BingoGameState = {
   toggleCell: (cardId: string, position: number) => void;
 };
 
-function useBingoGame({
+export function useBingoGame({
   game,
   teamData,
   teamId,
@@ -150,6 +150,3 @@ function useBingoGame({
     toggleCell: toggle,
   };
 }
-
-export { useBingoGame };
-export type { BingoGameState, TeamBingoGameData };

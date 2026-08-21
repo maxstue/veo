@@ -1,8 +1,9 @@
 import { DurableObject } from 'cloudflare:workers';
 
+import type { BingoRules } from '#/shared/lib/bingo-rules';
 import { Metrics } from '#/shared/lib/observability/metrics';
 
-import { getLongestMarkedLineLength, hasBingo, type BingoRules } from '../bingo/bingo-game';
+import { getLongestMarkedLineLength, hasBingo } from '../bingo/bingo-game';
 import type {
   GameSessionCard,
   GameSessionCardSeed,

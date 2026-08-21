@@ -5,7 +5,7 @@ import * as React from 'react';
 
 import { cn } from '#/shared/lib/utils.ts';
 
-function BubbleGroup({ className, ...props }: React.ComponentProps<'div'>) {
+export function BubbleGroup({ className, ...props }: React.ComponentProps<'div'>) {
   return <div data-slot='bubble-group' className={cn('flex min-w-0 flex-col gap-2', className)} {...props} />;
 }
 
@@ -36,7 +36,7 @@ const bubbleVariants = cva(
   },
 );
 
-function Bubble({
+export function Bubble({
   variant = 'default',
   align = 'start',
   className,
@@ -56,7 +56,7 @@ function Bubble({
   );
 }
 
-function BubbleContent({ className, render, ...props }: useRender.ComponentProps<'div'>) {
+export function BubbleContent({ className, render, ...props }: useRender.ComponentProps<'div'>) {
   return useRender({
     defaultTagName: 'div',
     props: mergeProps<'div'>(
@@ -95,7 +95,7 @@ const bubbleReactionsVariants = cva(
   },
 );
 
-function BubbleReactions({
+export function BubbleReactions({
   side = 'bottom',
   align = 'end',
   className,
@@ -114,5 +114,3 @@ function BubbleReactions({
     />
   );
 }
-
-export { BubbleGroup, Bubble, BubbleContent, BubbleReactions };

@@ -16,7 +16,7 @@ import {
 
 import type { GameSessionChatMessage } from './types';
 
-function LiveChat({
+export function LiveChat({
   connected,
   messages,
   onSend,
@@ -218,5 +218,3 @@ function getInitials(name: string) {
 function formatChatTime(createdAt: number) {
   return new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' }).format(createdAt);
 }
-
-export { LiveChat };

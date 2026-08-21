@@ -119,7 +119,7 @@ const emptyLiveSessionState = {
   | 'toggleCardCell'
 >;
 
-const useGameSessionStore = createStoreFactory<GameSessionStore>('game-session', (set, get) => ({
+export const useGameSessionStore = createStoreFactory<GameSessionStore>('game-session', (set, get) => ({
   ...emptyLiveSessionState,
   activate(input) {
     set((state) => {
@@ -484,5 +484,3 @@ function normalizeLiveCard(card: GameSessionCard) {
     createdAt: new Date(card.createdAt),
   };
 }
-
-export { useGameSessionStore };

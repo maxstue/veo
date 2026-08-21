@@ -2,12 +2,20 @@ import { env } from 'cloudflare:workers';
 import { and, asc, desc, eq, isNotNull } from 'drizzle-orm';
 
 import { requireTeamMembership } from '#/app/auth/guards.server';
+import type { BingoRules } from '#/shared/lib/bingo-rules';
 import { createDatabase } from '#/shared/lib/db/client';
-import { bingoCard, bingoCardCell, bingoTerm, gameSession, team, teamBingoRulesPreset } from '#/shared/lib/db/schema';
+import {
+  bingoCard,
+  bingoCardCell,
+  bingoTerm,
+  gameSession,
+  team,
+  teamBingoRulesPreset,
+} from '#/shared/lib/db/schema/veo';
 import { Metrics } from '#/shared/lib/observability/metrics';
 
 import type { GameSessionCard } from '../live/types';
-import { getBingoCellCount, getBingoCompletionTime, hasBingo, selectBingoTerms, type BingoRules } from './bingo-game';
+import { getBingoCellCount, getBingoCompletionTime, hasBingo, selectBingoTerms } from './bingo-game';
 import { defaultWinnerSoundConfig, parseWinnerSoundConfig } from './bingo-win-sound-config';
 
 export async function getBingoGame(data: { teamId: string; sessionId?: string | null }) {

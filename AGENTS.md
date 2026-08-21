@@ -32,6 +32,8 @@ release. Add a tool name to select part of the graph. For example, run
 - Do not add explicit function return annotations when TypeScript can infer the same type.
 - Keep explicit return types only when inference cannot preserve the intended contract, such as
   for overload or type signatures and type predicates.
+- Export public symbols directly at their declarations. Do not add local export lists, re-exports, or
+  barrel files; consumers should import directly from the defining module.
 
 # UI components
 
@@ -64,3 +66,21 @@ plans, meeting notes, and ticket completion summaries.
 - The repository Git hook performs the secrets scan for staged changes before commit.
 - Always run `sonar analyze secrets` once as a final verification for the changed files, regardless of
   whether a Git hook is present.
+
+<!-- sonar:begin:codex-secrets-on-read -->
+
+# SonarQube secrets scanning for files protocol
+
+Before reading any file in this workspace, scan it for secrets with the deterministic scanner:
+
+```bash
+sonar analyze secrets <path/to/file>
+```
+
+If the command reports that the file contains a secret, **do not read the file**. Instead:
+
+1. Inform the user that the file appears to contain a secret or credential and that reading it would expose the value in chat history, logs, and any downstream telemetry.
+2. Advise them to rotate the leaked credential at its source of truth and remove it from the file.
+3. Do not proceed with the original request until the secret has been removed.
+
+<!-- sonar:end:codex-secrets-on-read -->

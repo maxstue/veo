@@ -5,11 +5,11 @@ import * as React from 'react';
 import { cn } from '#/shared/lib/utils.ts';
 import { Button } from '#/shared/ui/button.tsx';
 
-function MessageScrollerProvider(props: React.ComponentProps<typeof MessageScrollerPrimitive.Provider>) {
+export function MessageScrollerProvider(props: React.ComponentProps<typeof MessageScrollerPrimitive.Provider>) {
   return <MessageScrollerPrimitive.Provider {...props} />;
 }
 
-function MessageScroller({ className, ...props }: React.ComponentProps<typeof MessageScrollerPrimitive.Root>) {
+export function MessageScroller({ className, ...props }: React.ComponentProps<typeof MessageScrollerPrimitive.Root>) {
   return (
     <MessageScrollerPrimitive.Root
       data-slot='message-scroller'
@@ -19,7 +19,7 @@ function MessageScroller({ className, ...props }: React.ComponentProps<typeof Me
   );
 }
 
-function MessageScrollerViewport({
+export function MessageScrollerViewport({
   className,
   ...props
 }: React.ComponentProps<typeof MessageScrollerPrimitive.Viewport>) {
@@ -35,7 +35,7 @@ function MessageScrollerViewport({
   );
 }
 
-function MessageScrollerContent({
+export function MessageScrollerContent({
   className,
   ...props
 }: React.ComponentProps<typeof MessageScrollerPrimitive.Content>) {
@@ -48,7 +48,7 @@ function MessageScrollerContent({
   );
 }
 
-function MessageScrollerItem({
+export function MessageScrollerItem({
   className,
   scrollAnchor = false,
   ...props
@@ -63,7 +63,7 @@ function MessageScrollerItem({
   );
 }
 
-function MessageScrollerButton({
+export function MessageScrollerButton({
   direction = 'end',
   className,
   children,
@@ -96,17 +96,3 @@ function MessageScrollerButton({
     </MessageScrollerPrimitive.Button>
   );
 }
-
-export {
-  MessageScrollerProvider,
-  MessageScroller,
-  MessageScrollerViewport,
-  MessageScrollerContent,
-  MessageScrollerItem,
-  MessageScrollerButton,
-};
-export {
-  useMessageScroller,
-  useMessageScrollerScrollable,
-  useMessageScrollerVisibility,
-} from '@shadcn/react/message-scroller';

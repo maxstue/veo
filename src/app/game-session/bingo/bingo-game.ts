@@ -1,14 +1,5 @@
 import { bingoCellCount, defaultBingoRules, type BingoRules } from '#/shared/lib/bingo-rules';
 
-export {
-  bingoBoardSize,
-  bingoCellCount,
-  defaultBingoRules,
-  supportedBingoBoardSizes,
-  type BingoBoardSize,
-  type BingoRules,
-} from '#/shared/lib/bingo-rules';
-
 export function getBingoCellCount(boardSize: number) {
   return boardSize * boardSize;
 }

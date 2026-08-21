@@ -11,7 +11,7 @@ type BingoCardData = Omit<GameSessionCard, 'completedAt' | 'createdAt'> & {
   createdAt: Date;
 };
 
-function BingoCard({
+export function BingoCard({
   card,
   disabled,
   pendingCell,
@@ -108,7 +108,7 @@ function BingoBoard({
 
 const confettiColors = ['#7c3aed', '#ec4899', '#f59e0b', '#10b981', '#3b82f6'];
 
-function BingoConfetti() {
+export function BingoConfetti() {
   return (
     <div
       aria-hidden='true'
@@ -129,5 +129,3 @@ function BingoConfetti() {
     </div>
   );
 }
-
-export { BingoCard, BingoConfetti };

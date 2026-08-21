@@ -5,11 +5,14 @@ import { tanstackStartCookies } from 'better-auth/tanstack-start';
 import { env, waitUntil } from 'cloudflare:workers';
 
 import { createDatabase } from '#/shared/lib/db/client';
-import * as schema from '#/shared/lib/db/schema';
+import * as authSchema from '#/shared/lib/db/schema/auth';
+import * as veoSchema from '#/shared/lib/db/schema/veo';
 import { Metrics } from '#/shared/lib/observability/metrics';
 
 import { sendOrganizationInvitationEmail, sendPasswordResetEmail } from './email.server';
 import { organizationAccess, organizationRoles } from './organization';
+
+const schema = { ...authSchema, ...veoSchema };
 
 function createAuth(runtime: Cloudflare.Env) {
   if (!runtime.BETTER_AUTH_SECRET || runtime.BETTER_AUTH_SECRET.length < 32) {

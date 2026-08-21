@@ -24,7 +24,8 @@ vi.mock('@better-auth/drizzle-adapter', () => ({ drizzleAdapter: mocks.drizzleAd
 vi.mock('better-auth/minimal', () => ({ betterAuth: mocks.betterAuth }));
 vi.mock('better-auth/tanstack-start', () => ({ tanstackStartCookies: mocks.tanstackStartCookies }));
 vi.mock('#/shared/lib/db/client', () => ({ createDatabase: mocks.createDatabase }));
-vi.mock('#/shared/lib/db/schema', () => ({}));
+vi.mock('#/shared/lib/db/schema/auth', () => ({}));
+vi.mock('#/shared/lib/db/schema/veo', () => ({}));
 vi.mock('./email.server', () => ({ sendPasswordResetEmail: mocks.sendPasswordResetEmail }));
 vi.mock('#/shared/lib/observability/metrics', () => ({
   Metrics: {

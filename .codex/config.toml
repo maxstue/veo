@@ -1,3 +1,3 @@
 [mcp_servers.sonarqube]
 command = "sonar"
-args = ["run", "mcp", "--project", "maxstue_veo"]
+args = [ "run", "mcp", "--project", "maxstue_veo" ]

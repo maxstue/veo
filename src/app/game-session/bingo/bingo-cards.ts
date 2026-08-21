@@ -1,6 +1,8 @@
 import { createServerFn } from '@tanstack/react-start';
 
-import { getBingoCellCount, supportedBingoBoardSizes } from './bingo-game';
+import { supportedBingoBoardSizes } from '#/shared/lib/bingo-rules';
+
+import { getBingoCellCount } from './bingo-game';
 
 export const getBingoGame = createServerFn({ method: 'GET' })
   .validator((input: unknown) => ({ sessionId: readOptionalId(input, 'sessionId'), teamId: readId(input, 'teamId') }))

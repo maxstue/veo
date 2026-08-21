@@ -3,7 +3,7 @@ import { and, eq, ne } from 'drizzle-orm';
 
 import { requireTeamMembership } from '#/app/auth/guards.server';
 import { createDatabase } from '#/shared/lib/db/client';
-import { bingoTerm } from '#/shared/lib/db/schema';
+import { bingoTerm } from '#/shared/lib/db/schema/veo';
 
 import { parseBingoTermLabel } from './bingo-term-label';
 
