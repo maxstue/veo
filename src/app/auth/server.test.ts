@@ -16,6 +16,10 @@ vi.mock('cloudflare:workers', () => ({
   env: {
     BETTER_AUTH_SECRET: 'x'.repeat(32),
     DB: { binding: 'test' },
+    GOOGLE_CLIENT_ID: 'google-client-id',
+    GOOGLE_CLIENT_SECRET: 'google-client-secret',
+    MICROSOFT_CLIENT_ID: 'microsoft-client-id',
+    MICROSOFT_CLIENT_SECRET: 'microsoft-client-secret',
     RESEND_API_KEY: ['test', 'api', 'key'].join('-'),
   },
   waitUntil: mocks.waitUntil,
@@ -38,9 +42,28 @@ vi.mock('#/shared/lib/observability/metrics', () => ({
 import { getAuth } from './server';
 
 type AuthOptions = {
+  account: {
+    encryptOAuthTokens: boolean;
+    accountLinking: {
+      enabled: boolean;
+      disableImplicitLinking: boolean;
+      allowDifferentEmails: boolean;
+      allowUnlinkingAll: boolean;
+    };
+  };
   databaseHooks: { user: { create: { after: () => Promise<void> } } };
   emailAndPassword: { sendResetPassword: (data: { url: string; user: { email: string } }) => Promise<void> };
   session: { cookieCache: { enabled: boolean; maxAge: number } };
+  socialProviders: {
+    google: { clientId: string; clientSecret: string; prompt: string };
+    microsoft: {
+      authority: string;
+      clientId: string;
+      clientSecret: string;
+      prompt: string;
+      tenantId: string;
+    };
+  };
   user: { deleteUser: { afterDelete: () => Promise<void> } };
 };
 
@@ -53,6 +76,32 @@ describe('auth user lifecycle metrics', () => {
 
   it('caches session data briefly to avoid repeated D1 reads without extending the revocation window', () => {
     expect(authOptions.session.cookieCache).toEqual({ enabled: true, maxAge: 60 });
+  });
+
+  it('configures Google and Microsoft with explicit account selection and safe linking rules', () => {
+    expect(authOptions.socialProviders).toEqual({
+      google: {
+        clientId: 'google-client-id',
+        clientSecret: 'google-client-secret',
+        prompt: 'select_account',
+      },
+      microsoft: {
+        authority: 'https://login.microsoftonline.com',
+        clientId: 'microsoft-client-id',
+        clientSecret: 'microsoft-client-secret',
+        prompt: 'select_account',
+        tenantId: 'common',
+      },
+    });
+    expect(authOptions.account).toEqual({
+      encryptOAuthTokens: true,
+      accountLinking: {
+        enabled: true,
+        disableImplicitLinking: true,
+        allowDifferentEmails: false,
+        allowUnlinkingAll: false,
+      },
+    });
   });
 
   it('records successful user creation and deletion through Better Auth hooks', async () => {

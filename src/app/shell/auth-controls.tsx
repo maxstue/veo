@@ -1,3 +1,4 @@
+import { useNavigate, useRouter } from '@tanstack/react-router';
 import { CircleUserRound, LogOut, Users } from 'lucide-react';
 
 import { authClient } from '#/app/auth/client';
@@ -23,6 +24,9 @@ function SignInControl() {
 }
 
 function SessionControls({ initialSession }: { initialSession: AuthSession }) {
+  const navigate = useNavigate();
+  const router = useRouter();
+
   if (import.meta.env.SSR) {
     return <AuthenticatedControls session={initialSession} />;
   }
@@ -35,7 +39,16 @@ function SessionControls({ initialSession }: { initialSession: AuthSession }) {
     return <SignInControl />;
   }
 
-  return <AuthenticatedControls onSignOut={async () => refetch()} session={session} />;
+  return (
+    <AuthenticatedControls
+      onSignOut={async () => {
+        await refetch();
+        await router.invalidate();
+        await navigate({ to: '/' });
+      }}
+      session={session}
+    />
+  );
 }
 
 function AuthenticatedControls({ onSignOut, session }: { onSignOut?: () => Promise<void>; session: AuthSession }) {

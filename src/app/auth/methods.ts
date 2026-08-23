@@ -3,6 +3,16 @@ export type AuthMethod = {
   label: string;
 };
 
+export type SocialAuthProvider = {
+  providerId: string;
+  label: string;
+};
+
+export const socialAuthProviders: SocialAuthProvider[] = [
+  { providerId: 'google', label: 'Google' },
+  { providerId: 'microsoft', label: 'Microsoft' },
+];
+
 const providerLabels: Record<string, string> = {
   apple: 'Apple',
   credential: 'Email & password',

@@ -8,6 +8,7 @@ import { ButtonLink } from '#/shared/ui/button-link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/shared/ui/card';
 
 import { authClient } from './client';
+import { socialAuthProviders } from './methods';
 
 type AuthMode = 'forgot-password' | 'sign-in' | 'sign-up';
 
@@ -36,8 +37,25 @@ export function AuthPanel({ returnTo }: { returnTo: string | undefined }) {
   const [error, setError] = useState<string>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notice, setNotice] = useState<string>();
+  const [submittingProviderId, setSubmittingProviderId] = useState<string>();
   const navigate = useNavigate();
   const router = useRouter();
+
+  async function signInWithProvider(providerId: string) {
+    setError(undefined);
+    setNotice(undefined);
+    setSubmittingProviderId(providerId);
+
+    const result = await authClient.signIn.social({
+      provider: providerId,
+      callbackURL: returnTo ?? '/',
+    });
+
+    if (result.error) {
+      setError(result.error.message || 'This sign-in method is currently unavailable. Please try again.');
+      setSubmittingProviderId(undefined);
+    }
+  }
 
   async function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -137,6 +155,34 @@ export function AuthPanel({ returnTo }: { returnTo: string | undefined }) {
                 Sign up
               </Button>
             </div>
+          )}
+
+          {mode !== 'forgot-password' && socialAuthProviders.length > 0 && (
+            <>
+              <div className='mb-6 grid gap-3 sm:grid-cols-[repeat(auto-fit,minmax(8rem,1fr))]'>
+                {socialAuthProviders.map((provider) => (
+                  <Button
+                    className='w-full'
+                    disabled={submittingProviderId !== undefined}
+                    key={provider.providerId}
+                    onClick={() => signInWithProvider(provider.providerId)}
+                    size='lg'
+                    type='button'
+                    variant='outline'
+                  >
+                    {submittingProviderId === provider.providerId && (
+                      <LoaderCircle className='animate-spin' aria-hidden='true' />
+                    )}
+                    Continue with {provider.label}
+                  </Button>
+                ))}
+              </div>
+              <div className='mb-6 flex items-center gap-3' role='separator' aria-label='Email authentication'>
+                <span className='bg-border h-px flex-1' />
+                <span className='text-muted-foreground text-xs font-medium tracking-wide uppercase'>or with email</span>
+                <span className='bg-border h-px flex-1' />
+              </div>
+            </>
           )}
 
           <form className='space-y-4' onSubmit={submit}>

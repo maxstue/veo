@@ -19,6 +19,8 @@ function createAuth(runtime: Cloudflare.Env) {
     throw new Error('BETTER_AUTH_SECRET must be configured with at least 32 characters. See .env.example.');
   }
 
+  assertOAuthProviderConfig(runtime);
+
   return betterAuth({
     appName: 'Veo',
     baseURL: {
@@ -29,6 +31,29 @@ function createAuth(runtime: Cloudflare.Env) {
       provider: 'sqlite',
       schema,
     }),
+    account: {
+      encryptOAuthTokens: true,
+      accountLinking: {
+        enabled: true,
+        disableImplicitLinking: true,
+        allowDifferentEmails: false,
+        allowUnlinkingAll: false,
+      },
+    },
+    socialProviders: {
+      google: {
+        clientId: runtime.GOOGLE_CLIENT_ID,
+        clientSecret: runtime.GOOGLE_CLIENT_SECRET,
+        prompt: 'select_account',
+      },
+      microsoft: {
+        clientId: runtime.MICROSOFT_CLIENT_ID,
+        clientSecret: runtime.MICROSOFT_CLIENT_SECRET,
+        tenantId: 'common',
+        authority: 'https://login.microsoftonline.com',
+        prompt: 'select_account',
+      },
+    },
     session: {
       cookieCache: {
         enabled: true,
@@ -102,6 +127,19 @@ function createAuth(runtime: Cloudflare.Env) {
       tanstackStartCookies(),
     ],
   });
+}
+
+function assertOAuthProviderConfig(runtime: Cloudflare.Env) {
+  const missingBindings = [
+    ['GOOGLE_CLIENT_ID', runtime.GOOGLE_CLIENT_ID],
+    ['GOOGLE_CLIENT_SECRET', runtime.GOOGLE_CLIENT_SECRET],
+    ['MICROSOFT_CLIENT_ID', runtime.MICROSOFT_CLIENT_ID],
+    ['MICROSOFT_CLIENT_SECRET', runtime.MICROSOFT_CLIENT_SECRET],
+  ].flatMap(([name, value]) => (value ? [] : name));
+
+  if (missingBindings.length > 0) {
+    throw new Error(`OAuth provider configuration is incomplete. Missing bindings: ${missingBindings.join(', ')}.`);
+  }
 }
 
 function normalizeOrganizationRole(role: string) {

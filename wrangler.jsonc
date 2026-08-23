@@ -21,7 +21,15 @@
     },
   },
   "secrets": {
-    "required": ["BETTER_AUTH_SECRET", "RESEND_API_KEY", "SENTRY_DSN"],
+    "required": [
+      "BETTER_AUTH_SECRET",
+      "GOOGLE_CLIENT_ID",
+      "GOOGLE_CLIENT_SECRET",
+      "MICROSOFT_CLIENT_ID",
+      "MICROSOFT_CLIENT_SECRET",
+      "RESEND_API_KEY",
+      "SENTRY_DSN",
+    ],
   },
   "durable_objects": {
     "bindings": [{ "name": "GAME_SESSION", "class_name": "GameSession" }],

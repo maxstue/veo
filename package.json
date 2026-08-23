@@ -12,7 +12,7 @@
     "db:generate": "vp exec drizzle-kit generate",
     "db:migrate:local": "vp exec wrangler d1 migrations apply veo --local",
     "db:migrate:remote": "vp exec wrangler d1 migrations apply veo --remote",
-    "dev": "infisical run --env=dev --path=/ --watch -- vp dev",
+    "dev": "infisical run --env=dev --path=Auth --watch -- vp dev",
     "generate-routes": "tsr generate",
     "release": "release-it",
     "test:e2e": "playwright test",

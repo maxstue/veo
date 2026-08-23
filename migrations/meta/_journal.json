@@ -43,6 +43,13 @@
       "when": 1786723245319,
       "tag": "0005_organizations",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1787514472481,
+      "tag": "0006_demonic_proudstar",
+      "breakpoints": true
     }
   ]
 }
