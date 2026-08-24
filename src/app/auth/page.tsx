@@ -177,7 +177,7 @@ export function AuthPanel({ returnTo }: { returnTo: string | undefined }) {
                   </Button>
                 ))}
               </div>
-              <div className='mb-6 flex items-center gap-3' role='separator' aria-label='Email authentication'>
+              <div className='mb-6 flex items-center gap-3' role='separator' aria-label='Alternative sign-in method'>
                 <span className='bg-border h-px flex-1' />
                 <span className='text-muted-foreground text-xs font-medium tracking-wide uppercase'>or with email</span>
                 <span className='bg-border h-px flex-1' />

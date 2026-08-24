@@ -30,6 +30,12 @@ export default defineConfig({
     command: 'vp run test:e2e:server',
     env: {
       BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET ?? 'playwright-development-only-value-000000',
+      GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ?? 'playwright-google-client-id',
+      GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET ?? 'playwright-google-client-secret',
+      MICROSOFT_CLIENT_ID: process.env.MICROSOFT_CLIENT_ID ?? 'playwright-microsoft-client-id',
+      MICROSOFT_CLIENT_SECRET: process.env.MICROSOFT_CLIENT_SECRET ?? 'playwright-microsoft-client-secret',
+      RESEND_API_KEY: process.env.RESEND_API_KEY ?? 'playwright-resend-api-key',
+      SENTRY_DSN: process.env.SENTRY_DSN ?? 'https://playwright@example.invalid/1',
       VITE_COVERAGE: 'true',
     },
     reuseExistingServer: process.env.PLAYWRIGHT_REUSE_EXISTING_SERVER === 'true',
