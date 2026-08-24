@@ -39,28 +39,33 @@ function applyTheme(theme: Theme) {
   root.style.colorScheme = resolved;
 }
 
+function getInitialTheme(storageKey: string, defaultTheme: Theme) {
+  if (typeof document === 'undefined') {
+    return defaultTheme;
+  }
+
+  const appliedTheme = document.documentElement.dataset.theme;
+  if (appliedTheme === 'light' || appliedTheme === 'dark' || appliedTheme === 'system') {
+    return appliedTheme;
+  }
+
+  try {
+    const stored = localStorage.getItem(storageKey);
+    return stored === 'light' || stored === 'dark' || stored === 'system' ? stored : defaultTheme;
+  } catch {
+    return defaultTheme;
+  }
+}
+
 export function ThemeProvider({ children, defaultTheme = 'system', storageKey = 'veo-theme' }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(defaultTheme);
-  const [mounted, setMounted] = useState(false);
+  const [theme, setTheme] = useState<Theme>(() => getInitialTheme(storageKey, defaultTheme));
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(storageKey);
-      setTheme(stored === 'light' || stored === 'dark' || stored === 'system' ? stored : defaultTheme);
-    } catch {
-      setTheme(defaultTheme);
-    }
-    setMounted(true);
-  }, [defaultTheme, storageKey]);
+    applyTheme(theme);
+  }, [theme]);
 
   useEffect(() => {
-    if (mounted) {
-      applyTheme(theme);
-    }
-  }, [mounted, theme]);
-
-  useEffect(() => {
-    if (!mounted || theme !== 'system') {
+    if (theme !== 'system') {
       return;
     }
 
@@ -68,7 +73,7 @@ export function ThemeProvider({ children, defaultTheme = 'system', storageKey = 
     const update = () => applyTheme('system');
     media.addEventListener('change', update);
     return () => media.removeEventListener('change', update);
-  }, [mounted, theme]);
+  }, [theme]);
 
   const updateTheme = useCallback(
     (next: Theme) => {
