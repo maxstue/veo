@@ -78,7 +78,8 @@
     "vite": "catalog:",
     "vite-plugin-istanbul": "catalog:",
     "vite-plus": "catalog:",
-    "wrangler": "catalog:"
+    "wrangler": "catalog:",
+    "vitest": "catalog:"
   },
   "devEngines": {
     "packageManager": {

@@ -8,6 +8,8 @@
     ":timezone(Europe/Berlin)"
   ],
   "assignees": ["maxstue"],
+  "reviewers": ["maxstue"],
+  "assignAutomerge": true,
   "labels": ["dependencies"],
   "enabledManagers": ["npm", "github-actions"],
   "minimumReleaseAge": "2 days",
