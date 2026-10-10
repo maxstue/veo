@@ -56,7 +56,7 @@ export class GameSession extends DurableObject<Env> {
     migrateStorage(ctx);
   }
 
-  async fetch(request: Request) {
+  fetch(request: Request) {
     if (request.headers.get('Upgrade')?.toLowerCase() !== 'websocket') {
       return new Response('WebSocket upgrade required', { status: 426 });
     }
@@ -83,7 +83,7 @@ export class GameSession extends DurableObject<Env> {
     return new Response(null, { status: 101, webSocket: client });
   }
 
-  async createCard(seed: GameSessionCardSeed) {
+  createCard(seed: GameSessionCardSeed) {
     this.assertOpen();
     const existing = this.getCard(seed.userId);
     if (existing) {
@@ -118,15 +118,15 @@ export class GameSession extends DurableObject<Env> {
     return { card, status: 'created' as const };
   }
 
-  async readCard(userId: string) {
+  readCard(userId: string) {
     return this.getCard(userId);
   }
 
-  async readScores() {
+  readScores() {
     return this.getScores();
   }
 
-  async toggleCell(userId: string, position: number) {
+  toggleCell(userId: string, position: number) {
     this.assertOpen();
     const currentCard = this.getCard(userId);
     if (!currentCard) {
@@ -166,7 +166,7 @@ export class GameSession extends DurableObject<Env> {
     return { card, completedNow, marked: Boolean(updated.marked), score };
   }
 
-  async resetCard(userId: string) {
+  resetCard(userId: string) {
     this.assertOpen();
     const currentCard = this.getCard(userId);
     if (currentCard?.completedAt != null || currentCard?.bingo) {
@@ -247,7 +247,7 @@ export class GameSession extends DurableObject<Env> {
     await this.remove();
   }
 
-  async finalize(): Promise<GameSessionResult[]> {
+  finalize() {
     this.ctx.storage.sql.exec("UPDATE session_state SET status = 'sealed' WHERE singleton = 1");
     return this.ctx.storage.sql
       .exec<GameSessionResult>(
@@ -279,7 +279,7 @@ export class GameSession extends DurableObject<Env> {
     if (!requesterUserId) {
       throw new TypeError('Invalid requester');
     }
-    if (!(await this.canRemove(requesterUserId))) {
+    if (!this.canRemove(requesterUserId)) {
       return { status: 'occupied' as const };
     }
 
@@ -301,14 +301,14 @@ export class GameSession extends DurableObject<Env> {
     return { status: 'deleted' as const };
   }
 
-  async canRemove(requesterUserId: string) {
+  canRemove(requesterUserId: string) {
     if (!requesterUserId) {
       return false;
     }
     return this.getParticipants().every((participant) => participant.userId === requesterUserId);
   }
 
-  async webSocketMessage(socket: WebSocket, message: ArrayBuffer | string) {
+  webSocketMessage(socket: WebSocket, message: ArrayBuffer | string) {
     if (typeof message !== 'string' || message.length > 4_096) {
       return;
     }
@@ -336,7 +336,7 @@ export class GameSession extends DurableObject<Env> {
     });
   }
 
-  async webSocketClose(socket: WebSocket) {
+  webSocketClose(socket: WebSocket) {
     socket.close();
     this.broadcast({ type: 'presence', participants: this.getParticipants() });
   }

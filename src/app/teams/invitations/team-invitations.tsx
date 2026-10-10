@@ -1,6 +1,6 @@
 import { useRouter } from '@tanstack/react-router';
 import { LoaderCircle, Mail, X } from 'lucide-react';
-import { useState } from 'react';
+import { type SubmitEvent, useState } from 'react';
 
 import { formatAppDate } from '#/shared/lib/locale';
 import { Badge } from '#/shared/ui/badge';
@@ -24,7 +24,7 @@ export function TeamInvitations({ invitations, teamId }: { invitations: TeamInvi
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string>();
 
-  async function invite(event: React.FormEvent<HTMLFormElement>) {
+  async function invite(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     const formElement = event.currentTarget;
     const form = new FormData(formElement);

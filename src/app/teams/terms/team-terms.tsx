@@ -129,7 +129,6 @@ export function TermLibrary({ teamId, terms }: { teamId: string; terms: TeamTerm
                 {editingId === term.id ? (
                   <input
                     aria-label='Edit bingo term'
-                    autoFocus
                     className='bg-background focus-visible:border-ring focus-visible:ring-ring/30 h-8 min-w-0 flex-1 rounded-xl border px-2 outline-none focus-visible:ring-3'
                     maxLength={80}
                     onChange={(event) => setEditingLabel(event.target.value)}

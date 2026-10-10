@@ -7,7 +7,7 @@ import { member } from '#/shared/lib/db/schema/auth';
 
 import { getAuth } from './server';
 
-export async function getSession() {
+export function getSession() {
   return getAuth().api.getSession({ headers: getRequestHeaders() });
 }
 

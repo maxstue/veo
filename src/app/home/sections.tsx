@@ -160,9 +160,8 @@ export function HomeLiveGames({ initialActiveGameCount }: { initialActiveGameCou
     };
   }, []);
 
-  const status = hasActiveGames
-    ? `${activeGameCount} ${activeGameCount === 1 ? 'game is' : 'games are'} in progress`
-    : 'No games are in progress right now';
+  const gameLabel = activeGameCount === 1 ? 'game is' : 'games are';
+  const status = hasActiveGames ? `${activeGameCount} ${gameLabel} in progress` : 'No games are in progress right now';
 
   return (
     <section aria-label='Live game status'>
@@ -271,7 +270,7 @@ export function HomeFooter() {
           >
             GitHub
           </a>
-          . 💌
+          {'. 💌'}
         </p>
       </HomeContainer>
     </footer>

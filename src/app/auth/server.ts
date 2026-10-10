@@ -64,7 +64,7 @@ function createAuth(runtime: Cloudflare.Env) {
     databaseHooks: {
       user: {
         create: {
-          after: async () => Metrics.recordUserRegistered(),
+          after: () => Promise.resolve(Metrics.recordUserRegistered()),
         },
       },
     },
@@ -74,7 +74,7 @@ function createAuth(runtime: Cloudflare.Env) {
       requireEmailVerification: false,
       resetPasswordTokenExpiresIn: 60 * 60,
       revokeSessionsOnPasswordReset: true,
-      sendResetPassword: async ({ url, user }) => {
+      sendResetPassword: ({ url, user }) => {
         Metrics.recordPasswordResetRequested();
 
         const delivery = sendPasswordResetEmail(runtime.RESEND_API_KEY, {
@@ -83,11 +83,12 @@ function createAuth(runtime: Cloudflare.Env) {
         });
 
         waitUntil(delivery);
+        return Promise.resolve();
       },
     },
     user: {
       deleteUser: {
-        afterDelete: async () => Metrics.recordUserDeleted(),
+        afterDelete: () => Promise.resolve(Metrics.recordUserDeleted()),
         enabled: true,
       },
     },
@@ -103,15 +104,18 @@ function createAuth(runtime: Cloudflare.Env) {
         invitationExpiresIn: 7 * 24 * 60 * 60,
         requireEmailVerificationOnInvitation: false,
         organizationHooks: {
-          beforeAddMember: async ({ member: addedMember }) => ({
-            data: { ...addedMember, role: normalizeOrganizationRole(addedMember.role) },
-          }),
-          beforeCreateInvitation: async ({ invitation: createdInvitation }) => ({
-            data: { ...createdInvitation, role: 'member' },
-          }),
-          beforeUpdateMemberRole: async ({ newRole }) => ({ data: { role: normalizeOrganizationRole(newRole) } }),
+          beforeAddMember: ({ member: addedMember }) =>
+            Promise.resolve({
+              data: { ...addedMember, role: normalizeOrganizationRole(addedMember.role) },
+            }),
+          beforeCreateInvitation: ({ invitation: createdInvitation }) =>
+            Promise.resolve({
+              data: { ...createdInvitation, role: 'member' },
+            }),
+          beforeUpdateMemberRole: ({ newRole }) =>
+            Promise.resolve({ data: { role: normalizeOrganizationRole(newRole) } }),
         },
-        sendInvitationEmail: async ({ id, email, organization: invitedOrganization, inviter }, request) => {
+        sendInvitationEmail: ({ id, email, organization: invitedOrganization, inviter }, request) => {
           const origin = request ? new URL(request.url).origin : 'https://veo.justmax.xyz';
           const invitationUrl = new URL(`/invite/${id}`, origin).toString();
           const delivery = sendOrganizationInvitationEmail(runtime.RESEND_API_KEY, {
@@ -122,6 +126,7 @@ function createAuth(runtime: Cloudflare.Env) {
           });
 
           waitUntil(delivery);
+          return Promise.resolve();
         },
       }),
       tanstackStartCookies(),

@@ -106,7 +106,16 @@ function readToken(input: unknown) {
 
 function readEmail(input: unknown, field: string) {
   const email = readString(input, field, 3, 254).toLowerCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  const parts = email.split('@');
+  const domain = parts[1] ?? '';
+  const domainSeparator = domain.indexOf('.', 1);
+  if (
+    parts.length !== 2 ||
+    !parts[0] ||
+    /\s/.test(email) ||
+    domainSeparator < 1 ||
+    domainSeparator === domain.length - 1
+  ) {
     throw new Error(`Invalid ${field}`);
   }
   return email;

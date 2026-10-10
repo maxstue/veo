@@ -45,6 +45,14 @@ test('registration, session invitation, live bingo, and chat work end to end', a
     }
     await expect(ownerPage.getByText('25 / 25')).toBeVisible();
 
+    await ownerPage.getByRole('button', { name: 'Edit “Meeting-Klassiker 1”', exact: true }).click();
+    const editTermInput = ownerPage.getByLabel('Edit bingo term');
+    await expect(editTermInput).toBeVisible();
+    await expect(editTermInput).not.toBeFocused();
+    await editTermInput.fill('Updated meeting classic');
+    await editTermInput.press('Enter');
+    await expect(ownerPage.getByText('Updated meeting classic', { exact: true })).toBeVisible();
+
     await ownerPage.getByRole('link', { name: 'Back to team' }).click();
     await ownerPage.getByRole('button', { name: 'New session' }).click();
     await expect(ownerPage.getByRole('heading', { level: 1, name: 'Bingo session ready' })).toBeVisible();
