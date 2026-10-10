@@ -54,6 +54,14 @@ test('users can permanently delete their account', async ({ page }) => {
 });
 
 test('users can change their password from the account page', async ({ page }) => {
+  const runtimeErrors: string[] = [];
+  page.on('pageerror', (error) => runtimeErrors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') {
+      runtimeErrors.push(message.text());
+    }
+  });
+
   const runId = `${Date.now()}-${test.info().project.name}`;
   const newPassword = `${password}-updated`;
   const user = {
@@ -70,6 +78,8 @@ test('users can change their password from the account page', async ({ page }) =
 
   await expect(page.getByRole('status')).toContainText('Your password has been updated.');
   await page.getByRole('button', { name: 'Sign out' }).click();
+  await expect(page).toHaveURL('/');
+  await expect(page.getByRole('link', { name: 'Sign in', exact: true })).toBeVisible();
   await page.goto('/auth');
   await expect(async () => {
     const form = page.locator('form');
@@ -78,6 +88,7 @@ test('users can change their password from the account page', async ({ page }) =
     await form.getByRole('button', { name: 'Sign in', exact: true }).click();
     await expect(page).toHaveURL('/', { timeout: 1_000 });
   }).toPass({ timeout: 10_000 });
+  expect(runtimeErrors).toEqual([]);
 });
 
 test('password reset entry points and invalid links are handled clearly', async ({ page }) => {
