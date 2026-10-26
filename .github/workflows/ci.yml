@@ -29,7 +29,7 @@ jobs:
       - name: Set up Vite+
         uses: voidzero-dev/setup-vp@250f29ce396baf5e8f24498e17c0dfdebabc26eb # v1
         with:
-          node-version: 24.22.0
+          node-version: 24.22.1
           cache: true
           run-install: false
 
@@ -148,7 +148,7 @@ jobs:
       - name: Set up Vite+
         uses: voidzero-dev/setup-vp@250f29ce396baf5e8f24498e17c0dfdebabc26eb # v1
         with:
-          node-version: 24.22.0
+          node-version: 24.22.1
           cache: true
           run-install: false
 
@@ -188,7 +188,7 @@ jobs:
       - name: Set up Vite+
         uses: voidzero-dev/setup-vp@250f29ce396baf5e8f24498e17c0dfdebabc26eb # v1
         with:
-          node-version: 24.22.0
+          node-version: 24.22.1
           cache: true
           run-install: false
 
@@ -244,7 +244,7 @@ jobs:
         if: steps.release-marker.outputs.release == 'true'
         uses: voidzero-dev/setup-vp@250f29ce396baf5e8f24498e17c0dfdebabc26eb # v1
         with:
-          node-version: 24.22.0
+          node-version: 24.22.1
           cache: true
           run-install: false
 
