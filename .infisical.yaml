@@ -1,0 +1,8 @@
+version: 1
+general:
+  domain: https://eu.infisical.com
+secrets-management:
+  project-id: 'e594aa28-755b-4c41-9008-c79246ec1ad7'
+  default-environment: ''
+  mappings:
+    git-branch-to-environment: {}
