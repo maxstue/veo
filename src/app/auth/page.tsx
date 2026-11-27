@@ -1,16 +1,13 @@
 import { Link, useNavigate, useRouter } from '@tanstack/react-router';
 import { ArrowLeft, Eye, LoaderCircle, LockKeyhole } from 'lucide-react';
-import { type InputHTMLAttributes, type ReactNode, type SubmitEvent, useState, useSyncExternalStore } from 'react';
+import { type InputHTMLAttributes, type ReactNode, type SubmitEvent, useState } from 'react';
 
 import { PageShell } from '#/app/shell/page-container';
-import { Badge } from '#/shared/ui/badge';
 import { Button } from '#/shared/ui/button';
 import { ButtonLink } from '#/shared/ui/button-link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/shared/ui/card';
-import { Checkbox } from '#/shared/ui/checkbox';
 
 import { authClient } from './client';
-import { readLastLoginMethod, setRememberLoginMethod, subscribeToLastLoginMethod } from './last-login-method';
 import { socialAuthProviders } from './methods';
 
 type AuthMode = 'forgot-password' | 'sign-in' | 'sign-up';
@@ -35,15 +32,14 @@ export function AuthHeader() {
   );
 }
 
-export function AuthPanel({ returnTo }: { returnTo: string | undefined }) {
+export function AuthPanel({ oauthError, returnTo }: { oauthError: string | undefined; returnTo: string | undefined }) {
   const [mode, setMode] = useState<AuthMode>('sign-in');
-  const [error, setError] = useState<string>();
+  const [error, setError] = useState(() => getOAuthErrorMessage(oauthError));
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notice, setNotice] = useState<string>();
   const [submittingProviderId, setSubmittingProviderId] = useState<string>();
   const navigate = useNavigate();
   const router = useRouter();
-  const lastLoginMethod = useSyncExternalStore(subscribeToLastLoginMethod, readLastLoginMethod, () => null);
 
   async function signInWithProvider(providerId: string) {
     setError(undefined);
@@ -53,6 +49,7 @@ export function AuthPanel({ returnTo }: { returnTo: string | undefined }) {
     const result = await authClient.signIn.social({
       provider: providerId,
       callbackURL: returnTo ?? '/',
+      errorCallbackURL: returnTo ? `/auth?${new URLSearchParams({ returnTo })}` : '/auth',
     });
 
     if (result.error) {
@@ -166,7 +163,7 @@ export function AuthPanel({ returnTo }: { returnTo: string | undefined }) {
               <div className='mb-6 grid gap-3 sm:grid-cols-[repeat(auto-fit,minmax(8rem,1fr))]'>
                 {socialAuthProviders.map((provider) => (
                   <Button
-                    className='h-auto min-h-9 w-full flex-wrap py-2'
+                    className='w-full'
                     disabled={submittingProviderId !== undefined}
                     key={provider.providerId}
                     onClick={() => signInWithProvider(provider.providerId)}
@@ -178,7 +175,6 @@ export function AuthPanel({ returnTo }: { returnTo: string | undefined }) {
                       <LoaderCircle className='animate-spin' aria-hidden='true' />
                     )}
                     Continue with {provider.label}
-                    {lastLoginMethod === provider.providerId && <Badge variant='secondary'>Last used</Badge>}
                   </Button>
                 ))}
               </div>
@@ -218,33 +214,12 @@ export function AuthPanel({ returnTo }: { returnTo: string | undefined }) {
             <Button className='w-full' disabled={isSubmitting} size='lg' type='submit'>
               {isSubmitting && <LoaderCircle className='animate-spin' aria-hidden='true' />}
               {getSubmitLabel(mode)}
-              {mode === 'sign-in' && lastLoginMethod === 'email' && <Badge variant='secondary'>Last used</Badge>}
             </Button>
           </form>
 
-          {mode !== 'forgot-password' && (
-            <label className='text-muted-foreground mt-4 flex items-center justify-center gap-2 text-sm'>
-              <Checkbox
-                checked={lastLoginMethod !== null}
-                // A sign-in response could otherwise restore a preference revoked while it was in flight.
-                disabled={isSubmitting || submittingProviderId !== undefined}
-                onCheckedChange={setRememberLoginMethod}
-              />
-              Remember sign-in method on this browser for 30 days
-            </label>
-          )}
-
-          {mode !== 'forgot-password' && (
-            <p className='text-muted-foreground mt-1 text-center text-xs'>
-              <Link className='underline underline-offset-4' hash='cookies' to='/privacy'>
-                How we use cookies
-              </Link>
-            </p>
-          )}
-
           {mode === 'sign-in' && (
             <Button
-              className='mx-auto mt-2 flex'
+              className='mx-auto mt-4 flex'
               onClick={() => {
                 setMode('forgot-password');
                 setError(undefined);
@@ -256,10 +231,29 @@ export function AuthPanel({ returnTo }: { returnTo: string | undefined }) {
               Forgot your password?
             </Button>
           )}
+
+          <p className='text-muted-foreground mt-4 text-center text-xs'>
+            <Link className='underline underline-offset-4' to='/privacy'>
+              Privacy policy
+            </Link>
+          </p>
         </CardContent>
       </Card>
     </section>
   );
+}
+
+function getOAuthErrorMessage(code: string | undefined) {
+  if (!code) {
+    return undefined;
+  }
+  if (code === 'account_not_linked') {
+    return 'This email address already has a Veo account with another sign-in method. Please sign in the way you did before, for example with your email and password.';
+  }
+  if (code === 'access_denied') {
+    return 'The sign-in was cancelled.';
+  }
+  return 'The sign-in could not be completed. Please try again.';
 }
 
 function getSubmitLabel(mode: AuthMode) {

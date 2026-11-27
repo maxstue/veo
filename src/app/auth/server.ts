@@ -1,6 +1,6 @@
 import { drizzleAdapter } from '@better-auth/drizzle-adapter';
 import { betterAuth } from 'better-auth/minimal';
-import { lastLoginMethod, organization } from 'better-auth/plugins';
+import { organization } from 'better-auth/plugins';
 import { tanstackStartCookies } from 'better-auth/tanstack-start';
 import { env, waitUntil } from 'cloudflare:workers';
 
@@ -10,7 +10,6 @@ import * as veoSchema from '#/shared/lib/db/schema/veo';
 import { Metrics } from '#/shared/lib/observability/metrics';
 
 import { sendOrganizationInvitationEmail, sendPasswordResetEmail } from './email.server';
-import { hasLastLoginMethodConsent, isSupportedLoginMethod, lastLoginMethodCookie } from './last-login-method';
 import { organizationAccess, organizationRoles } from './organization';
 
 const schema = { ...authSchema, ...veoSchema };
@@ -95,13 +94,6 @@ function createAuth(runtime: Cloudflare.Env) {
     },
     trustedOrigins: ['https://veo.justmax.xyz', 'https://veo.maxstue2304-aaa.workers.dev', 'http://localhost:5173'],
     plugins: [
-      lastLoginMethod({
-        cookieName: lastLoginMethodCookie.name,
-        maxAge: lastLoginMethodCookie.maxAge,
-        // Store the method only while the browser sends the opt-in cookie with the completing request.
-        beforeStoreCookie: (ctx, method) =>
-          isSupportedLoginMethod(method) && hasLastLoginMethodConsent(ctx.getCookie(lastLoginMethodCookie.name)),
-      }),
       organization({
         ac: organizationAccess,
         roles: organizationRoles,

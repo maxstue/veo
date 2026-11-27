@@ -1,7 +1,5 @@
 import { type ReactNode } from 'react';
 
-import { lastLoginMethodCookie } from '#/app/auth/last-login-method';
-
 import { LegalContact } from './legal-contact';
 import { LegalPage, LegalSection } from './legal-layout';
 
@@ -90,13 +88,6 @@ export function PrivacyPage() {
             HTTPS they carry the prefix <Code>__Secure-</Code>. The session token lasts as long as your session. The
             session data is a cached copy that expires after one minute and is renewed while you use Veo. Short-lived
             cookies also protect the Google and Microsoft sign-in against forged requests.
-          </li>
-          <li>
-            <Code>{lastLoginMethodCookie.name}</Code> is only set if you tick &ldquo;Remember sign-in method on this
-            browser for 30 days&rdquo; on the sign-in page. It then stores whether you last signed in with e-mail,
-            Google or Microsoft, so we can mark that option as &ldquo;Last used&rdquo;. It contains no account ID or
-            e-mail address and is not stored on our servers. It expires after 30 days, and each sign-in renews it.
-            Untick the box to delete it immediately.
           </li>
           <li>
             <Code>veo-theme</Code> in local storage remembers the colour theme you selected. It is stored until you
