@@ -32,9 +32,9 @@ export function AuthHeader() {
   );
 }
 
-export function AuthPanel({ returnTo }: { returnTo: string | undefined }) {
+export function AuthPanel({ oauthError, returnTo }: { oauthError: string | undefined; returnTo: string | undefined }) {
   const [mode, setMode] = useState<AuthMode>('sign-in');
-  const [error, setError] = useState<string>();
+  const [error, setError] = useState(() => getOAuthErrorMessage(oauthError));
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notice, setNotice] = useState<string>();
   const [submittingProviderId, setSubmittingProviderId] = useState<string>();
@@ -49,6 +49,7 @@ export function AuthPanel({ returnTo }: { returnTo: string | undefined }) {
     const result = await authClient.signIn.social({
       provider: providerId,
       callbackURL: returnTo ?? '/',
+      errorCallbackURL: returnTo ? `/auth?${new URLSearchParams({ returnTo })}` : '/auth',
     });
 
     if (result.error) {
@@ -230,10 +231,29 @@ export function AuthPanel({ returnTo }: { returnTo: string | undefined }) {
               Forgot your password?
             </Button>
           )}
+
+          <p className='text-muted-foreground mt-4 text-center text-xs'>
+            <Link className='underline underline-offset-4' to='/privacy'>
+              Privacy policy
+            </Link>
+          </p>
         </CardContent>
       </Card>
     </section>
   );
+}
+
+function getOAuthErrorMessage(code: string | undefined) {
+  if (!code) {
+    return undefined;
+  }
+  if (code === 'account_not_linked') {
+    return 'This email address already has a Veo account with another sign-in method. Please sign in the way you did before, for example with your email and password.';
+  }
+  if (code === 'access_denied') {
+    return 'The sign-in was cancelled.';
+  }
+  return 'The sign-in could not be completed. Please try again.';
 }
 
 function getSubmitLabel(mode: AuthMode) {

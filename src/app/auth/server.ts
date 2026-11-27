@@ -92,6 +92,8 @@ function createAuth(runtime: Cloudflare.Env) {
         enabled: true,
       },
     },
+    // Send OAuth errors that happen before the sign-in state is known (for example an expired state) to /auth too.
+    onAPIError: { errorURL: '/auth' },
     trustedOrigins: ['https://veo.justmax.xyz', 'https://veo.maxstue2304-aaa.workers.dev', 'http://localhost:5173'],
     plugins: [
       organization({
