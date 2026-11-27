@@ -1,16 +1,51 @@
 import { Link, useNavigate, useRouter } from '@tanstack/react-router';
 import { ArrowLeft, Eye, LoaderCircle, LockKeyhole } from 'lucide-react';
-import { type InputHTMLAttributes, type ReactNode, type SubmitEvent, useState } from 'react';
+import { type InputHTMLAttributes, type ReactNode, type SubmitEvent, useState, useSyncExternalStore } from 'react';
 
 import { PageShell } from '#/app/shell/page-container';
+import { Badge } from '#/shared/ui/badge';
 import { Button } from '#/shared/ui/button';
 import { ButtonLink } from '#/shared/ui/button-link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/shared/ui/card';
 
 import { authClient } from './client';
+import {
+  isSupportedLoginMethod,
+  lastLoginMethodCookieMaxAge,
+  lastLoginMethodCookieName,
+  pendingLastLoginMethod,
+} from './last-login-method';
 import { socialAuthProviders } from './methods';
 
 type AuthMode = 'forgot-password' | 'sign-in' | 'sign-up';
+
+const lastLoginMethodChanged = new EventTarget();
+
+function subscribeToLastLoginMethod(onChange: () => void) {
+  lastLoginMethodChanged.addEventListener('change', onChange);
+  window.addEventListener('pageshow', onChange);
+  window.addEventListener('focus', onChange);
+  return () => {
+    lastLoginMethodChanged.removeEventListener('change', onChange);
+    window.removeEventListener('pageshow', onChange);
+    window.removeEventListener('focus', onChange);
+  };
+}
+
+function getLastLoginMethod() {
+  const value = authClient.getLastUsedLoginMethod();
+  return value === pendingLastLoginMethod || isSupportedLoginMethod(value) ? value : null;
+}
+
+function toggleRememberLoginMethod() {
+  if (getLastLoginMethod()) {
+    authClient.clearLastUsedLoginMethod();
+  } else {
+    const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+    document.cookie = `${lastLoginMethodCookieName}=${pendingLastLoginMethod}; Max-Age=${lastLoginMethodCookieMaxAge}; Path=/; SameSite=Lax${secure}`;
+  }
+  lastLoginMethodChanged.dispatchEvent(new Event('change'));
+}
 
 export function AuthLayout({ children }: { children: ReactNode }) {
   return <PageShell className='flex min-h-screen flex-col py-5'>{children}</PageShell>;
@@ -40,6 +75,7 @@ export function AuthPanel({ returnTo }: { returnTo: string | undefined }) {
   const [submittingProviderId, setSubmittingProviderId] = useState<string>();
   const navigate = useNavigate();
   const router = useRouter();
+  const lastLoginMethod = useSyncExternalStore(subscribeToLastLoginMethod, getLastLoginMethod, () => null);
 
   async function signInWithProvider(providerId: string) {
     setError(undefined);
@@ -162,7 +198,7 @@ export function AuthPanel({ returnTo }: { returnTo: string | undefined }) {
               <div className='mb-6 grid gap-3 sm:grid-cols-[repeat(auto-fit,minmax(8rem,1fr))]'>
                 {socialAuthProviders.map((provider) => (
                   <Button
-                    className='w-full'
+                    className='h-auto min-h-9 w-full flex-wrap py-2'
                     disabled={submittingProviderId !== undefined}
                     key={provider.providerId}
                     onClick={() => signInWithProvider(provider.providerId)}
@@ -174,6 +210,9 @@ export function AuthPanel({ returnTo }: { returnTo: string | undefined }) {
                       <LoaderCircle className='animate-spin' aria-hidden='true' />
                     )}
                     Continue with {provider.label}
+                    {mode === 'sign-in' && lastLoginMethod === provider.providerId && (
+                      <Badge variant='secondary'>Last used</Badge>
+                    )}
                   </Button>
                 ))}
               </div>
@@ -213,12 +252,26 @@ export function AuthPanel({ returnTo }: { returnTo: string | undefined }) {
             <Button className='w-full' disabled={isSubmitting} size='lg' type='submit'>
               {isSubmitting && <LoaderCircle className='animate-spin' aria-hidden='true' />}
               {getSubmitLabel(mode)}
+              {mode === 'sign-in' && lastLoginMethod === 'email' && <Badge variant='secondary'>Last used</Badge>}
             </Button>
           </form>
 
+          {mode !== 'forgot-password' && (
+            <Button
+              aria-pressed={lastLoginMethod !== null}
+              className='mx-auto mt-4 flex'
+              onClick={toggleRememberLoginMethod}
+              size='sm'
+              type='button'
+              variant={lastLoginMethod === null ? 'outline' : 'secondary'}
+            >
+              Remember sign-in method on this browser
+            </Button>
+          )}
+
           {mode === 'sign-in' && (
             <Button
-              className='mx-auto mt-4 flex'
+              className='mx-auto mt-2 flex'
               onClick={() => {
                 setMode('forgot-password');
                 setError(undefined);
