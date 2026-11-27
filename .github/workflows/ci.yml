@@ -250,7 +250,18 @@ jobs:
 
       - name: Install dependencies
         if: steps.release-marker.outputs.release == 'true'
-        run: vp install
+        # The prepare hook runs vp config, which rewrites tracked agent instructions.
+        # Release tooling needs dependencies, but no local development setup.
+        run: vp install --ignore-scripts
+
+      - name: Verify clean release checkout
+        if: steps.release-marker.outputs.release == 'true'
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git status --short
+            echo "::error::Dependency setup changed the release checkout."
+            exit 1
+          fi
 
       - name: Configure release identity
         if: steps.release-marker.outputs.release == 'true'
