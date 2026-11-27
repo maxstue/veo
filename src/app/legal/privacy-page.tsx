@@ -37,7 +37,7 @@ export function PrivacyPage() {
           To use Veo you create an account. We store your name and e-mail address, and for e-mail sign-up a hashed
           password. If you sign in with Google or Microsoft, we receive your name, e-mail address and profile image from
           that provider. For each sign-in we store a session with your IP address and browser information. A session
-          ends when you sign out or after 7 days.
+          ends when you sign out or after 7 days without use.
         </p>
         <p>
           We process this data to provide Veo to you (Art. 6(1)(b) GDPR). We keep it until you delete your account. You
@@ -87,8 +87,9 @@ export function PrivacyPage() {
         <ul className='mt-3 list-disc space-y-3 pl-5'>
           <li>
             <Code>better-auth.session_token</Code> and <Code>better-auth.session_data</Code> keep you signed in. On
-            HTTPS they carry the prefix <Code>__Secure-</Code>. They last for the session duration of up to 7 days.
-            Short-lived cookies also protect the Google and Microsoft sign-in against forged requests.
+            HTTPS they carry the prefix <Code>__Secure-</Code>. The session token lasts as long as your session. The
+            session data is a cached copy that expires after one minute and is renewed while you use Veo. Short-lived
+            cookies also protect the Google and Microsoft sign-in against forged requests.
           </li>
           <li>
             <Code>{lastLoginMethodCookie.name}</Code> is only set if you tick &ldquo;Remember sign-in method on this
