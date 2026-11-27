@@ -1,29 +1,16 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useEffect } from 'react';
+import { createFileRoute } from '@tanstack/react-router';
 
-import { completeRememberedSocialLogin } from '#/app/auth/last-login-method';
 import { AuthHeader, AuthLayout, AuthPanel } from '#/app/auth/page';
 
 export const Route = createFileRoute('/auth')({
   validateSearch: (search: Record<string, unknown>) => ({
-    ...(typeof search.completeSignIn === 'string' ? { completeSignIn: search.completeSignIn } : {}),
     returnTo: safeReturnTo(search.returnTo),
   }),
   component: AuthRoute,
 });
 
 function AuthRoute() {
-  const { completeSignIn, returnTo } = Route.useSearch();
-  const { session } = Route.useRouteContext();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (completeSignIn && session) {
-      completeRememberedSocialLogin(completeSignIn);
-      void navigate({ href: returnTo ?? '/', replace: true });
-    }
-  }, [completeSignIn, navigate, returnTo, session]);
-
+  const { returnTo } = Route.useSearch();
   return (
     <AuthLayout>
       <AuthHeader />

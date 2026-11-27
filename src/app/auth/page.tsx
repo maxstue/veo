@@ -1,23 +1,16 @@
-import { Toggle } from '@base-ui/react/toggle';
 import { Link, useNavigate, useRouter } from '@tanstack/react-router';
 import { ArrowLeft, Eye, LoaderCircle, LockKeyhole } from 'lucide-react';
 import { type InputHTMLAttributes, type ReactNode, type SubmitEvent, useState, useSyncExternalStore } from 'react';
 
 import { PageShell } from '#/app/shell/page-container';
-import { cn } from '#/shared/lib/utils';
 import { Badge } from '#/shared/ui/badge';
-import { Button, buttonVariants } from '#/shared/ui/button';
+import { Button } from '#/shared/ui/button';
 import { ButtonLink } from '#/shared/ui/button-link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '#/shared/ui/card';
+import { Checkbox } from '#/shared/ui/checkbox';
 
 import { authClient } from './client';
-import {
-  getSocialLoginCallback,
-  readLastLoginMethod,
-  rememberSuccessfulLogin,
-  setRememberLoginMethod,
-  subscribeToLastLoginMethod,
-} from './last-login-method';
+import { readLastLoginMethod, setRememberLoginMethod, subscribeToLastLoginMethod } from './last-login-method';
 import { socialAuthProviders } from './methods';
 
 type AuthMode = 'forgot-password' | 'sign-in' | 'sign-up';
@@ -59,7 +52,7 @@ export function AuthPanel({ returnTo }: { returnTo: string | undefined }) {
 
     const result = await authClient.signIn.social({
       provider: providerId,
-      callbackURL: getSocialLoginCallback(providerId, returnTo ?? '/'),
+      callbackURL: returnTo ?? '/',
     });
 
     if (result.error) {
@@ -106,7 +99,6 @@ export function AuthPanel({ returnTo }: { returnTo: string | undefined }) {
       return;
     }
 
-    rememberSuccessfulLogin('email');
     await router.invalidate();
     await navigate({ href: returnTo ?? '/' });
   }
@@ -231,17 +223,15 @@ export function AuthPanel({ returnTo }: { returnTo: string | undefined }) {
           </form>
 
           {mode !== 'forgot-password' && (
-            <Toggle
-              className={cn(
-                buttonVariants({ size: 'sm', variant: 'outline' }),
-                'data-pressed:bg-secondary data-pressed:text-secondary-foreground mx-auto mt-4 flex',
-              )}
-              onPressedChange={setRememberLoginMethod}
-              pressed={lastLoginMethod !== null}
-              type='button'
-            >
-              Remember sign-in method on this browser
-            </Toggle>
+            <label className='text-muted-foreground mt-4 flex items-center justify-center gap-2 text-sm'>
+              <Checkbox
+                checked={lastLoginMethod !== null}
+                // A sign-in response could otherwise restore a preference revoked while it was in flight.
+                disabled={isSubmitting || submittingProviderId !== undefined}
+                onCheckedChange={setRememberLoginMethod}
+              />
+              Remember sign-in method on this browser for 30 days
+            </label>
           )}
 
           {mode === 'sign-in' && (
