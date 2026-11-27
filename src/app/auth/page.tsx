@@ -234,6 +234,14 @@ export function AuthPanel({ returnTo }: { returnTo: string | undefined }) {
             </label>
           )}
 
+          {mode !== 'forgot-password' && (
+            <p className='text-muted-foreground mt-1 text-center text-xs'>
+              <Link className='underline underline-offset-4' hash='cookies' to='/privacy'>
+                How we use cookies
+              </Link>
+            </p>
+          )}
+
           {mode === 'sign-in' && (
             <Button
               className='mx-auto mt-2 flex'

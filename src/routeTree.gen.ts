@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as TeamsRouteRouteImport } from './routes/teams/route'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
@@ -41,6 +42,11 @@ const AccountRoute = AccountRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -125,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/teams': typeof TeamsRouteRouteWithChildren
   '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/teams/$teamId': typeof TeamsTeamIdRouteRouteWithChildren
   '/invite/$token': typeof InviteTokenRoute
@@ -144,6 +151,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/invite/$token': typeof InviteTokenRoute
   '/teams': typeof TeamsIndexRoute
@@ -164,6 +172,7 @@ export interface FileRoutesById {
   '/teams': typeof TeamsRouteRouteWithChildren
   '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
+  '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/teams/$teamId': typeof TeamsTeamIdRouteRouteWithChildren
   '/invite/$token': typeof InviteTokenRoute
@@ -186,6 +195,7 @@ export interface FileRouteTypes {
     | '/teams'
     | '/account'
     | '/auth'
+    | '/privacy'
     | '/reset-password'
     | '/teams/$teamId'
     | '/invite/$token'
@@ -205,6 +215,7 @@ export interface FileRouteTypes {
     | '/'
     | '/account'
     | '/auth'
+    | '/privacy'
     | '/reset-password'
     | '/invite/$token'
     | '/teams'
@@ -224,6 +235,7 @@ export interface FileRouteTypes {
     | '/teams'
     | '/account'
     | '/auth'
+    | '/privacy'
     | '/reset-password'
     | '/teams/$teamId'
     | '/invite/$token'
@@ -245,6 +257,7 @@ export interface RootRouteChildren {
   TeamsRouteRoute: typeof TeamsRouteRouteWithChildren
   AccountRoute: typeof AccountRoute
   AuthRoute: typeof AuthRoute
+  PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   InviteTokenRoute: typeof InviteTokenRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -272,6 +285,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -426,6 +446,7 @@ const rootRouteChildren: RootRouteChildren = {
   TeamsRouteRoute: TeamsRouteRouteWithChildren,
   AccountRoute: AccountRoute,
   AuthRoute: AuthRoute,
+  PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   InviteTokenRoute: InviteTokenRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

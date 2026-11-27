@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router';
 import { ArrowRight, Check, Link2, PencilLine, Play, Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -272,6 +273,12 @@ export function HomeFooter() {
           </a>
           {'. 💌'}
         </p>
+        <Link
+          className='text-muted-foreground hover:text-foreground text-sm underline underline-offset-4'
+          to='/privacy'
+        >
+          Privacy
+        </Link>
       </HomeContainer>
     </footer>
   );
