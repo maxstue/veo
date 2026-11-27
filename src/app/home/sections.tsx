@@ -273,12 +273,14 @@ export function HomeFooter() {
           </a>
           {'. 💌'}
         </p>
-        <Link
-          className='text-muted-foreground hover:text-foreground text-sm underline underline-offset-4'
-          to='/privacy'
-        >
-          Privacy
-        </Link>
+        <nav aria-label='Legal' className='flex gap-4 text-sm'>
+          <Link className='text-muted-foreground hover:text-foreground underline underline-offset-4' to='/privacy'>
+            Privacy
+          </Link>
+          <Link className='text-muted-foreground hover:text-foreground underline underline-offset-4' to='/imprint'>
+            Imprint
+          </Link>
+        </nav>
       </HomeContainer>
     </footer>
   );

@@ -14,3 +14,11 @@ test('privacy policy is linked from home and sign-in and explains every browser 
     await expect(cookies.getByText(name, { exact: true })).toBeVisible();
   }
 });
+
+test('imprint names the operator and is linked from the home page', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Imprint', exact: true }).click();
+  await expect(page).toHaveURL('/imprint');
+  await expect(page.getByRole('heading', { name: 'Imprint', level: 1 })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'dev@justmax.xyz' })).toBeVisible();
+});
